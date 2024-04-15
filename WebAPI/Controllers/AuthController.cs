@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using WebAPI.Entities;
 using WebAPI.Model;
+
 
 namespace WebAPI.Controllers
 {
@@ -22,12 +22,12 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("register")]
-        public ActionResult<User> Register(UserDto request)
+        public ActionResult<User> Register(LoginModel request)
         {
             string passwordHash
                 = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-            user.UsarName = request.UsarName;
+            user.UserName = request.Username;
             user.PasswordHash = passwordHash;
 
 
@@ -35,9 +35,9 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("login")]
-        public ActionResult<User> Login(UserDto request)
+        public ActionResult<User> Login(LoginModel request)
         {
-            if (user.UsarName != request.UsarName)
+            if (user.UserName != request.Username)
             {
                 return BadRequest("Usuario não encontrado");
             }
@@ -56,7 +56,7 @@ namespace WebAPI.Controllers
         {
             List<Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.UsarName)
+                new Claim(ClaimTypes.Name, user.UserName)
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                 _configuration.GetSection("AppSettings:Token").Value!)); ;
