@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -16,16 +17,18 @@ namespace WebAPI.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IConfiguration configuration)
+        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager,RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _roleManager = roleManager;
         }
 
-
+        [Authorize(Roles ="Admin")]
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterModel model)
         {
@@ -34,16 +37,36 @@ namespace WebAPI.Controllers
                 UserName = model.UserName
             };
 
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (result.Succeeded)
+            if (string.IsNullOrEmpty(model.RoleName))
             {
-                //await _signInManager.SignInAsync(user, isPersistent: false);
-                return Ok();
+                return BadRequest("A role é obrigatoria."); 
             }
 
-            return BadRequest("Senha invalida");
+            if (!await _roleManager.RoleExistsAsync(model.RoleName))
+            {
+                return BadRequest($"A role '{model.RoleName}' não existe.");
+            }
+
+            if (await _userManager.FindByNameAsync(model.UserName) != null)
+            {
+                return BadRequest("Usuario já cadastrado.");
+            }
+
+            try
+            {
+                await _userManager.CreateAsync(user, model.Password);
+                await _userManager.AddToRoleAsync(user, model.RoleName);
+                
+            }
+            catch 
+            {
+                return BadRequest("Senha Inválida.");
+            }
+
+            return Ok("criado e adicionado a role");
+
         }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginModel model)
@@ -52,7 +75,7 @@ namespace WebAPI.Controllers
 
             if(user  == null)
             {
-                return BadRequest("Login Invalido");
+                return BadRequest("Login Inválido.");
             }
 
             var result = await _signInManager.PasswordSignInAsync(
@@ -60,18 +83,21 @@ namespace WebAPI.Controllers
 
             if (result.Succeeded)
             {
-                string token = CreateToken(user);
+                string token = await CreateTokenAsync(user);
                 return Ok(token);
             }
 
-            return BadRequest("Login invalido");
+            return BadRequest("Login Inválido.");
         }
-        private string CreateToken(IdentityUser user)
+        private async Task<string> CreateTokenAsync(IdentityUser user)
         {
+            var role = await _userManager.GetRolesAsync(user) ;
             List<Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.UserName!)
+                new Claim(ClaimTypes.Name, user.UserName!),
+                new Claim(ClaimTypes.Role, role.First())
             };
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                 _configuration.GetSection("AppSettings:Token").Value!)); ;
 

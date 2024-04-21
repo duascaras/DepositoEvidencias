@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebAPI.Model
 {
@@ -8,6 +9,8 @@ namespace WebAPI.Model
 
         [DataType(DataType.Password)]
         public required string Password { get; set; }
+
+        public required string RoleName { get; set; }
     }
     
 }
