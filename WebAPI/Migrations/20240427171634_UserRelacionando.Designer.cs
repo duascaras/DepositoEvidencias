@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPI.Context;
 
@@ -11,9 +12,11 @@ using WebAPI.Context;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240427171634_UserRelacionando")]
+    partial class UserRelacionando
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -163,12 +166,6 @@ namespace WebAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("ChangeDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ChangeUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -187,8 +184,6 @@ namespace WebAPI.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ChangeUserId");
 
                     b.HasIndex("UserId");
 
@@ -341,15 +336,9 @@ namespace WebAPI.Migrations
 
             modelBuilder.Entity("WebAPI.Entities.Item", b =>
                 {
-                    b.HasOne("WebAPI.Model.ExtendedIdentityUser", "ChangeUser")
-                        .WithMany()
-                        .HasForeignKey("ChangeUserId");
-
                     b.HasOne("WebAPI.Model.ExtendedIdentityUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
-
-                    b.Navigation("ChangeUser");
 
                     b.Navigation("User");
                 });

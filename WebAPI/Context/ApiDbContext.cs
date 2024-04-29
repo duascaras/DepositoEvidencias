@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace WebAPI.Context
 {
-    public class ApiDbContext : IdentityDbContext
+    public class ApiDbContext : IdentityDbContext<ExtendedIdentityUser>
     {
         public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options)
         {
@@ -12,17 +12,7 @@ namespace WebAPI.Context
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Item> Items { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<User>().HasData(new User
-            {
-                Id = 1,
-                UserName = "Admin",
-                PasswordHash = "Admin",
-                Role = "Admin"
-            });
-        }
     }
 }

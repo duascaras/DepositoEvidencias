@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPI.Context;
 
@@ -11,9 +12,11 @@ using WebAPI.Context;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240425232009_AdicionandoTabelaItem")]
+    partial class AdicionandoTabelaItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,46 +158,6 @@ namespace WebAPI.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("WebAPI.Entities.Item", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("ChangeDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ChangeUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChangeUserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Items");
-                });
-
             modelBuilder.Entity("WebAPI.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -218,6 +181,15 @@ namespace WebAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            PasswordHash = "Admin",
+                            Role = "Admin",
+                            UserName = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("WebAPI.Model.ExtendedIdentityUser", b =>
@@ -337,21 +309,6 @@ namespace WebAPI.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("WebAPI.Entities.Item", b =>
-                {
-                    b.HasOne("WebAPI.Model.ExtendedIdentityUser", "ChangeUser")
-                        .WithMany()
-                        .HasForeignKey("ChangeUserId");
-
-                    b.HasOne("WebAPI.Model.ExtendedIdentityUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("ChangeUser");
-
-                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }
