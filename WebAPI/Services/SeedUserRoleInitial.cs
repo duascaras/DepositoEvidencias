@@ -49,9 +49,10 @@ namespace WebAPI.Services
                 user.UserName = "Admin";
                 user.NormalizedUserName = "ADMIN";
                 user.LockoutEnabled = false;
+                user.IsActive = true;
                 user.SecurityStamp = Guid.NewGuid().ToString();
 
-                IdentityResult result = await _userManager.CreateAsync(user, "Admin@2024");
+                IdentityResult result = await _userManager.CreateAsync(user, "Admin#2024");
 
                 if(result.Succeeded)
                 {

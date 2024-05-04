@@ -83,7 +83,7 @@ namespace WebAPI.Controllers
         [HttpGet("exibir-itens")]
         public async Task<ActionResult<IEnumerable<Item>>> GetItens()
         {
-            return await _context.Items.ToListAsync();
+            return await _context.Items.Include(x => x.User). ToListAsync();
         }
 
     }
