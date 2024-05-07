@@ -39,7 +39,8 @@ namespace WebAPI.Controllers
                 Name = model.Name,
                 Code = model.Code,
                 CreateDate = DateTime.Now,
-                IsActive = true
+                IsActive = true,
+                InAnalysis = false
             };
 
             _context.Items.Add(newItem);
@@ -49,11 +50,11 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("edit/{Id}")]
-        public async Task<IActionResult> EditItem([FromRoute] int Id, ItemEditModel model)
+        public async Task<IActionResult> EditItem([FromRoute] int id, ItemEditModel model)
         {
             var user = await _userManager.GetUserAsync(User);
 
-            Item? item = await _context.Items.FirstOrDefaultAsync(i => i.Id == Id);
+            Item? item = await _context.Items.FirstOrDefaultAsync(i => i.Id == id);
 
             if (item == null)
             {
@@ -80,10 +81,11 @@ namespace WebAPI.Controllers
 
             return Ok("Item atualizado com sucesso.");
         }
+
         [HttpGet("exibir-itens")]
         public async Task<ActionResult<IEnumerable<Item>>> GetItens()
         {
-            return await _context.Items.Include(x => x.User). ToListAsync();
+            return await _context.Items.Include(x => x.User).ToListAsync();
         }
 
     }

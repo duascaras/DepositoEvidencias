@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPI.Context;
 
@@ -11,9 +12,11 @@ using WebAPI.Context;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240505162028_AdicionandoStatusAnaliseNoItem")]
+    partial class AdicionandoStatusAnaliseNoItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,62 +158,6 @@ namespace WebAPI.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("WebAPI.Entities.Analysis", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AnalysisType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AuthorizedUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("ConfirmationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ConfirmedUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsFinished")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ItemId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Laudo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("SentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("WrittenUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AuthorizedUserId");
-
-                    b.HasIndex("ConfirmedUserId");
-
-                    b.HasIndex("ItemId");
-
-                    b.HasIndex("WrittenUserId");
-
-                    b.ToTable("Analyses");
-                });
-
             modelBuilder.Entity("WebAPI.Entities.ExtendedIdentityUser", b =>
                 {
                     b.Property<string>("Id")
@@ -347,36 +294,6 @@ namespace WebAPI.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("WebAPI.Entities.UserItemCode", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("ExpireDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("ItemId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("ItemId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserItemCodes");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -428,35 +345,6 @@ namespace WebAPI.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WebAPI.Entities.Analysis", b =>
-                {
-                    b.HasOne("WebAPI.Entities.ExtendedIdentityUser", "AuthorizedUser")
-                        .WithMany()
-                        .HasForeignKey("AuthorizedUserId");
-
-                    b.HasOne("WebAPI.Entities.ExtendedIdentityUser", "ConfirmedUser")
-                        .WithMany()
-                        .HasForeignKey("ConfirmedUserId");
-
-                    b.HasOne("WebAPI.Entities.Item", "Item")
-                        .WithMany()
-                        .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WebAPI.Entities.ExtendedIdentityUser", "WrittenUser")
-                        .WithMany()
-                        .HasForeignKey("WrittenUserId");
-
-                    b.Navigation("AuthorizedUser");
-
-                    b.Navigation("ConfirmedUser");
-
-                    b.Navigation("Item");
-
-                    b.Navigation("WrittenUser");
-                });
-
             modelBuilder.Entity("WebAPI.Entities.Item", b =>
                 {
                     b.HasOne("WebAPI.Entities.ExtendedIdentityUser", "ChangeUser")
@@ -468,23 +356,6 @@ namespace WebAPI.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("ChangeUser");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("WebAPI.Entities.UserItemCode", b =>
-                {
-                    b.HasOne("WebAPI.Entities.Item", "Item")
-                        .WithMany()
-                        .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WebAPI.Entities.ExtendedIdentityUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Item");
 
                     b.Navigation("User");
                 });
