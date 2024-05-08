@@ -25,27 +25,25 @@ namespace WebAPI.Controllers
         [HttpPost("GenerateCode/{userId}/{itemId}")]
         public async Task<IActionResult> GenerateCode([FromRoute] string userId, [FromRoute] int itemId)
         {
-            // Verifique se o usuário existe
-            var user = await _userManager.FindByIdAsync(userId.ToString());
+            //verifique se o usuário existe
+            var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 return NotFound("Usuário não encontrado.");
             }
 
-            // Verifique se o item existe
+            //verifique se o item existe
             var item = await _context.Items.FindAsync(itemId);
             if (item == null)
             {
                 return NotFound("Item não encontrado.");
             }
 
-            // Gere uma string aleatória para o código
             string code = GenerateRandomCode();
 
-            // Defina a data de expiração para 1 hora a partir do momento atual
-            DateTimeOffset expireDate = DateTimeOffset.Now.AddHours(1);
+            //define uma data que expira o codigo daqui 1h
+            DateTime expireDate = DateTime.UtcNow.AddHours(1);
 
-            // Crie um novo objeto UserItemCode
             var userItemCode = new UserItemCode
             {
                 User = user,
@@ -54,17 +52,15 @@ namespace WebAPI.Controllers
                 ExpireDate = expireDate
             };
 
-            // Adicione o objeto ao contexto do banco de dados e salve as alterações
+            //adiciona no banco
             _context.UserItemCodes.Add(userItemCode);
             await _context.SaveChangesAsync();
 
-            // Retorne o código gerado
             return Ok(new { Code = code });
 
         }
         private string GenerateRandomCode()
         {
-            // Aqui você pode implementar a lógica para gerar uma string aleatória, por exemplo:
             Random random = new Random();
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             return new string(Enumerable.Repeat(chars, 6)
@@ -85,50 +81,49 @@ namespace WebAPI.Controllers
                 return NotFound("Código inválido.");
             }
 
+            if (userItemCode.ExpireDate <= DateTime.UtcNow)
+            {
+                return BadRequest("O código expirou.");
+            }
 
-            // Verifique se o usuário autenticado existe
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
+            // Verifica se a propriedade "InAnalysis" já está definida como true
+            var item = await _context.Items.FindAsync(userItemCode.Item.Id);
+            if (item.InAnalysis)
+            {
+                return BadRequest("O item já está em análise.");
+            }
+
+
+            //precisa verififcar o usuario autenticado
+            var authUser = await _userManager.GetUserAsync(User);
+            if (authUser == null)
             {
                 return NotFound("Usuário autenticado não encontrado.");
             }
 
-            // Obtém o item correspondente ao código
-            
-            if (userItemCode.Item == null)
-            {
-                return NotFound("Item associado ao código não encontrado.");
-            }
-
-
-            // Crie uma nova análise com os IDs do usuário, do item e do usuário autenticado
-            var newAnalysis = new Analysis
+            var analysis = new Analysis
             {
                 AuthorizedUser = userItemCode.User,
                 Item = userItemCode.Item,
-                WrittenUser = currentUser,
-                Laudo = "null",
-                AnalysisType = "null",
-                CreatedDate = DateTime.Now,
+                WrittenUser = authUser,
+                //Laudo = "null",
+                //AnalysisType = "null",
+                CreatedDate = DateTime.UtcNow,
                 IsFinished = false,
                 IsConfirmed = false
             };
 
-            // Adicione a nova análise ao contexto do banco de dados e salve as alterações
-            _context.Analyses.Add(newAnalysis);
+            //cria a analise no banco
+            _context.Analyses.Add(analysis);
             await _context.SaveChangesAsync();
 
-            // Retorne a análise recém-criada
-            return Ok(newAnalysis);
+            // Atualiza a propriedade "InAnalysis" para true na tabela de items
+            item.InAnalysis = true;
+            _context.Entry(item).Property(x => x.InAnalysis).IsModified = true;
+            await _context.SaveChangesAsync();
+
+            return Ok(analysis);
         }
-
-
-
-
-
-
-
-
 
     }
 

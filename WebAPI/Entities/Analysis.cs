@@ -7,8 +7,8 @@
         public ExtendedIdentityUser AuthorizedUser { get; set; } //o funcionario que autorizou a saida do item
         public ExtendedIdentityUser WrittenUser { get; set; } //o funcionario que está lendo qrcode e fazendo a analise
         public Item Item { get; set; }
-        public string Laudo { get; set; }
-        public string AnalysisType { get; set; }
+        public string? Laudo { get; set; }
+        public string? AnalysisType { get; set; }
         public DateTime SentDate { get; set; } //data que o funcionario terminou a analyse e enviou
         public bool IsFinished { get; set; }
         public bool IsConfirmed { get; set; } //usuario confirmou que recebeu

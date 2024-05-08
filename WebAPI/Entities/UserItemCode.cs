@@ -6,6 +6,6 @@
         public ExtendedIdentityUser User { get; set; }
         public Item Item { get; set; }
         public string Code { get; set; }
-        public DateTimeOffset ExpireDate { get; set; }
+        public DateTime ExpireDate { get; set; }
     }
 }

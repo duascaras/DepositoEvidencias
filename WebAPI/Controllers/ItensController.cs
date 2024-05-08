@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
                 User = user,
                 Name = model.Name,
                 Code = model.Code,
-                CreateDate = DateTime.Now,
+                CreateDate = DateTime.UtcNow,
                 IsActive = true,
                 InAnalysis = false
             };
@@ -73,7 +73,7 @@ namespace WebAPI.Controllers
 
             item.Name = model.Name;
             item.Code = model.Code;
-            item.ChangeDate = DateTime.Now;
+            item.ChangeDate = DateTime.UtcNow;
             item.ChangeUser = user;
             item.IsActive = model.IsActive;
 
