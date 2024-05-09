@@ -1,41 +1,52 @@
+import React, { useEffect, useState } from "react";
 import { View, Text } from "react-native";
-import React from "react";
-import { router } from "expo-router";
-
-import CustomButtom from "../../../components/CustomButtom";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-const itemCreate = async () => {
-	router.push("items/new_item");
-};
-
-const itemDetails = async () => {
-	router.push("items/item_details");
-};
+import axios from "axios";
+import CustomButton from "../../../components/CustomButtom";
 
 const Items = () => {
+	const [items, setItems] = useState([]);
+	const [showItems, setShowItems] = useState(false);
+
+	useEffect(() => {
+		getItems();
+	}, []);
+
+	const getItems = async () => {
+		const API_URL = "http://localhost:5021/api/Itens/exibir-itens";
+
+		try {
+			const response = await axios.get(API_URL);
+			setItems(response.data);
+			setShowItems(true);
+		} catch (error) {
+			console.error("Error fetching data:", error);
+		}
+	};
+
+	// TODO: Add tailwind styles
 	return (
-		<SafeAreaView className="bg-soft_white h-full">
-			<View className="bg-blue">
-				<Text className="text-4xl text-soft_white text-primary my-10 font-bold text-center ">
-					Itens
-				</Text>
+		<SafeAreaView style={{ flex: 1 }}>
+			<View>
+				<Text style={{ fontSize: 24, marginBottom: 20 }}>Itens</Text>
+				{showItems &&
+					items.map((item, index) => (
+						<View key={index}>
+							<Text>Name: {item.name}</Text>
+							<Text>Code: {item.code}</Text>
+							<Text>Create Date: {item.createDate}</Text>
+							{/* Add more fields here as needed */}
+							<View style={{ paddingBottom: 20 }}>
+								<CustomButton
+									title="Detalhes"
+									onPress={getItems}
+								/>
+							</View>
+						</View>
+					))}
 			</View>
-
-			<View className="w-full justify-center items-center min-h-[10vh] px-14">
-				<CustomButtom
-					title="Novo Item"
-					handlePress={itemCreate}
-					containerStyles="mt-20"
-				/>
-			</View>
-
-			<View className="w-full justify-center items-center min-h-[10vh] px-14">
-				<CustomButtom
-					title="Detalhes"
-					handlePress={itemDetails}
-					containerStyles="mt-20"
-				/>
+			<View style={{ paddingBottom: 20 }}>
+				<CustomButton title="Novo Item" onPress={getItems} />
 			</View>
 		</SafeAreaView>
 	);

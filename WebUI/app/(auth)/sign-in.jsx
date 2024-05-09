@@ -15,20 +15,21 @@ const SignIn = () => {
 	const [isSubmitting, setisSubmitting] = useState(false);
 
 	const submit = async () => {
-		router.push("/home");
-		// 	if (!form.username || !form.password) {
-		// 		Alert.alert("Error", "Please fill in all the fields");
-		// 	}
-		// 	setisSubmitting(true);
-		// 	try {
-		// 		await signIn(form.username, form.password);
-		// 		// TODO: set it to global state
-		// 		router.replace("/home");
-		// 	} catch (error) {
-		// 		console.log("Error", error.message);
-		// 	} finally {
-		// 		setisSubmitting(false);
-		// 	}
+		if (!form.username || !form.password) {
+			Alert.alert("Error", "Please fill in all the fields");
+		}
+		setisSubmitting(true);
+		try {
+			await SignIn(form.username, form.password);
+
+			// TODO: set it to global state
+
+			router.push("/home");
+		} catch (error) {
+			console.log("Error", error.message);
+		} finally {
+			setisSubmitting(false);
+		}
 	};
 
 	return (

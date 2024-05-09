@@ -44,3 +44,9 @@ npx tailwindcss init <!-- to create tailwind.config.js file -->
 <!-- babel.config.js -->
 plugins: ["nativewind/babel"],
 ```
+
+axios installation
+
+```
+npm install axios
+```
