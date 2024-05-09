@@ -15,7 +15,7 @@ const SignIn = () => {
 	const [isSubmitting, setisSubmitting] = useState(false);
 
 	const submit = async () => {
-		router.push("/sign-up");
+		router.push("/home");
 		// 	if (!form.username || !form.password) {
 		// 		Alert.alert("Error", "Please fill in all the fields");
 		// 	}

@@ -2,11 +2,15 @@ import { View, Text } from "react-native";
 import React from "react";
 import { router } from "expo-router";
 
-import CustomButtom from "../../components/CustomButtom";
+import CustomButtom from "../../../components/CustomButtom";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const createAnalysis = async () => {
-	router.push("/admin");
+const analysisCreate = async () => {
+	router.push("analysis/new_analysis");
+};
+
+const analysisDetails = async () => {
+	router.push("analysis/analysis_details");
 };
 
 const Analysis = () => {
@@ -21,7 +25,15 @@ const Analysis = () => {
 			<View className="w-full justify-center items-center min-h-[10vh] px-14">
 				<CustomButtom
 					title="Nova Análise"
-					handlePress={createAnalysis}
+					handlePress={analysisCreate}
+					containerStyles="mt-20"
+				/>
+			</View>
+
+			<View className="w-full justify-center items-center min-h-[10vh] px-14">
+				<CustomButtom
+					title="Detalhes"
+					handlePress={analysisDetails}
 					containerStyles="mt-20"
 				/>
 			</View>

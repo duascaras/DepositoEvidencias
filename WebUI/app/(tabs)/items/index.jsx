@@ -2,11 +2,15 @@ import { View, Text } from "react-native";
 import React from "react";
 import { router } from "expo-router";
 
-import CustomButtom from "../../components/CustomButtom";
+import CustomButtom from "../../../components/CustomButtom";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const createItem = async () => {
-	router.push("/new_item");
+const itemCreate = async () => {
+	router.push("items/new_item");
+};
+
+const itemDetails = async () => {
+	router.push("items/item_details");
 };
 
 const Items = () => {
@@ -21,7 +25,15 @@ const Items = () => {
 			<View className="w-full justify-center items-center min-h-[10vh] px-14">
 				<CustomButtom
 					title="Novo Item"
-					handlePress={createItem}
+					handlePress={itemCreate}
+					containerStyles="mt-20"
+				/>
+			</View>
+
+			<View className="w-full justify-center items-center min-h-[10vh] px-14">
+				<CustomButtom
+					title="Detalhes"
+					handlePress={itemDetails}
 					containerStyles="mt-20"
 				/>
 			</View>

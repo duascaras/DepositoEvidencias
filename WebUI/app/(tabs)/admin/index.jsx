@@ -2,11 +2,11 @@ import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { router } from "expo-router";
 
-import CustomButtom from "../../components/CustomButtom";
+import CustomButtom from "../../../components/CustomButtom";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const createUser = async () => {
-	router.push("/sign-up");
+	router.push("admin/sign-up");
 };
 
 const Admin = () => {
