@@ -125,6 +125,89 @@ namespace WebAPI.Controllers
             return Ok(analysis);
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpPost("Edit-Analysis/{id}")]
+        public async Task<IActionResult> EditAnalysis([FromRoute] int id, [FromBody] EditAnalysisModel model)
+        {
+
+            // Busca a análise pelo ID
+            var analysis = await _context.Analyses.FindAsync(id);
+            if (analysis == null)
+            {
+                return BadRequest("Análise não encontrada.");
+            }
+
+            if (analysis.IsFinished)
+            {
+                return BadRequest("Esta análise já foi finalizada e não pode ser editada.");
+            }
+
+            var authUser = await _userManager.GetUserAsync(User);
+            if (authUser == null)
+            {
+                return BadRequest("Usuário não encontrado.");
+            }
+
+            if (analysis.WrittenUser != authUser)
+            {
+                return BadRequest("Você não tem permissão para editar esta análise.");
+            }
+
+            // Atualiza os campos da análise com base nos dados fornecidos no modelo
+            analysis.Laudo = model.Laudo;
+            analysis.AnalysisType = model.AnalysisType;
+
+            // Salva as alterações no banco de dados
+            _context.Analyses.Update(analysis);
+            await _context.SaveChangesAsync();
+
+            return Ok(analysis);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("Sent-Analysis/{analysisId}")]
+        public async Task<IActionResult> SentAnalysis([FromRoute] int analysisId)
+        {
+            var analysis = await _context.Analyses.FindAsync(analysisId);
+            if (analysis == null)
+            {
+                return NotFound("Análise não encontrada.");
+            }
+
+            var authUser = await _userManager.GetUserAsync(User);
+            if (authUser == null)
+            {
+                return BadRequest("Usuário não encontrado.");
+            }
+
+            if (analysis.WrittenUser != authUser)
+            {
+                return BadRequest("Você não tem permissão para editar esta análise.");
+            }
+
+            analysis.IsFinished = true;
+            analysis.SentDate = DateTime.UtcNow;
+
+            // Salva as alterações no banco de dados
+           
+
+            var item = await _context.Items.FindAsync(analysis.Item);
+            if (item != null)
+            {
+                item.InAnalysis = false;
+                await _context.SaveChangesAsync();
+                _context.Analyses.Update(analysis);
+                await _context.SaveChangesAsync();
+            }
+
+
+            return Ok(analysis);
+        }
+
+
+
+
+
     }
 
 }
