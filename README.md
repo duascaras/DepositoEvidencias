@@ -50,3 +50,15 @@ axios installation
 ```
 npm install axios
 ```
+
+expo-secure-store: Package that we use to store the JWT after getting from the API.
+
+```
+npx expo install expo-secure-store
+
+<!-- app.json -->
+"plugins": [
+  ...
+  "expo-secure-store"
+]
+```
