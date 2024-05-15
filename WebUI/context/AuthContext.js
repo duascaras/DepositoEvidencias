@@ -1,16 +1,14 @@
-/* We should have at least 3 methods here:
-    1. signIn
-    2. createUser
-    3. getCurrentUser
-*/
-
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
-const AuthContext = createContext < AuthProps > {};
+const TOKEN_KEY = "my-jwt";
+export const API_URL = "http://localhost:5021/api/Account";
+const AuthContext = createContext({});
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+	return useContext(AuthContext);
+};
 
 export const AuthProvider = ({ children }) => {
 	const [authState, setAuthState] = useState({
@@ -19,83 +17,64 @@ export const AuthProvider = ({ children }) => {
 	});
 
 	useEffect(() => {
-		// Check if user is already authenticated
-		const checkAuthentication = async () => {
+		const loadToken = async () => {
 			try {
-				const token = await SecureStore.getItemAsync("token");
+				const token = await SecureStore.getItemAsync(TOKEN_KEY);
+				console.log("stored: ", token);
+
 				if (token) {
-					setAuthState({ token, authenticated: true });
-				} else {
-					setAuthState({ token: null, authenticated: false });
+					axios.defaults.headers.common[
+						"Authorization"
+					] = `Bearer ${token}`;
+
+					setAuthState({
+						token: token,
+						authenticated: true,
+					});
 				}
-			} catch (error) {
-				console.error("Error checking authentication:", error);
+			} catch (e) {
+				console.log(e);
 			}
 		};
 
-		checkAuthentication();
+		loadToken();
 	}, []);
 
-	const signIn = async (email, password) => {
+	const login = async (username, password) => {
 		try {
-			// Make API call to sign in
-			const response = await axios.post("/api/signin", {
-				email,
+			const result = await axios.post(`${API_URL}/login`, {
+				username,
 				password,
 			});
-			const { token } = response.data;
 
-			// Store token securely
-			await SecureStore.setItemAsync("token", token);
+			console.log(result.data); // Print the JWT for debugging
 
-			// Update auth state
-			setAuthState({ token, authenticated: true });
-		} catch (error) {
-			console.error("Error signing in:", error);
+			setAuthState({
+				token: result.data,
+				authenticated: true,
+			});
+
+			axios.defaults.headers.common[
+				"Authorization"
+			] = `Bearer ${result.data}`;
+
+			await SecureStore.setItemAsync(TOKEN_KEY, result.data);
+			return result.data;
+		} catch (e) {
+			if (e.response && e.response.data) {
+				return { error: true, msg: e.response.data.msg };
+			} else {
+				return { error: true, msg: "An unexpected error occurred" };
+			}
 		}
 	};
 
-	const createUser = async (email, password) => {
-		try {
-			// Make API call to create user
-			await axios.post("/api/signup", { email, password });
-		} catch (error) {
-			console.error("Error creating user:", error);
-		}
-	};
-
-	const getCurrentUser = async () => {
-		try {
-			// Make API call to get current user
-			const response = await axios.get("/api/user");
-			return response.data;
-		} catch (error) {
-			console.error("Error getting current user:", error);
-		}
-	};
-
-	const onLogout = async () => {
-		try {
-			// Clear token from secure storage
-			await SecureStore.deleteItemAsync("token");
-
-			// Update auth state
-			setAuthState({ token: null, authenticated: false });
-		} catch (error) {
-			console.error("Error logging out:", error);
-		}
+	const value = {
+		onLogin: login,
+		authState,
 	};
 
 	return (
-		<AuthContext.Provider
-			value={{
-				authState,
-				onRegister: createUser,
-				onLogin: signIn,
-				onLogout,
-			}}
-		>
-			{children}
-		</AuthContext.Provider>
+		<AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 	);
 };

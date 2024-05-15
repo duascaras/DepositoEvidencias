@@ -2,7 +2,7 @@
 
 ## WebUI Annotations
 
--   Expo Docs: https://docs.expo.dev/router/installation/
+-   Expo Docs: https://docs.expo.dev/router/installation/ - https://expo.dev/
 -   Nativewind Docs: https://www.nativewind.dev/quick-starts/expo
 -   Nativewind to run on web: https://github.com/marklawlor/nativewind/issues/470
 
