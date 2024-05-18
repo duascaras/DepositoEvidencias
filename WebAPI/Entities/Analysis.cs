@@ -3,17 +3,38 @@
     public class Analysis
     {
         public int Id { get; set; }
-        public DateTime CreatedDate { get; set; } //data criação
-        public ExtendedIdentityUser AuthorizedUser { get; set; } //o funcionario que autorizou a saida do item
-        public ExtendedIdentityUser WrittenUser { get; set; } //o funcionario que está lendo qrcode e fazendo a analise
-        public Item Item { get; set; }
+        /// <summary>
+        /// Data de crianção.
+        /// </summary>
+        public DateTime CreatedDate { get; set; } 
+        /// <summary>
+        /// O funcionário que autorizou a saída do item.
+        /// </summary>
+        public ExtendedIdentityUser AuthorizedUser { get; set; } = default!;
+        /// <summary>
+        /// O funcionário que está lendo QR Code e fazendo a análise.
+        /// </summary>
+        public ExtendedIdentityUser? WrittenUser { get; set; } 
+        public Item Item { get; set; } = default!;
         public string? Laudo { get; set; }
         public string? AnalysisType { get; set; }
-        public DateTime SentDate { get; set; } //data que o funcionario terminou a analyse e enviou
+        /// <summary>
+        /// Data que o funcionário terminou a análise e enviou.
+        /// </summary>
+        public DateTime? SentDate { get; set; } 
         public bool IsFinished { get; set; }
-        public bool IsConfirmed { get; set; } //usuario confirmou que recebeu
-        public ExtendedIdentityUser ConfirmedUser { get; set; } //usuario que confirmou que recebeu
-        public DateTime ConfirmationDate { get; set; } //data que o usuario confirmou o recebimento
+        /// <summary>
+        /// Propriedade que confirma o recebimento.
+        /// </summary>
+        public bool IsConfirmed { get; set; }
+        /// <summary>
+        /// Usuário que confirmou o recebimento.
+        /// </summary>
+        public ExtendedIdentityUser? ConfirmedUser { get; set; }
+        /// <summary>
+        /// Data que o usuário confirmou o recebimento
+        /// </summary>
+        public DateTime ConfirmationDate { get; set; } 
     }
 
 }

@@ -158,20 +158,21 @@ namespace WebAPI.Controllers
             analysis.AnalysisType = model.AnalysisType;
 
             // Salva as alterações no banco de dados
-            _context.Analyses.Update(analysis);
+            //_context.Analyses.Update(analysis);
             await _context.SaveChangesAsync();
 
             return Ok(analysis);
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("Sent-Analysis/{analysisId}")]
-        public async Task<IActionResult> SentAnalysis([FromRoute] int analysisId)
+        [HttpPost("Send-Analysis/{analysisId}")]
+        public async Task<IActionResult> SendAnalysis([FromRoute] int analysisId)
         {
-            var analysis = await _context.Analyses.FindAsync(analysisId);
+            var analysis = await _context.Analyses.FirstOrDefaultAsync(a => a.Id == analysisId);
+            
             if (analysis == null)
             {
-                return NotFound("Análise não encontrada.");
+                return BadRequest("Análise não encontrada.");
             }
 
             var authUser = await _userManager.GetUserAsync(User);
@@ -188,25 +189,45 @@ namespace WebAPI.Controllers
             analysis.IsFinished = true;
             analysis.SentDate = DateTime.UtcNow;
 
-            // Salva as alterações no banco de dados
-           
-
-            var item = await _context.Items.FindAsync(analysis.Item);
-            if (item != null)
-            {
-                item.InAnalysis = false;
-                await _context.SaveChangesAsync();
-                _context.Analyses.Update(analysis);
-                await _context.SaveChangesAsync();
-            }
-
-
+            await _context.SaveChangesAsync();
             return Ok(analysis);
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpPost("Confirm-Analysis/{analysisId}")]
+        public async Task<IActionResult> ConfirmAnalysis([FromRoute] int analysisId)
+        {
+            var analysis = await _context.Analyses
+                             .Include(a => a.Item)
+                             .FirstOrDefaultAsync(a => a.Id == analysisId);
 
 
+            if (analysis == null)
+            {
+                return BadRequest("Análise não encontrada.");
+            }
 
+            var authUser = await _userManager.GetUserAsync(User);
+            if (authUser == null)
+            {
+                return BadRequest("Usuário não encontrado.");
+            }
+
+            analysis.IsConfirmed = true;
+            analysis.ConfirmedUser = authUser;
+            analysis.ConfirmationDate = DateTime.UtcNow;
+
+            if (analysis.Item == null)
+            {
+                return BadRequest("Item não encontrado.");
+            }
+
+            //Analisar se devemos colocar a logica para excluir o "Code" gerado, para limpar o banco.
+            analysis.Item.InAnalysis = false;
+            await _context.SaveChangesAsync(); 
+
+            return Ok(analysis);
+        }
 
     }
 

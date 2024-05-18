@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -100,7 +101,7 @@ namespace WebAPI.Controllers
             return Ok("Role do usuário atualizada com sucesso.");
         }
 
-        [HttpPost("edit-password")]
+        [HttpPost("edit-password-admin")]
         public async Task<IActionResult> EditUserPassword(EditUserPasswordModel model)
         {
             
@@ -222,6 +223,83 @@ namespace WebAPI.Controllers
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
             return jwt;
         }
+
+        [HttpGet("get-users-active")]
+        public async Task<IActionResult> GetAllUsers(int pageNumber = 1, int pageSize = 5)
+        {
+            var usersQuery = _userManager.Users.Where(user => user.IsActive);
+
+            var totalUsers = await usersQuery.CountAsync();
+            var users = await usersQuery.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            var userDetailsList = new List<object>();
+
+            foreach (var user in users)
+            {
+                var userRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+                var userDetails = new
+                {
+                    user.Id,
+                    user.UserName,
+                    Role = userRole
+                };
+                userDetailsList.Add(userDetails);
+            }
+
+            return Ok(new
+            {
+                TotalUsers = totalUsers,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                Users = userDetailsList
+            });
+        }
+
+
+        //[Authorize]
+        [HttpPost("search-user-active")]
+        public async Task<IActionResult> GetUsersBySearch(SearchModel search)
+        {
+            if (search == null || search.Keywords == null || search.Keywords.Length == 0)
+            {
+                return BadRequest("Digite algo para buscar.");
+            }
+
+            var usersQuery = _userManager.Users.Where(user => search.Keywords.Any(keyword => user.UserName.Contains(keyword)) && user.IsActive);
+
+            var totalUsers = await usersQuery.CountAsync();
+            var users = await usersQuery.Skip((search.PageNumber - 1) * search.PageSize).Take(search.PageSize).ToListAsync();
+
+            var userDetailsList = new List<object>();
+
+            foreach (var user in users)
+            {
+                var userRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+                var userDetails = new
+                {
+                    user.Id,
+                    user.UserName,
+                    Role = userRole
+                };
+                userDetailsList.Add(userDetails);
+            }
+
+            return Ok(new
+            {
+                TotalUsers = totalUsers,
+                PageNumber = search.PageNumber,
+                PageSize = search.PageSize,
+                Users = userDetailsList
+            });
+        }
+
+
+
+
+
+
+
+
 
 
     }
