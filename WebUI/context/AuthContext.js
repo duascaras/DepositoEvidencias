@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
 			return result.data;
 		} catch (e) {
 			if (e.response && e.response.data) {
-				return { error: true, msg: e.response.data.msg };
+				return { error: true, msg: e.response.data };
 			} else {
 				return { error: true, msg: "An unexpected error occurred" };
 			}

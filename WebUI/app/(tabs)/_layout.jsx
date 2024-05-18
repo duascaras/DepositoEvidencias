@@ -148,6 +148,15 @@ const TabsLayout = () => {
 						headerShown: false,
 					}}
 				/>
+
+				<Tabs.Screen
+					name="pending/index"
+					options={{
+						href: null,
+						title: "Items",
+						headerShown: false,
+					}}
+				/>
 			</Tabs>
 		</>
 	);

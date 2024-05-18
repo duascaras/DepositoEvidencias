@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 
 import CustomButton from "../../components/CustomButtom";
+import Header from "../../components/Header";
 import FormField from "../../components/FormField";
 
 import { useAuth } from "../../context/AuthContext";
@@ -16,14 +17,15 @@ const SignIn = () => {
 
 	const submit = async () => {
 		if (!form.username || !form.password) {
-			Alert.alert("Por favor, preencha todos os campos.");
+			alert("Por favor, preencha todos os campos.");
 			return;
 		}
 		setIsSubmitting(true);
 		try {
 			const result = await onLogin(form.username, form.password);
+			console.log(result);
 			if (result && result.error) {
-				Alert.alert(result.msg);
+				alert(result.msg);
 			} else {
 				router.push("/home");
 			}
@@ -45,10 +47,8 @@ const SignIn = () => {
 	return (
 		<SafeAreaView className="bg-soft_white h-full">
 			<ScrollView>
-				<View className="bg-blue">
-					<Text className="text-4xl text-soft_white text-primary text-semibold my-10 font-psemibold text-center ">
-						Login
-					</Text>
+				<View>
+					<Header title={"Login"}></Header>
 				</View>
 
 				<View className="w-full justify-center min-h-[60vh] px-14">

@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 import axios from "axios";
-import CustomButton from "../../../components/CustomButtom";
+
+import Header from "../../../components/Header";
+import CustomButtom from "../../../components/CustomButtom";
+import List from "../../../components/List";
+import { router } from "expo-router";
 
 const Items = () => {
 	const [items, setItems] = useState([]);
@@ -11,6 +16,14 @@ const Items = () => {
 	useEffect(() => {
 		getItems();
 	}, []);
+
+	const goToDetails = async () => {
+		router.push("items/item_details");
+	};
+
+	const newItem = async () => {
+		router.push("items/new_item");
+	};
 
 	const getItems = async () => {
 		const API_URL = "http://localhost:5021/api/Itens/exibir-itens";
@@ -26,27 +39,38 @@ const Items = () => {
 
 	// TODO: Add tailwind styles
 	return (
-		<SafeAreaView style={{ flex: 1 }}>
+		<SafeAreaView className="bg-soft_white h-full">
 			<View>
-				<Text style={{ fontSize: 24, marginBottom: 20 }}>Itens</Text>
-				{showItems &&
-					items.map((item, index) => (
-						<View key={index}>
-							<Text>Name: {item.name}</Text>
-							<Text>Code: {item.code}</Text>
-							<Text>Create Date: {item.createDate}</Text>
-							{/* Add more fields here as needed */}
-							<View style={{ paddingBottom: 20 }}>
-								<CustomButton
+				<Header title={"Itens"}></Header>
+			</View>
+
+			<View>
+				{showItems && (
+					<List
+						data={items}
+						keyExtractor={(_item, index) => index.toString()}
+						renderItem={({ item }) => (
+							<View className={"mt-5 ml-5"}>
+								<Text className={`text-xl  font-bold`}>
+									Nome do Item: {item.name}
+								</Text>
+								<CustomButtom
 									title="Detalhes"
-									onPress={getItems}
+									handlePress={goToDetails}
+									containerStyles="mt-4"
 								/>
 							</View>
-						</View>
-					))}
+						)}
+					/>
+				)}
 			</View>
-			<View style={{ paddingBottom: 20 }}>
-				<CustomButton title="Novo Item" onPress={getItems} />
+
+			<View>
+				<CustomButtom
+					title="Novo Item"
+					handlePress={newItem}
+					containerStyles="mt-80"
+				/>
 			</View>
 		</SafeAreaView>
 	);

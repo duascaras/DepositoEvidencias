@@ -1,11 +1,22 @@
-import { View, Text } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { View, Text, FlatList } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import axios from "axios";
+
+import Header from "../../../components/Header";
+import CustomButtom from "../../../components/CustomButtom";
+import List from "../../../components/List";
+import { router } from "expo-router";
 
 const NewAnalysis = () => {
+	// TODO: Add tailwind styles
 	return (
-		<View>
-			<Text>NewAnalysis</Text>
-		</View>
+		<SafeAreaView className="bg-soft_white h-full">
+			<View>
+				<Header title={"Nova Análise"}></Header>
+			</View>
+		</SafeAreaView>
 	);
 };
 
