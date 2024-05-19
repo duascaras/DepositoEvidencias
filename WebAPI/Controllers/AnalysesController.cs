@@ -126,7 +126,7 @@ namespace WebAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("Edit-Analysis/{id}")]
+        [HttpPut("Edit-Analysis/{id}")]
         public async Task<IActionResult> EditAnalysis([FromRoute] int id, [FromBody] EditAnalysisModel model)
         {
 
@@ -165,7 +165,7 @@ namespace WebAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("Send-Analysis/{analysisId}")]
+        [HttpPut("Send-Analysis/{analysisId}")]
         public async Task<IActionResult> SendAnalysis([FromRoute] int analysisId)
         {
             var analysis = await _context.Analyses.FirstOrDefaultAsync(a => a.Id == analysisId);
@@ -194,7 +194,7 @@ namespace WebAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("Confirm-Analysis/{analysisId}")]
+        [HttpPut("Confirm-Analysis/{analysisId}")]
         public async Task<IActionResult> ConfirmAnalysis([FromRoute] int analysisId)
         {
             var analysis = await _context.Analyses
@@ -247,6 +247,8 @@ namespace WebAPI.Controllers
 
             return Ok(finishedAnalysis);
         }
+
+
         [HttpGet("Analysis-Datail{id}")]
         public async Task<ActionResult<object>> GetAnalysis(int id)
         {
@@ -267,11 +269,12 @@ namespace WebAPI.Controllers
 
             if (analysis == null)
             {
-                return NotFound(); // Retorna 404 Not Found se a análise não for encontrada
+                return BadRequest("Análise não encontrada.");
             }
 
             return Ok(analysis);
         }
+
         [HttpGet("Analysis-confirmed")]
         public async Task<ActionResult<IEnumerable<Analysis>>> GetConfirmedAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {

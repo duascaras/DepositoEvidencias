@@ -100,6 +100,7 @@ namespace WebAPI.Controllers
 
             return Ok(activeItems);
         }
+
         [HttpGet("exebir-itens-inativos")]
         public async Task<ActionResult<IEnumerable<Item>>> GetInactiveItems([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {
@@ -117,6 +118,33 @@ namespace WebAPI.Controllers
                 .ToListAsync();
 
             return Ok(inactiveItems);
+        }
+
+        [HttpGet("exibir-item/{id}")]
+        public async Task<ActionResult<Item>> GetAnalysis(int id)
+        {
+            var item = await _context.Items
+                .Where(i => i.Id == id)
+                .Select(i => new
+                {
+                    Id = i.Id,
+                    UserId = i.User.UserName,
+                    Name = i.Name,
+                    Code = i.Code,
+                    CreateDate = i.CreateDate,
+                    IsActive = i.IsActive,
+                    ChangeDate = i.ChangeDate,
+                    ChangeUserId = i.ChangeUser.UserName
+                    
+                })
+                .FirstOrDefaultAsync();
+
+            if (item == null)
+            {
+                return BadRequest("Item não encontrado.");
+            }
+
+            return Ok(item);
         }
     }
 
