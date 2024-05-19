@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPI.Context;
 
@@ -11,9 +12,11 @@ using WebAPI.Context;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240506233529_UserItemCode")]
+    partial class UserItemCode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -164,6 +167,7 @@ namespace WebAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AnalysisType")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("AuthorizedUserId")
@@ -188,9 +192,10 @@ namespace WebAPI.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Laudo")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("SentDate")
+                    b.Property<DateTime>("SentDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("WrittenUserId")
@@ -285,7 +290,7 @@ namespace WebAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("ChangeDate")
+                    b.Property<DateTime>("ChangeDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ChangeUserId")
@@ -357,8 +362,8 @@ namespace WebAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("ExpireDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("ExpireDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("ItemId")
                         .HasColumnType("int");

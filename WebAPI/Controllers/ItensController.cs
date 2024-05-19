@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
 
             if (existingItem != null)
             {
-               return BadRequest("Código já existente.");
+                return BadRequest("Código já existente.");
             }
 
             var newItem = new Item
@@ -38,8 +38,9 @@ namespace WebAPI.Controllers
                 User = user,
                 Name = model.Name,
                 Code = model.Code,
-                CreateDate = DateTime.Now,
-                IsActive = true
+                CreateDate = DateTime.UtcNow,
+                IsActive = true,
+                InAnalysis = false
             };
 
             _context.Items.Add(newItem);
@@ -48,18 +49,18 @@ namespace WebAPI.Controllers
             return Ok("Item criado com sucesso.");
         }
 
-        [HttpPost("edit/{Id}")]
-        public async Task<IActionResult> EditItem([FromRoute] int Id, ItemEditModel model)
+        [HttpPut("edit/{id}")]
+        public async Task<IActionResult> EditItem([FromRoute] int id, ItemEditModel model)
         {
             var user = await _userManager.GetUserAsync(User);
 
-            Item? item = await _context.Items.FirstOrDefaultAsync(i => i.Id == Id);
+            Item? item = await _context.Items.FirstOrDefaultAsync(i => i.Id == id);
 
             if (item == null)
             {
                 return NotFound("Item não encontrado.");
             }
-            
+
             // Verifica se o novo código já está em uso por outro item
             if (model.Code != item.Code)
             {
@@ -72,7 +73,7 @@ namespace WebAPI.Controllers
 
             item.Name = model.Name;
             item.Code = model.Code;
-            item.ChangeDate = DateTime.Now;
+            item.ChangeDate = DateTime.UtcNow;
             item.ChangeUser = user;
             item.IsActive = model.IsActive;
 
@@ -80,11 +81,44 @@ namespace WebAPI.Controllers
 
             return Ok("Item atualizado com sucesso.");
         }
-        [HttpGet("exibir-itens")]
-        public async Task<ActionResult<IEnumerable<Item>>> GetItens()
-        {
-            return await _context.Items.Include(x => x.User). ToListAsync();
-        }
 
+        [HttpGet("exebir-itens")]
+        public async Task<ActionResult<IEnumerable<Item>>> GetActiveItems([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        {
+            var activeItems = await _context.Items
+                .Where(i => i.IsActive)
+                .OrderBy(i => i.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(i => new
+                {
+                    Id = i.Id,
+                    Name = i.Name,
+                    UserName = i.User.UserName
+                })
+                .ToListAsync();
+
+            return Ok(activeItems);
+        }
+        [HttpGet("exebir-itens-inativos")]
+        public async Task<ActionResult<IEnumerable<Item>>> GetInactiveItems([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        {
+            var inactiveItems = await _context.Items
+                .Where(i => !i.IsActive)
+                .OrderBy(i => i.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(i => new
+                {
+                    Id = i.Id,
+                    Name = i.Name,
+                    UserName = i.User.UserName 
+                })
+                .ToListAsync();
+
+            return Ok(inactiveItems);
+        }
     }
+
 }
+

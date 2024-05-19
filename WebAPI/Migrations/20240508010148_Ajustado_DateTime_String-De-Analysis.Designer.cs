@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPI.Context;
 
@@ -11,9 +12,11 @@ using WebAPI.Context;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240508010148_Ajustado_DateTime_String-De-Analysis")]
+    partial class Ajustado_DateTime_StringDeAnalysis
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -190,7 +193,7 @@ namespace WebAPI.Migrations
                     b.Property<string>("Laudo")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("SentDate")
+                    b.Property<DateTime>("SentDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("WrittenUserId")
@@ -285,7 +288,7 @@ namespace WebAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("ChangeDate")
+                    b.Property<DateTime>("ChangeDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ChangeUserId")
