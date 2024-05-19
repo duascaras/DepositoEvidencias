@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
 
             if (existingItem != null)
             {
-               return BadRequest("Código já existente.");
+                return BadRequest("Código já existente.");
             }
 
             var newItem = new Item
@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
             return Ok("Item criado com sucesso.");
         }
 
-        [HttpPost("edit/{Id}")]
+        [HttpPut("edit/{id}")]
         public async Task<IActionResult> EditItem([FromRoute] int id, ItemEditModel model)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
             {
                 return NotFound("Item não encontrado.");
             }
-            
+
             // Verifica se o novo código já está em uso por outro item
             if (model.Code != item.Code)
             {
@@ -82,11 +82,43 @@ namespace WebAPI.Controllers
             return Ok("Item atualizado com sucesso.");
         }
 
-        [HttpGet("exibir-itens")]
-        public async Task<ActionResult<IEnumerable<Item>>> GetItens()
+        [HttpGet("exebir-itens")]
+        public async Task<ActionResult<IEnumerable<Item>>> GetActiveItems([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {
-            return await _context.Items.Include(x => x.User).ToListAsync();
-        }
+            var activeItems = await _context.Items
+                .Where(i => i.IsActive)
+                .OrderBy(i => i.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(i => new
+                {
+                    Id = i.Id,
+                    Name = i.Name,
+                    UserName = i.User.UserName
+                })
+                .ToListAsync();
 
+            return Ok(activeItems);
+        }
+        [HttpGet("exebir-itens-inativos")]
+        public async Task<ActionResult<IEnumerable<Item>>> GetInactiveItems([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        {
+            var inactiveItems = await _context.Items
+                .Where(i => !i.IsActive)
+                .OrderBy(i => i.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(i => new
+                {
+                    Id = i.Id,
+                    Name = i.Name,
+                    UserName = i.User.UserName 
+                })
+                .ToListAsync();
+
+            return Ok(inactiveItems);
+        }
     }
+
 }
+

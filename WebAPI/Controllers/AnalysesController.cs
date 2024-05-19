@@ -169,7 +169,7 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> SendAnalysis([FromRoute] int analysisId)
         {
             var analysis = await _context.Analyses.FirstOrDefaultAsync(a => a.Id == analysisId);
-            
+
             if (analysis == null)
             {
                 return BadRequest("Análise não encontrada.");
@@ -224,12 +224,93 @@ namespace WebAPI.Controllers
 
             //Analisar se devemos colocar a logica para excluir o "Code" gerado, para limpar o banco.
             analysis.Item.InAnalysis = false;
-            await _context.SaveChangesAsync(); 
+            await _context.SaveChangesAsync();
 
             return Ok(analysis);
         }
 
-    }
+        [HttpGet("Analysis-pending-confirmed")]
+        public async Task<ActionResult<IEnumerable<Analysis>>> GetFinishedAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        {
+            var finishedAnalysis = await _context.Analyses
+                .Where(a => a.IsFinished)
+                .OrderBy(a => a.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(a => new
+                {
+                    Id = a.Id,
+                    ItemId = a.Item.Name,
+                    WrittenUserId = a.WrittenUser.UserName
+                })
+                .ToListAsync();
 
+            return Ok(finishedAnalysis);
+        }
+        [HttpGet("Analysis-Datail{id}")]
+        public async Task<ActionResult<object>> GetAnalysis(int id)
+        {
+            var analysis = await _context.Analyses
+                .Where(a => a.Id == id)
+                .Select(a => new
+                {
+                    Id = a.Id,
+                    CreatedDate = a.CreatedDate,
+                    AuthorizedUser = a.AuthorizedUser.UserName,
+                    WrittenUserId = a.WrittenUser.UserName,
+                    ItemId = a.Item.Name,
+                    Laudo = a.Laudo,
+                    AnalysisType = a.AnalysisType,
+                    SentData = a.SentDate
+                })
+                .FirstOrDefaultAsync();
+
+            if (analysis == null)
+            {
+                return NotFound(); // Retorna 404 Not Found se a análise não for encontrada
+            }
+
+            return Ok(analysis);
+        }
+        [HttpGet("Analysis-confirmed")]
+        public async Task<ActionResult<IEnumerable<Analysis>>> GetConfirmedAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        {
+            var finishedAnalysis = await _context.Analyses
+                .Where(a => a.IsConfirmed)
+                .OrderBy(a => a.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(a => new
+                {
+                    Id = a.Id,
+                    ItemId = a.Item.Name,
+                    WrittenUserId = a.WrittenUser.UserName,
+                    ConfirmedUserId = a.ConfirmedUser.UserName
+                })
+                .ToListAsync();
+
+            return Ok(finishedAnalysis);
+        }
+        [HttpGet("Analysis-awaiting")]
+        public async Task<ActionResult<IEnumerable<Analysis>>> GetAwaitingAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        {
+            var finishedAnalysis = await _context.Analyses
+                .Where(a => !a.IsFinished)
+                .OrderBy(a => a.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(a => new
+                {
+                    Id = a.Id,
+                    ItemId = a.Item.Name,
+                    WrittenUserId = a.WrittenUser.UserName
+                })
+                .ToListAsync();
+
+            return Ok(finishedAnalysis);
+        }
+    }
 }
+
+
 
