@@ -6,7 +6,6 @@ import axios from "axios";
 
 import Header from "../../../components/Header";
 import CustomButtom from "../../../components/CustomButtom";
-import List from "../../../components/List";
 import { router } from "expo-router";
 
 const NewAnalysis = () => {

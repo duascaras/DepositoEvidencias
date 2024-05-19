@@ -3,7 +3,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
 const TOKEN_KEY = "my-jwt";
-export const API_URL = "http://localhost:5021/api/Account";
+export const API_URL = "http://192.168.1.71:5021/api/Account";
 const AuthContext = createContext({});
 
 export const useAuth = () => {
@@ -41,13 +41,14 @@ export const AuthProvider = ({ children }) => {
 	}, []);
 
 	const login = async (username, password) => {
+		console.log(`${API_URL}/login`);
 		try {
 			const result = await axios.post(`${API_URL}/login`, {
 				username,
 				password,
 			});
 
-			console.log(result.data); // Print the JWT for debugging
+			console.log(result); // Print the JWT for debugging
 
 			setAuthState({
 				token: result.data,

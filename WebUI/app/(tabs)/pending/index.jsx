@@ -14,7 +14,7 @@ const Pending = () => {
 	// }, []);
 
 	// const getItems = async () => {
-	// 	const API_URL = "http://localhost:5021/api/Itens/exibir-itens";
+	// const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/exibir-itens`;
 
 	// 	try {
 	// 		const response = await axios.get(API_URL);

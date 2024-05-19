@@ -24,7 +24,7 @@ const SignIn = () => {
 		try {
 			const result = await onLogin(form.username, form.password);
 			console.log(result);
-			if (result && result.error) {
+			if (result.msg != "An unexpected error occurred") {
 				alert(result.msg);
 			} else {
 				router.push("/home");
