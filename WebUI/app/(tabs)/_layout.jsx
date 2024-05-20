@@ -57,7 +57,7 @@ const TabsLayout = () => {
 				/>
 
 				<Tabs.Screen
-					name="items"
+					name="items/index"
 					options={{
 						title: "Items",
 						headerShown: false,
@@ -73,7 +73,7 @@ const TabsLayout = () => {
 				/>
 
 				<Tabs.Screen
-					name="analysis"
+					name="analysis/index"
 					options={{
 						title: "Analysis",
 						headerShown: false,
@@ -89,7 +89,23 @@ const TabsLayout = () => {
 				/>
 
 				<Tabs.Screen
-					name="admin"
+					name="analysis/new_analysis"
+					options={{
+						href: null,
+						headerShown: false,
+					}}
+				/>
+
+				<Tabs.Screen
+					name="analysis/analysis_details"
+					options={{
+						href: null,
+						headerShown: false,
+					}}
+				/>
+
+				<Tabs.Screen
+					name="admin/index"
 					options={{
 						title: "admin",
 						headerShown: false,
@@ -101,6 +117,42 @@ const TabsLayout = () => {
 								focused={focused}
 							/>
 						),
+					}}
+				/>
+
+				<Tabs.Screen
+					name="admin/sign-up"
+					options={{
+						href: null,
+						headerShown: false,
+					}}
+				/>
+
+				<Tabs.Screen
+					name="items/[id]"
+					options={{
+						href: null,
+						title: "Items",
+						headerShown: false,
+						tabBarVisible: false,
+					}}
+				/>
+
+				<Tabs.Screen
+					name="items/new_item"
+					options={{
+						href: null,
+						headerShown: false,
+						tabBarVisible: false,
+					}}
+				/>
+
+				<Tabs.Screen
+					name="pending/index"
+					options={{
+						href: null,
+						title: "Items",
+						headerShown: false,
 					}}
 				/>
 			</Tabs>

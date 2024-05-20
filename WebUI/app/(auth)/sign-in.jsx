@@ -1,44 +1,53 @@
-import { View, ScrollView, Text, Alert, Platform } from "react-native";
-import { React, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { View, ScrollView, Text, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 
-import CustomButtom from "../../components/CustomButtom";
+import CustomButton from "../../components/CustomButtom";
+import Header from "../../components/Header";
 import FormField from "../../components/FormField";
 
-const SignIn = () => {
-	const [form, setForm] = useState({
-		username: "",
-		password: "",
-	});
+import { useAuth } from "../../context/AuthContext";
 
-	const [isSubmitting, setisSubmitting] = useState(false);
+const SignIn = () => {
+	const [form, setForm] = useState({ username: "", password: "" });
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const { onLogin, authState } = useAuth();
+	const router = useRouter();
 
 	const submit = async () => {
-		router.push("/sign-up");
-		// 	if (!form.username || !form.password) {
-		// 		Alert.alert("Error", "Please fill in all the fields");
-		// 	}
-		// 	setisSubmitting(true);
-		// 	try {
-		// 		await signIn(form.username, form.password);
-		// 		// TODO: set it to global state
-		// 		router.replace("/home");
-		// 	} catch (error) {
-		// 		console.log("Error", error.message);
-		// 	} finally {
-		// 		setisSubmitting(false);
-		// 	}
+		if (!form.username || !form.password) {
+			alert("Por favor, preencha todos os campos.");
+			return;
+		}
+		setIsSubmitting(true);
+		try {
+			const result = await onLogin(form.username, form.password);
+			if (result.msg != "An unexpected error occurred") {
+				alert(result.msg);
+			} else {
+				router.push("/home");
+			}
+		} catch (error) {
+			console.log("Error", error.message);
+		} finally {
+			setIsSubmitting(false);
+		}
 	};
+
+	console.log("DEBUG -> Authenticated: ", authState.authenticated);
+
+	useEffect(() => {
+		if (authState.authenticated) {
+			router.push("/home");
+		}
+	}, [authState]);
 
 	return (
 		<SafeAreaView className="bg-soft_white h-full">
 			<ScrollView>
-				{/* TODO: set this to a header component file */}
-				<View className="bg-blue">
-					<Text className="text-4xl text-soft_white text-primary text-semibold my-10 font-psemibold text-center ">
-						Login
-					</Text>
+				<View>
+					<Header title={"Login"}></Header>
 				</View>
 
 				<View className="w-full justify-center min-h-[60vh] px-14">
@@ -61,7 +70,7 @@ const SignIn = () => {
 						otherStyles="mt-10"
 					/>
 
-					<CustomButtom
+					<CustomButton
 						title="Entrar"
 						handlePress={submit}
 						containerStyles="mt-20"

@@ -3,8 +3,8 @@ import { React, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
-import CustomButtom from "../../components/CustomButtom";
-import FormField from "../../components/FormField";
+import CustomButtom from "../../../components/CustomButtom";
+import FormField from "../../../components/FormField";
 
 const SignUp = () => {
 	const [form, setForm] = useState({
@@ -15,28 +15,6 @@ const SignUp = () => {
 	});
 
 	const [isSubmitting, setisSubmitting] = useState(false);
-
-	const submit = async () => {
-		router.push("/home");
-		// if (!form.name || !form.username || !form.user || !form.password) {
-		// 	Alert.alert("Error", "Please fill in all the fields");
-		// }
-		// setisSubmitting(true);
-		// try {
-		// 	// const result = await createUser(
-		// 	// 	form.name,
-		// 	// 	form.username,
-		// 	// 	form.user,
-		// 	// 	form.password
-		// 	// );
-		// 	// TODO: set it to global state
-		// 	router.push("/home");
-		// } catch (error) {
-		// 	Alert.alert("Error", error.message);
-		// } finally {
-		// 	setisSubmitting(false);
-		// }
-	};
 
 	return (
 		<SafeAreaView className="bg-soft_white h-full">

@@ -2,12 +2,11 @@ import { SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
 
-import GlobalProvider from "../context/GlobalProvider";
-
-SplashScreen.preventAutoHideAsync();
+import { AuthProvider } from "../context/AuthContext";
 
 import { NativeWindStyleSheet } from "nativewind";
 
+SplashScreen.preventAutoHideAsync();
 NativeWindStyleSheet.setOutput({
 	default: "native",
 });
@@ -33,9 +32,9 @@ const RootLayout = () => {
 	if (!fontsLoaded && !error) return null;
 
 	return (
-		<GlobalProvider>
+		<AuthProvider>
 			<Stack>
-				<Stack.Screen name="index" options={{ headerShown: false }} />
+				<Stack.Screen name="home" options={{ headerShown: false }} />
 				<Stack.Screen name="(auth)" options={{ headerShown: false }} />
 				<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 				{/* <Stack.Screen
@@ -43,7 +42,7 @@ const RootLayout = () => {
 				options={{ headerShown: false }}
 			/> */}
 			</Stack>
-		</GlobalProvider>
+		</AuthProvider>
 	);
 };
 
