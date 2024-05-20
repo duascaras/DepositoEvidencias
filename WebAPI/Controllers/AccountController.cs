@@ -71,7 +71,7 @@ namespace WebAPI.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("edit-user")]
+        [HttpPut("edit-user")]
         public async Task<IActionResult> EditUser(EditUserModel model)
         {
             ExtendedIdentityUser user = await _userManager.FindByNameAsync(model.Username);
@@ -101,7 +101,7 @@ namespace WebAPI.Controllers
             return Ok("Role do usuário atualizada com sucesso.");
         }
 
-        [HttpPost("edit-password-admin")]
+        [HttpPut("edit-password-admin")]
         public async Task<IActionResult> EditUserPassword(EditUserPasswordModel model)
         {
             
@@ -144,7 +144,7 @@ namespace WebAPI.Controllers
         //A ver se continuará assim
         //Talvez eu junte o inativar com o edit-user, depende de o que ficar melhor no front
         //Ficaria igual o edit do item
-        [HttpPost("desativar-ativar-usuario")]
+        [HttpPut("desativar-ativar-usuario")]
         public async Task<IActionResult> ToggleUserActivation(string username)
         {
             var user = await _userManager.FindByNameAsync(username);
@@ -292,6 +292,61 @@ namespace WebAPI.Controllers
                 Users = userDetailsList
             });
         }
+
+        [HttpGet("get-users-inactive")]
+        public async Task<IActionResult> GetAllUsersInactive(int pageNumber = 1, int pageSize = 5)
+        {
+            var usersQuery = _userManager.Users.Where(user => !user.IsActive);
+
+            var totalUsers = await usersQuery.CountAsync();
+            var users = await usersQuery.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            var userDetailsList = new List<object>();
+
+            foreach (var user in users)
+            {
+                var userRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+                var userDetails = new
+                {
+                    user.Id,
+                    user.UserName,
+                    Role = userRole
+                };
+                userDetailsList.Add(userDetails);
+            }
+
+            return Ok(new
+            {
+                TotalUsers = totalUsers,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                Users = userDetailsList
+            });
+        }
+
+        [HttpGet("get-user/{id}")]
+        public async Task<ActionResult<ExtendedIdentityUser>> GetUser(string id)
+        {
+            
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            
+            var userDetails = new
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                Roles = userRoles
+            };
+
+            return Ok(userDetails);
+        }
+
 
 
 
