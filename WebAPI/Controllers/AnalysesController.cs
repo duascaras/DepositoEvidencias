@@ -247,8 +247,7 @@ namespace WebAPI.Controllers
 
             return Ok(finishedAnalysis);
         }
-
-
+        
         [HttpGet("Analysis-Datail{id}")]
         public async Task<ActionResult<object>> GetAnalysis(int id)
         {

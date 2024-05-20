@@ -292,6 +292,7 @@ namespace WebAPI.Controllers
                 Users = userDetailsList
             });
         }
+
         [HttpGet("get-users-inactive")]
         public async Task<IActionResult> GetAllUsersInactive(int pageNumber = 1, int pageSize = 5)
         {
@@ -345,6 +346,7 @@ namespace WebAPI.Controllers
 
             return Ok(userDetails);
         }
+
 
 
 
