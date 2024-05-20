@@ -73,24 +73,6 @@ const TabsLayout = () => {
 				/>
 
 				<Tabs.Screen
-					name="items/new_item"
-					options={{
-						href: null,
-						title: "Items",
-						headerShown: false,
-					}}
-				/>
-
-				<Tabs.Screen
-					name="items/item_details"
-					options={{
-						href: null,
-						title: "Items",
-						headerShown: false,
-					}}
-				/>
-
-				<Tabs.Screen
 					name="analysis/index"
 					options={{
 						title: "Analysis",
@@ -110,7 +92,6 @@ const TabsLayout = () => {
 					name="analysis/new_analysis"
 					options={{
 						href: null,
-						title: "Items",
 						headerShown: false,
 					}}
 				/>
@@ -119,7 +100,6 @@ const TabsLayout = () => {
 					name="analysis/analysis_details"
 					options={{
 						href: null,
-						title: "Items",
 						headerShown: false,
 					}}
 				/>
@@ -144,8 +124,26 @@ const TabsLayout = () => {
 					name="admin/sign-up"
 					options={{
 						href: null,
+						headerShown: false,
+					}}
+				/>
+
+				<Tabs.Screen
+					name="items/[id]"
+					options={{
+						href: null,
 						title: "Items",
 						headerShown: false,
+						tabBarVisible: false,
+					}}
+				/>
+
+				<Tabs.Screen
+					name="items/new_item"
+					options={{
+						href: null,
+						headerShown: false,
+						tabBarVisible: false,
 					}}
 				/>
 

@@ -16,28 +16,6 @@ const SignUp = () => {
 
 	const [isSubmitting, setisSubmitting] = useState(false);
 
-	const submit = async () => {
-		router.push("/admin");
-		// if (!form.name || !form.username || !form.user || !form.password) {
-		// 	Alert.alert("Error", "Please fill in all the fields");
-		// }
-		// setisSubmitting(true);
-		// try {
-		// 	// const result = await createUser(
-		// 	// 	form.name,
-		// 	// 	form.username,
-		// 	// 	form.user,
-		// 	// 	form.password
-		// 	// );
-		// 	// TODO: set it to global state
-		// 	router.push("/home");
-		// } catch (error) {
-		// 	Alert.alert("Error", error.message);
-		// } finally {
-		// 	setisSubmitting(false);
-		// }
-	};
-
 	return (
 		<SafeAreaView className="bg-soft_white h-full">
 			<ScrollView>

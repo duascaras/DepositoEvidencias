@@ -10,7 +10,7 @@ To create the environment, run:
 
 ```
 npx create-expo-app
-npx expo install expo-router react-native-safe-area-context react-native-screens expo-linking expo-constants expo-status-bar
+npx expo installt expo-router reac-native-safe-area-context react-native-screens expo-linking expo-constants expo-status-bar
 npx expo install react-native-web react-dom
 npm install
 ```
@@ -61,4 +61,10 @@ npx expo install expo-secure-store
   ...
   "expo-secure-store"
 ]
+```
+
+qrcode generator
+
+```
+https://snack.expo.dev/@duascaras/ffb3af
 ```

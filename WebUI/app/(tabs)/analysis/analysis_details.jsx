@@ -17,7 +17,7 @@ const ItemDetails = () => {
 	}, []);
 
 	const goToDetails = async () => {
-		router.push("items/item_details");
+		router.push("items/[id]");
 	};
 
 	const getItems = async () => {

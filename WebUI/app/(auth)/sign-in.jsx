@@ -23,7 +23,6 @@ const SignIn = () => {
 		setIsSubmitting(true);
 		try {
 			const result = await onLogin(form.username, form.password);
-			console.log(result);
 			if (result.msg != "An unexpected error occurred") {
 				alert(result.msg);
 			} else {
@@ -36,7 +35,7 @@ const SignIn = () => {
 		}
 	};
 
-	console.log("authState: ", authState.authenticated);
+	console.log("DEBUG -> Authenticated: ", authState.authenticated);
 
 	useEffect(() => {
 		if (authState.authenticated) {

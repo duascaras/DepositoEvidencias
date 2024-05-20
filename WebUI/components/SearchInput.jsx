@@ -1,42 +1,34 @@
 import { useState } from "react";
-import { router, usePathname } from "expo-router";
-import { View, TouchableOpacity, Image, TextInput } from "react-native";
-
+import { View, Image, TextInput, TouchableOpacity } from "react-native";
 import { icons } from "../constants";
 
-const SearchInput = ({ initialQuery }) => {
-	const pathname = usePathname();
+const SearchInput = ({ initialQuery, onSearch }) => {
 	const [query, setQuery] = useState(initialQuery || "");
 
+	const handleTextChange = (text) => {
+		setQuery(text);
+		if (onSearch) {
+			onSearch(text);
+		}
+	};
+
 	return (
-		<View className="flex flex-row items-center space-x-4 w-full h-16 px-4 bg-black-100 rounded-2xl border-2 border-black-200 focus:border-secondary">
-			<TextInput
-				className="text-base mt-0.5 text-white flex-1 font-pregular"
-				value={query}
-				placeholder="Pesquisar"
-				placeholderTextColor="#000000"
-				onChangeText={(e) => setQuery(e)}
-			/>
-
-			<TouchableOpacity
-				onPress={() => {
-					if (query === "")
-						return alert(
-							"Missing Query",
-							"Please input something to search results across database"
-						);
-
-					if (pathname.startsWith("/search"))
-						router.setParams({ query });
-					else router.push(`/search/${query}`);
-				}}
-			>
+		<View className="flex-row mt-10 self-center items-center h-14 px-4 rounded-full border-4">
+			<TouchableOpacity onPress={() => handleTextChange(query)}>
 				<Image
 					source={icons.search}
-					className="w-5 h-5"
+					className="w-6 h-6"
 					resizeMode="contain"
 				/>
 			</TouchableOpacity>
+
+			<TextInput
+				className="text-xl ml-4 flex-1 font-pregular"
+				value={query}
+				placeholder="Pesquisar"
+				placeholderTextColor="#000000"
+				onChangeText={handleTextChange}
+			/>
 		</View>
 	);
 };
