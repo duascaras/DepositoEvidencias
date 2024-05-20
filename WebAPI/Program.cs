@@ -14,10 +14,6 @@ var builder = WebApplication.CreateBuilder(args);
 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                 builder.Configuration.GetSection("AppSettings:Token").Value!)); ;
 
-
-
-
-
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -84,6 +80,7 @@ builder.Services.AddScoped<ISeedUserRoleInitial, SeedUserRoleInitial>();
 
 var app = builder.Build();
 
+app.UseCors(c => c.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -93,9 +90,6 @@ if (app.Environment.IsDevelopment())
 }
 
 await CriarPerfisUsuariosAsync(app);
-
-
-
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -115,3 +109,4 @@ async Task CriarPerfisUsuariosAsync(WebApplication app)
         await service.SeedUserAsync();
     }
 }
+
