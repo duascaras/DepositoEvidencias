@@ -84,6 +84,7 @@ namespace WebAPI.Controllers
 
         [HttpGet("exebir-itens")]
         public async Task<ActionResult<IEnumerable<Item>>> GetActiveItems([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        {
             var activeItems = await _context.Items
                 .Where(i => i.IsActive)
                 .OrderBy(i => i.Id)
@@ -118,21 +119,6 @@ namespace WebAPI.Controllers
 
             return Ok(inactiveItems);
         }
-        [HttpGet("exebir-itens-inativos")]
-        public async Task<ActionResult<IEnumerable<Item>>> GetInactiveItems([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
-        {
-            var inactiveItems = await _context.Items
-                .Where(i => !i.IsActive)
-                .OrderBy(i => i.Id)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(i => new
-                {
-                    Id = i.Id,
-                    Name = i.Name,
-                    UserName = i.User.UserName 
-                })
-                .ToListAsync();
 
         [HttpGet("exibir-item/{id}")]
         public async Task<ActionResult<Item>> GetAnalysis(int id)
