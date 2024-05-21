@@ -8,7 +8,7 @@ import { router } from "expo-router";
 import SearchInput from "../../../components/SearchInput";
 import { icons } from "../../../constants";
 
-const Analysis = () => {
+const Admin = () => {
 	const [users, setUsers] = useState([]);
 	const [showUsers, setShowUsers] = useState(false);
 	const [filteredUsers, setFilteredUsers] = useState([]);
@@ -49,9 +49,9 @@ const Analysis = () => {
 		});
 	};
 
-	const editAnalysis = (user) => {
+	const editUser = (user) => {
 		router.push({
-			pathname: `/analysis/${user.id}`,
+			pathname: `/admin/${user.id}`,
 			params: { id: user.id },
 		});
 	};
@@ -74,7 +74,7 @@ const Analysis = () => {
 								</Text>
 
 								<TouchableOpacity
-									onPress={() => editAnalysis(item)}
+									onPress={() => editUser(item)}
 								>
 									<Image
 										source={icons.edit}
@@ -101,4 +101,4 @@ const Analysis = () => {
 	);
 };
 
-export default Analysis;
+export default Admin;
