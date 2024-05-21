@@ -68,3 +68,9 @@ qrcode generator
 ```
 https://snack.expo.dev/@duascaras/ffb3af
 ```
+
+dropdown picker
+
+```
+npx expo install @react-native-picker/picker
+```

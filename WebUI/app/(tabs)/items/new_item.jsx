@@ -25,7 +25,7 @@ const NewItem = ({ onItemCreated }) => {
 
 			if (response.status === 200) {
 				Alert.alert("Success", "Item created successfully");
-				onItemCreated(); // Trigger the callback
+				onItemCreated();
 				router.push("items");
 			} else {
 				Alert.alert("Error", "Something went wrong. Please try again.");

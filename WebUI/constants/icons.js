@@ -13,6 +13,7 @@ import eye from "../assets/icons/eye.png";
 import play from "../assets/icons/play.png";
 import edit from "../assets/icons/edit.png";
 import qrcode from "../assets/icons/qrcode.png";
+import camera from "../assets/icons/camera.png";
 
 export default {
 	play,
@@ -30,4 +31,5 @@ export default {
 	eye,
 	edit,
 	qrcode,
+	camera,
 };

@@ -4,11 +4,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import Header from "../../../components/Header";
 import CustomButtom from "../../../components/CustomButtom";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 import SearchInput from "../../../components/SearchInput";
 import { icons } from "../../../constants";
-// import SvgQRCode from "react-native-qrcode-svg";
-// import CustomQRCodes from "./components/CustomQRCodes";
 
 const Items = () => {
 	const [items, setItems] = useState([]);
@@ -32,7 +30,7 @@ const Items = () => {
 	}, [query, items]);
 
 	const getItems = async () => {
-		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/exibir-itens`;
+		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/exebir-itens`;
 
 		try {
 			const response = await axios.get(API_URL);
