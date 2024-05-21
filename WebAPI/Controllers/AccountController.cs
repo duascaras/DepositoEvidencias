@@ -141,9 +141,41 @@ namespace WebAPI.Controllers
             return Ok("Senha do usuário atualizada com sucesso.");
         }
 
-        //A ver se continuará assim
-        //Talvez eu junte o inativar com o edit-user, depende de o que ficar melhor no front
-        //Ficaria igual o edit do item
+        [HttpPut("edit-password-user")]
+        public async Task<IActionResult> EditUserPasswordOwn(EditOwnerPasswordModel model)
+        {
+            var authUser = await _userManager.GetUserAsync(User);
+            if (authUser == null)
+            {
+                return NotFound("Usuário não encontrado.");
+            }
+
+            var passwordVerificationResult = _userManager.PasswordHasher.VerifyHashedPassword(authUser, authUser.PasswordHash, model.CurrentPassword);
+            if (passwordVerificationResult != PasswordVerificationResult.Success)
+            {
+                return BadRequest("A senha atual está incorreta.");
+            }
+
+            if (model.NewPassword != model.ConfirmedPassword)
+            {
+                return BadRequest("A nova senha e a confirmação precisam ser iguais.");
+            }
+
+            // Tentar alterar a senha do usuário
+            var changePasswordResult = await _userManager.ChangePasswordAsync(authUser, model.CurrentPassword, model.NewPassword);
+            if (!changePasswordResult.Succeeded)
+            {
+                // Em caso de falha, retornar os erros
+                var errors = changePasswordResult.Errors.Select(e => e.Description);
+                return BadRequest(new { Errors = errors });
+            }
+
+            return Ok("Senha alterada com sucesso.");
+        }
+
+        // A ver se continuará assim
+        // Talvez eu junte o inativar com o edit-user, depende de o que ficar melhor no front
+        // Ficaria igual o edit do item
         [HttpPut("desativar-ativar-usuario")]
         public async Task<IActionResult> ToggleUserActivation(string username)
         {
