@@ -1,25 +1,26 @@
 import { View, ScrollView, Text, Alert, StyleSheet } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
 
-import CustomButtom from "../../../components/CustomButtom";
+import CustomButton from "../../../components/CustomButtom";
 import FormField from "../../../components/FormField";
 
-const SignUp = (onItemCreated) => {
+const SignUp = ({ onItemCreated = () => {} }) => {
 	const [form, setForm] = useState({
 		userName: "",
 		password: "",
 		roleName: "",
 	});
 
-	const [isSubmitting, setisSubmitting] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [selectedPermission, setSelectedPermission] = useState("");
+	const router = useRouter();
 
 	const addUser = async () => {
-		setisSubmitting(true);
+		setIsSubmitting(true);
 
 		try {
 			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/register`;
@@ -28,20 +29,21 @@ const SignUp = (onItemCreated) => {
 				...form,
 				roleName: selectedPermission,
 			};
+
 			const response = await axios.post(API_URL, updatedForm);
 
 			if (response.status === 200) {
-				alert("Success", "Item created successfully");
-				onItemCreated();
-				router.push("items");
+				alert("Success", "User created successfully");
+				onItemCreated(); // Trigger the callback
+				router.push("/(tabs)/admin");
 			} else {
 				alert("Error", "Something went wrong. Please try again.");
 			}
 		} catch (error) {
-			alert("Error", "Failed to create item. Please try again.");
+			alert("Error: ", error);
 			console.error("Error:", error);
 		} finally {
-			setisSubmitting(false);
+			setIsSubmitting(false);
 		}
 	};
 
@@ -49,7 +51,7 @@ const SignUp = (onItemCreated) => {
 		<SafeAreaView className="bg-soft_white h-full">
 			<ScrollView>
 				<View className="bg-blue">
-					<Text className="text-4xl text-soft_white text-primary text-semibold my-10 font-psemibold text-center ">
+					<Text className="text-4xl text-soft_white text-primary text-semibold my-10 font-psemibold text-center">
 						Criar Usuário
 					</Text>
 				</View>
@@ -105,7 +107,7 @@ const SignUp = (onItemCreated) => {
 						</View>
 					</View>
 
-					<CustomButtom
+					<CustomButton
 						title="Criar"
 						handlePress={addUser}
 						containerStyles="mt-20"
@@ -131,7 +133,7 @@ const styles = StyleSheet.create({
 	// 	color: "#F6F7F7", // Set text color
 	// },
 	pickerItem: {
-		fontSize: 18, // Adjust fontSize to match your FormField
+		fontSize: 25, // Adjust fontSize to match your FormField
 		fontWeight: "bold", // Set fontWeight to match your FormField
 		textAlign: "center", // Center the text
 	},

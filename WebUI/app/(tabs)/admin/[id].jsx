@@ -1,66 +1,68 @@
-import { useLocalSearchParams } from "expo-router";
-import { View, ScrollView, Text, Alert, StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView, StyleSheet, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
-import { Picker } from "@react-native-picker/picker";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
-import CustomButtom from "../../../components/CustomButtom";
+import { Picker } from "@react-native-picker/picker";
+
+import CustomButton from "../../../components/CustomButtom";
 import FormField from "../../../components/FormField";
 
-const UserDetails = (onItemCreated) => {
+const AdminDetail = () => {
+	const { id } = useLocalSearchParams();
 	const [form, setForm] = useState({
 		userName: "",
+		password: "", // You may not want to fetch or display the password for security reasons
 		roleName: "",
 	});
 
-	const [isSubmitting, setisSubmitting] = useState(false);
-	const [selectedPermission, setSelectedPermission] = useState("");
-
-	const { id } = useLocalSearchParams();
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const router = useRouter();
 
 	useEffect(() => {
-		getUser(id);
-	}, []);
-
-	const getUser = async (id) => {
-		setisSubmitting(true);
-		console.log(id);
-
-		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/get-user/${id}`;
-
-		const updatedForm = {
-			...form,
-			roleName: selectedPermission,
+		const getUser = async () => {
+			try {
+				const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/get-user/${id}`;
+				const response = await axios.get(API_URL);
+				if (response.status === 200) {
+					const userData = response.data;
+					setForm({
+						userName: userData.userName,
+						roleName: userData.role,
+					});
+				} else {
+					Alert.alert("Error", "Failed to fetch user data.");
+				}
+			} catch (error) {
+				Alert.alert("Error", "Failed to fetch user data.");
+				console.error("Error:", error);
+			}
 		};
-		const response = await axios.get(API_URL, updatedForm);
-		console.log(response);
-	};
 
-	const addUser = async () => {
-		setisSubmitting(true);
+		getUser();
+	}, [id]);
+
+	const updateUser = async () => {
+		setIsSubmitting(true);
 
 		try {
-			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/edit-user`;
-
-			const updatedForm = {
-				...form,
-				roleName: selectedPermission,
-			};
-			const response = await axios.put(API_URL, updatedForm);
+			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/update-user/${id}`;
+			const response = await axios.put(API_URL, form);
 
 			if (response.status === 200) {
-				alert("Success", "User updated successfully");
-				onItemCreated();
-				router.push("admin");
+				Alert.alert("Success", "User updated successfully.");
+				router.push("/(tabs)/admin");
 			} else {
-				alert("Error", "Something went wrong. Please try again.");
+				Alert.alert(
+					"Error",
+					"Failed to update user. Please try again."
+				);
 			}
 		} catch (error) {
-			alert("Error", "Failed to create item. Please try again.");
+			Alert.alert("Error", "Failed to update user. Please try again.");
 			console.error("Error:", error);
 		} finally {
-			setisSubmitting(false);
+			setIsSubmitting(false);
 		}
 	};
 
@@ -68,7 +70,7 @@ const UserDetails = (onItemCreated) => {
 		<SafeAreaView className="bg-soft_white h-full">
 			<ScrollView>
 				<View className="bg-blue">
-					<Text className="text-4xl text-soft_white text-primary text-semibold my-10 font-psemibold text-center ">
+					<Text className="text-4xl text-soft_white text-primary text-semibold my-10 font-psemibold text-center">
 						Editar Usuário
 					</Text>
 				</View>
@@ -89,9 +91,9 @@ const UserDetails = (onItemCreated) => {
 						</Text>
 						<View style={styles.pickerContainer}>
 							<Picker
-								selectedValue={selectedPermission}
+								selectedValue={form.roleName}
 								onValueChange={(itemValue) =>
-									setSelectedPermission(itemValue)
+									setForm({ ...form, roleName: itemValue })
 								}
 								style={styles.picker}
 								itemStyle={styles.pickerItem}
@@ -99,25 +101,16 @@ const UserDetails = (onItemCreated) => {
 								<Picker.Item
 									label="Selecione a Permissão"
 									value=""
-									color="#000000"
 								/>
-								<Picker.Item
-									label="Admin"
-									value="admin"
-									color="#000000"
-								/>
-								<Picker.Item
-									label="User"
-									value="user"
-									color="#000000"
-								/>
+								<Picker.Item label="Admin" value="admin" />
+								<Picker.Item label="User" value="user" />
 							</Picker>
 						</View>
 					</View>
 
-					<CustomButtom
-						title="Criar"
-						handlePress={addUser}
+					<CustomButton
+						title="Atualizar"
+						handlePress={updateUser}
 						containerStyles="mt-20"
 						isLoading={isSubmitting}
 					/>
@@ -147,4 +140,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default UserDetails;
+export default AdminDetail;

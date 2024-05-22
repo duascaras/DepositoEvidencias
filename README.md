@@ -74,3 +74,30 @@ dropdown picker
 ```
 npx expo install @react-native-picker/picker
 ```
+
+  app
+  |- (auth)
+  |   |- _layout.jsx
+  |   |- sign-in.jsx
+  |- (tabs)
+  |   |- admin
+  |   |   |- [id].jsx
+  |   |   |- index.jsx
+  |   |   |- sign-up.jsx
+  |   |- analysis
+  |   |   |- [id].jsx
+  |   |   |- index.jsx
+  |   |   |- new_analysis.jsx
+  |   |- items
+  |   |   |- [id].jsx
+  |   |   |- index.jsx
+  |   |   |- new_items.jsx
+  |   |- pending
+  |   |   |- index.jsx
+  |   |- _layout.jsx
+  |   |- home.jsx
+  |- search
+  |   |- [query].jsx
+  |- _layout.jsx
+  |- index.jsx
+
