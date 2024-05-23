@@ -17,21 +17,25 @@ const NewItem = ({ onItemCreated }) => {
 	const [isSubmitting, setisSubmitting] = useState(false);
 
 	const submit = async () => {
-		setisSubmitting(true);
+		if (!form.name || !form.code) {
+			alert("Por favor, preencha todos os campos.");
+			return;
+		}
 
+		setisSubmitting(true);
 		try {
-			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/novo-item`;
+			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/create-item`;
 			const response = await axios.post(API_URL, form);
 
 			if (response.status === 200) {
-				Alert.alert("Success", "Item created successfully");
-				onItemCreated(); // Trigger the callback
+				alert("Success", "Item created successfully");
+				onItemCreated();
 				router.push("items");
 			} else {
-				Alert.alert("Error", "Something went wrong. Please try again.");
+				alert("Error, Something went wrong. Please try again.");
 			}
 		} catch (error) {
-			Alert.alert("Error", "Failed to create item. Please try again.");
+			alert(error);
 			console.error("Error:", error);
 		} finally {
 			setisSubmitting(false);

@@ -1,63 +1,69 @@
-import { View, ScrollView, Text, Alert, StyleSheet } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView, StyleSheet, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { Picker } from "@react-native-picker/picker";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
+import { Picker } from "@react-native-picker/picker";
 
+import CustomButton from "../../../components/CustomButtom";
 import FormField from "../../../components/FormField";
-import CustomButtom from "../../../components/CustomButtom";
 
-const SignUp = ({ onItemCreated = () => {} }) => {
+const AdminDetail = () => {
+	const { id } = useLocalSearchParams();
 	const [form, setForm] = useState({
 		userName: "",
-		password: "",
+		password: "", // You may not want to fetch or display the password for security reasons
 		roleName: "",
 	});
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [selectedPermission, setSelectedPermission] = useState("");
 	const router = useRouter();
 
-	const submit = async () => {
-		if (!form.userName || !form.password) {
-			alert("Por favor, preencha todos os campos.");
-			return;
-		}
+	useEffect(() => {
+		const getUser = async () => {
+			try {
+				const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/get-user/${id}`;
+				const response = await axios.get(API_URL);
+				if (response.status === 200) {
+					const userData = response.data;
+					setForm({
+						userName: userData.userName,
+						roleName: userData.role,
+					});
+				} else {
+					alert("Error", "Failed to fetch user data.");
+				}
+			} catch (error) {
+				alert("Error", "Failed to fetch user data.");
+				console.error("Error:", error);
+			}
+		};
 
-		if (!selectedPermission) {
-			alert("Por favor, preencha a permissão.");
-			return;
-		}
+		getUser();
+	}, [id]);
 
+	const updateUser = async () => {
 		setIsSubmitting(true);
+
 		try {
-			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/register`;
-
-			const updatedForm = {
-				...form,
-				roleName: selectedPermission,
-			};
-
-			const response = await axios.post(API_URL, updatedForm);
+			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/update-user/${id}`;
+			const response = await axios.put(API_URL, form);
 
 			if (response.status === 200) {
-				alert("Success", "User created successfully");
-				onItemCreated();
+				Alert.alert("Success", "User updated successfully.");
 				router.push("/(tabs)/admin");
 			} else {
-				alert("Error", "Something went wrong. Please try again.");
+				Alert.alert(
+					"Error",
+					"Failed to update user. Please try again."
+				);
 			}
 		} catch (error) {
-			alert("Error: ", error);
+			Alert.alert("Error", "Failed to update user. Please try again.");
 			console.error("Error:", error);
 		} finally {
 			setIsSubmitting(false);
 		}
-	};
-
-	const cancel = () => {
-		router.push("admin");
 	};
 
 	return (
@@ -65,7 +71,7 @@ const SignUp = ({ onItemCreated = () => {} }) => {
 			<ScrollView>
 				<View className="bg-blue">
 					<Text className="text-4xl text-soft_white text-primary text-semibold my-10 font-psemibold text-center">
-						Criar Usuário
+						Editar Usuário
 					</Text>
 				</View>
 
@@ -79,24 +85,15 @@ const SignUp = ({ onItemCreated = () => {} }) => {
 						otherStyles="mt-8"
 					/>
 
-					<FormField
-						title="Senha"
-						value={form.password}
-						handleChangeText={(e) =>
-							setForm({ ...form, password: e })
-						}
-						otherStyles="mt-8"
-					/>
-
 					<View className="mt-8 space-y-2">
 						<Text className="text-xl text-semibold font-psemibold">
 							Permissão
 						</Text>
 						<View style={styles.pickerContainer}>
 							<Picker
-								selectedValue={selectedPermission}
+								selectedValue={form.roleName}
 								onValueChange={(itemValue) =>
-									setSelectedPermission(itemValue)
+									setForm({ ...form, roleName: itemValue })
 								}
 								style={styles.picker}
 								itemStyle={styles.pickerItem}
@@ -104,36 +101,19 @@ const SignUp = ({ onItemCreated = () => {} }) => {
 								<Picker.Item
 									label="Selecione a Permissão"
 									value=""
-									color="#000000"
 								/>
-								<Picker.Item
-									label="Admin"
-									value="admin"
-									color="#000000"
-								/>
-								<Picker.Item
-									label="User"
-									value="user"
-									color="#000000"
-								/>
+								<Picker.Item label="Admin" value="admin" />
+								<Picker.Item label="User" value="user" />
 							</Picker>
 						</View>
 					</View>
 
-					<View className="flex flex-row justify-between mt-20">
-						<CustomButtom
-							title="Confirmar"
-							handlePress={submit}
-							containerStyles="flex-1 mr-2"
-							isLoading={isSubmitting}
-						/>
-
-						<CustomButtom
-							title="Cancelar"
-							handlePress={cancel}
-							containerStyles="flex-1 ml-2 bg-red-500"
-						/>
-					</View>
+					<CustomButton
+						title="Atualizar"
+						handlePress={updateUser}
+						containerStyles="mt-20"
+						isLoading={isSubmitting}
+					/>
 				</View>
 			</ScrollView>
 		</SafeAreaView>
@@ -154,10 +134,10 @@ const styles = StyleSheet.create({
 	// 	color: "#F6F7F7", // Set text color
 	// },
 	pickerItem: {
-		fontSize: 25, // Adjust fontSize to match your FormField
+		fontSize: 18, // Adjust fontSize to match your FormField
 		fontWeight: "bold", // Set fontWeight to match your FormField
 		textAlign: "center", // Center the text
 	},
 });
 
-export default SignUp;
+export default AdminDetail;

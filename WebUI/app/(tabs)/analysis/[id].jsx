@@ -7,59 +7,48 @@ import axios from "axios";
 import FormField from "../../../components/FormField";
 import CustomButtom from "../../../components/CustomButtom";
 
-const ItemDetails = () => {
+const AnalysisDetails = () => {
 	const { id } = useLocalSearchParams();
 	const [form, setForm] = useState({
-		name: "",
-		code: "",
-		isActive: true || false,
+		laudo: "",
+		analysisType: "",
 	});
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const router = useRouter();
 
 	useEffect(() => {
-		const getItems = async () => {
+		const getAnalysis = async () => {
 			try {
-				const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/exibir-item/${id}`;
+				const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Analysis-Datail${id}`;
 				const response = await axios.get(API_URL);
 				if (response.status === 200) {
-					const itemData = response.data;
+					const analysisData = response.data;
 					setForm({
-						name: itemData.name,
-						code: itemData.code,
-						isActive: itemData.isActive,
+						laudo: analysisData.laudo,
+						analysisType: analysisData.analysisType,
 					});
 				} else {
-					alert("Error", "Failed to fetch user data.");
+					alert("Error 1");
 				}
 			} catch (error) {
-				alert("Error", "Failed to fetch user data.");
-				console.error("Error:", error);
+				alert("Error 2");
 			}
 		};
 
-		getItems();
+		getAnalysis();
 	}, [id]);
 
-	const updateItem = async () => {
+	const submit = async () => {
 		setIsSubmitting(true);
 
 		try {
-			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/edit/${id}`;
-
-			console.log(form.isActive);
-			if (form.isActive === "false") {
-				form.isActive = false;
-			} else {
-				form.isActive = true;
-			}
-
+			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/update-user/${id}`;
 			const response = await axios.put(API_URL, form);
 
 			if (response.status === 200) {
 				alert("Success", "User updated successfully.");
-				router.push("/(tabs)/items");
+				router.push("/(tabs)/admin");
 			} else {
 				alert("Error", "Failed to update user. Please try again.");
 			}
@@ -72,7 +61,7 @@ const ItemDetails = () => {
 	};
 
 	const cancel = () => {
-		router.push("items");
+		router.push("analysis");
 	};
 
 	return (
@@ -80,30 +69,23 @@ const ItemDetails = () => {
 			<ScrollView>
 				<View className="bg-blue">
 					<Text className="text-4xl text-soft_white text-primary text-semibold my-10 font-psemibold text-center">
-						Editar Itens
+						Editar Análises
 					</Text>
 				</View>
 
 				<View className="w-full justify-center min-h-[60vh] px-14">
 					<FormField
-						title="Nome"
-						value={form.name}
-						handleChangeText={(e) => setForm({ ...form, name: e })}
+						title="Laudo"
+						value={form.laudo}
+						handleChangeText={(e) => setForm({ ...form, laudo: e })}
 						otherStyles="mt-8"
 					/>
 
 					<FormField
-						title="Código"
-						value={form.code}
-						handleChangeText={(e) => setForm({ ...form, code: e })}
-						otherStyles="mt-8"
-					/>
-
-					<FormField
-						title="Status"
-						value={form.isActive}
+						title="Análises Feitas"
+						value={form.analysisType}
 						handleChangeText={(e) =>
-							setForm({ ...form, isActive: e })
+							setForm({ ...form, analysisDone: e })
 						}
 						otherStyles="mt-8"
 					/>
@@ -111,7 +93,7 @@ const ItemDetails = () => {
 					<View className="flex flex-row justify-between mt-20">
 						<CustomButtom
 							title="Confirmar"
-							handlePress={updateItem}
+							handlePress={submit}
 							containerStyles="flex-1 mr-2"
 							isLoading={isSubmitting}
 						/>
@@ -127,4 +109,24 @@ const ItemDetails = () => {
 	);
 };
 
-export default ItemDetails;
+const styles = StyleSheet.create({
+	pickerContainer: {
+		height: 64, // Adjust height to match your FormField height
+		backgroundColor: "#2A316E",
+		borderRadius: 16, // Adjust borderRadius to match your FormField
+		borderWidth: 2,
+		borderColor: "#000",
+		justifyContent: "center",
+		paddingHorizontal: 16, // Adjust padding to match your FormField
+	},
+	// picker: {
+	// 	color: "#F6F7F7", // Set text color
+	// },
+	pickerItem: {
+		fontSize: 18, // Adjust fontSize to match your FormField
+		fontWeight: "bold", // Set fontWeight to match your FormField
+		textAlign: "center", // Center the text
+	},
+});
+
+export default AnalysisDetails;
