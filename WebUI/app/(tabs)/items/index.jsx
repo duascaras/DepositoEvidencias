@@ -76,8 +76,19 @@ const Items = () => {
 		});
 	};
 
-	const qrCodePopUp = () => {
-		console.log("QRCode");
+	const qrCodePopUp = async (item) => {
+		id = item.id;
+		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/GenerateCode/3f67a445-0a1e-4d91-b40d-c98c6e6fa97e/${id}`;
+
+		try {
+			const response = await axios.post(API_URL);
+			const data = response.data.code;
+			alert(data);
+		} catch (error) {
+			alert("Error 1");
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	const handleNextPage = () => {

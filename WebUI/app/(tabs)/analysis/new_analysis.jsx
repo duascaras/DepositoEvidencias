@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-	View,
-	ScrollView,
-	Text,
-	Alert,
-	Image,
-	TouchableOpacity,
-} from "react-native";
+import { View, ScrollView, Image, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import axios from "axios";
@@ -24,24 +17,26 @@ const NewAnalysis = ({ onItemCreated }) => {
 	const [isSubmitting, setisSubmitting] = useState(false);
 
 	const submit = async () => {
-		setisSubmitting(true);
+		if (!form.code) {
+			alert("Por favor, preencha todos os campos.");
+			return;
+		}
 
+		setisSubmitting(true);
 		try {
-			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/novo-item`;
+			// TODO: Adicionar o id do item no final da API_URL
+			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Create-Analysis/`;
 			const response = await axios.post(API_URL, form);
 
 			if (response.status === 200) {
-				Alert.alert("Success", "Analysis created successfully");
-				onItemCreated(); // Trigger the callback
+				alert("Success. Analysis created successfully");
+				onItemCreated();
 				router.push("analysis");
 			} else {
-				Alert.alert("Error", "Something went wrong. Please try again.");
+				alert("Error. Something went wrong. Please try again.");
 			}
 		} catch (error) {
-			Alert.alert(
-				"Error",
-				"Failed to create analysis. Please try again."
-			);
+			alert("Error. Failed to create analysis. Please try again.");
 			console.error("Error:", error);
 		} finally {
 			setisSubmitting(false);

@@ -42,7 +42,7 @@ const Analysis = () => {
 
 	const getItems = async (page) => {
 		const pageSize = 5; // Number of items to display per page
-		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/exebir-itens?page=${page}&pageSize=${pageSize}`;
+		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Analysis-awaiting?page=${page}&pageSize=${pageSize}`;
 
 		try {
 			const response = await axios.get(API_URL);

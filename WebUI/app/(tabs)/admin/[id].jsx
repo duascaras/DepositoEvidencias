@@ -31,10 +31,10 @@ const AdminDetail = () => {
 						roleName: userData.role,
 					});
 				} else {
-					Alert.alert("Error", "Failed to fetch user data.");
+					alert("Error", "Failed to fetch user data.");
 				}
 			} catch (error) {
-				Alert.alert("Error", "Failed to fetch user data.");
+				alert("Error", "Failed to fetch user data.");
 				console.error("Error:", error);
 			}
 		};

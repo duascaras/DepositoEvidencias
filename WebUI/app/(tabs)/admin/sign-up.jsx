@@ -5,8 +5,8 @@ import { useRouter } from "expo-router";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
 
-import CustomButton from "../../../components/CustomButtom";
 import FormField from "../../../components/FormField";
+import CustomButtom from "../../../components/CustomButtom";
 
 const SignUp = ({ onItemCreated = () => {} }) => {
 	const [form, setForm] = useState({
@@ -19,9 +19,18 @@ const SignUp = ({ onItemCreated = () => {} }) => {
 	const [selectedPermission, setSelectedPermission] = useState("");
 	const router = useRouter();
 
-	const addUser = async () => {
-		setIsSubmitting(true);
+	const submit = async () => {
+		if (!form.userName || !form.password) {
+			alert("Por favor, preencha todos os campos.");
+			return;
+		}
 
+		if (!selectedPermission) {
+			alert("Por favor, preencha a permissão.");
+			return;
+		}
+
+		setIsSubmitting(true);
 		try {
 			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/register`;
 
@@ -34,7 +43,7 @@ const SignUp = ({ onItemCreated = () => {} }) => {
 
 			if (response.status === 200) {
 				alert("Success", "User created successfully");
-				onItemCreated(); // Trigger the callback
+				onItemCreated();
 				router.push("/(tabs)/admin");
 			} else {
 				alert("Error", "Something went wrong. Please try again.");
@@ -45,6 +54,10 @@ const SignUp = ({ onItemCreated = () => {} }) => {
 		} finally {
 			setIsSubmitting(false);
 		}
+	};
+
+	const cancel = () => {
+		router.push("admin");
 	};
 
 	return (
@@ -107,12 +120,20 @@ const SignUp = ({ onItemCreated = () => {} }) => {
 						</View>
 					</View>
 
-					<CustomButton
-						title="Criar"
-						handlePress={addUser}
-						containerStyles="mt-20"
-						isLoading={isSubmitting}
-					/>
+					<View className="flex flex-row justify-between mt-20">
+						<CustomButtom
+							title="Confirmar"
+							handlePress={submit}
+							containerStyles="flex-1 mr-2"
+							isLoading={isSubmitting}
+						/>
+
+						<CustomButtom
+							title="Cancelar"
+							handlePress={cancel}
+							containerStyles="flex-1 ml-2 bg-red-500"
+						/>
+					</View>
 				</View>
 			</ScrollView>
 		</SafeAreaView>
