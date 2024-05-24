@@ -232,8 +232,10 @@ namespace WebAPI.Controllers
         [HttpGet("Analysis-pending-confirmed")]
         public async Task<ActionResult<IEnumerable<Analysis>>> GetFinishedAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {
-            var finishedAnalysis = await _context.Analyses
-                .Where(a => a.IsFinished)
+            var totalPending = await _context.Analyses.CountAsync(a => a.IsFinished && !a.IsConfirmed);
+
+            var pendingAnalysis = await _context.Analyses
+                .Where(a => a.IsFinished && !a.IsConfirmed)
                 .OrderBy(a => a.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -245,11 +247,13 @@ namespace WebAPI.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(finishedAnalysis);
+            var result = PaginatedResult<object>.Create(totalPending, pendingAnalysis);
+
+            return Ok(result);
         }
         
-        [HttpGet("Analysis-Datail{id}")]
-        public async Task<ActionResult<object>> GetAnalysis(int id)
+        [HttpGet("Analysis-detail/{id}")]
+        public async Task<ActionResult<Analysis>> GetAnalysis(int id)
         {
             var analysis = await _context.Analyses
                 .Where(a => a.Id == id)
@@ -275,9 +279,11 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("Analysis-confirmed")]
-        public async Task<ActionResult<IEnumerable<Analysis>>> GetConfirmedAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        public async Task<ActionResult<PaginatedResult<Analysis>>> GetConfirmedAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {
-            var finishedAnalysis = await _context.Analyses
+            var totalConfirmed = await _context.Analyses.CountAsync(a => a.IsConfirmed);
+
+            var confirmedAnalysis = await _context.Analyses
                 .Where(a => a.IsConfirmed)
                 .OrderBy(a => a.Id)
                 .Skip((page - 1) * pageSize)
@@ -291,12 +297,16 @@ namespace WebAPI.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(finishedAnalysis);
+            var result = PaginatedResult<object>.Create(totalConfirmed, confirmedAnalysis);
+
+            return Ok(result);
         }
-        [HttpGet("Analysis-awaiting")]
-        public async Task<ActionResult<IEnumerable<Analysis>>> GetAwaitingAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        [HttpGet("Typing-analysis")]
+        public async Task<ActionResult<PaginatedResult<Analysis>>> GetTypingAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {
-            var finishedAnalysis = await _context.Analyses
+            var totalTyping = await _context.Analyses.CountAsync(a => !a.IsFinished);
+
+            var typingAnalysis = await _context.Analyses
                 .Where(a => !a.IsFinished)
                 .OrderBy(a => a.Id)
                 .Skip((page - 1) * pageSize)
@@ -309,7 +319,9 @@ namespace WebAPI.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(finishedAnalysis);
+            var result = PaginatedResult<object>.Create(totalTyping, typingAnalysis);
+
+            return Ok(result);
         }
     }
 }

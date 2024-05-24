@@ -28,12 +28,24 @@ namespace WebAPI.Services
                 IdentityResult roleResult = await _roleManager.CreateAsync(role);
             }
 
-            if (!await _roleManager.RoleExistsAsync("User"))
+            if (!await _roleManager.RoleExistsAsync("ItemAnalyzer"))
             {
                 IdentityRole role = new IdentityRole
                 {
-                    Name = "User",
-                    NormalizedName = "USER",
+                    Name = "ItemAnalyzer",
+                    NormalizedName = "ITEMANALYZER",
+                    ConcurrencyStamp = Guid.NewGuid().ToString()
+                };
+
+                IdentityResult roleResult = await _roleManager.CreateAsync(role);
+            }
+
+            if (!await _roleManager.RoleExistsAsync("ItemCreator"))
+            {
+                IdentityRole role = new IdentityRole
+                {
+                    Name = "ItemCreator",
+                    NormalizedName = "ITEMCREATOR",
                     ConcurrencyStamp = Guid.NewGuid().ToString()
                 };
 
@@ -57,6 +69,40 @@ namespace WebAPI.Services
                 if(result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, "Admin");
+                }
+            }
+
+            if (await _userManager.FindByNameAsync("Analyzer") == null)
+            {
+                ExtendedIdentityUser user = new ExtendedIdentityUser();
+                user.UserName = "Analyzer";
+                user.NormalizedUserName = "ANALYZER";
+                user.LockoutEnabled = false;
+                user.IsActive = true;
+                user.SecurityStamp = Guid.NewGuid().ToString();
+
+                IdentityResult result = await _userManager.CreateAsync(user, "Analyzer#2024");
+
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user, "ItemAnalyzer");
+                }
+            }
+
+            if (await _userManager.FindByNameAsync("Creator") == null)
+            {
+                ExtendedIdentityUser user = new ExtendedIdentityUser();
+                user.UserName = "Creator";
+                user.NormalizedUserName = "CREATOR";
+                user.LockoutEnabled = false;
+                user.IsActive = true;
+                user.SecurityStamp = Guid.NewGuid().ToString();
+
+                IdentityResult result = await _userManager.CreateAsync(user, "Creator#2024");
+
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user, "ItemCreator");
                 }
             }
         }
