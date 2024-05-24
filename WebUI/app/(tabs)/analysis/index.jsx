@@ -17,44 +17,45 @@ import SearchInput from "../../../components/SearchInput";
 import { icons } from "../../../constants";
 
 const Analysis = () => {
-	const [items, setItems] = useState([]);
-	const [showItems, setShowItems] = useState(false);
-	const [filteredItems, setFilteredItems] = useState([]);
+	const [analyses, setAnalyses] = useState([]);
+	const [showAnalyses, setShowAnalyses] = useState(false);
+	const [filteredAnalyses, setFilteredAnalyses] = useState([]);
 	const [query, setQuery] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [isLoading, setIsLoading] = useState(false);
 
 	useEffect(() => {
-		getItems(currentPage);
+		getAnalyses(currentPage);
 	}, [currentPage]);
 
 	useEffect(() => {
 		if (query) {
-			const filtered = items.filter((item) =>
-				item.name.toLowerCase().includes(query.toLowerCase())
+			const filtered = analyses.filter((analysis) =>
+				analysis.itemId.toLowerCase().includes(query.toLowerCase())
 			);
-			setFilteredItems(filtered);
+			setFilteredAnalyses(filtered);
 		} else {
-			setFilteredItems(items);
+			setFilteredAnalyses(analyses);
 		}
-	}, [query, items]);
+	}, [query, analyses]);
 
-	const getItems = async (page) => {
-		const pageSize = 5; // Number of items to display per page
-		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Analysis-awaiting?page=${page}&pageSize=${pageSize}`;
+	const getAnalyses = async (page) => {
+		const pageSize = 5;
+		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Typing-analysis?page=${page}&pageSize=${pageSize}`;
 
 		try {
+			setIsLoading(true);
 			const response = await axios.get(API_URL);
-			const data = response.data;
-			console.log("Number of items received:", data.length);
-			setItems(data);
-			setFilteredItems(data);
+			const { total, data: analyses } = response.data; // Extracting the data properly
+			console.log("Number of analyses received:", analyses.length);
+			setAnalyses(analyses);
+			setFilteredAnalyses(analyses);
 
-			const totalPages = Math.ceil(data.length / pageSize);
+			const totalPages = Math.ceil(total / pageSize);
 			console.log("Total pages:", totalPages);
 			setTotalPages(totalPages);
-			setShowItems(true);
+			setShowAnalyses(true);
 		} catch (error) {
 			console.error("Error:", error);
 		} finally {
@@ -97,14 +98,17 @@ const Analysis = () => {
 			<View>
 				{isLoading ? (
 					<ActivityIndicator size="large" color="#0000ff" />
-				) : showItems ? (
+				) : showAnalyses ? (
 					<FlatList
-						data={filteredItems}
-						keyExtractor={(analysis) => analysis.id}
+						data={filteredAnalyses}
+						keyExtractor={(analysis) => analysis.id.toString()}
 						renderItem={({ item }) => (
 							<View className="flex-row mt-10 self-center items-center h-14 px-4 rounded-2xl border-2 w-96">
-								<Text className="text-xl ml-4 mt-0.5 text-white flex-1 font-pregular">
-									{item.name}
+								<Text className="text-xl ml-4 mt-0.5 text-black flex-1 font-pregular">
+									{item.itemId}
+								</Text>
+								<Text className="text-xl ml-4 mt-0.5 text-black flex-1 font-pregular">
+									{item.writtenUserId}
 								</Text>
 
 								<TouchableOpacity

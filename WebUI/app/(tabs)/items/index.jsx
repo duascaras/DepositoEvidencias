@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import Header from "../../../components/Header";
-import CustomButtom from "../../../components/CustomButtom";
+import CustomButton from "../../../components/CustomButtom";
 import { router } from "expo-router";
 import SearchInput from "../../../components/SearchInput";
 import { icons } from "../../../constants";
@@ -21,13 +21,13 @@ const Items = () => {
 	const [showItems, setShowItems] = useState(false);
 	const [filteredItems, setFilteredItems] = useState([]);
 	const [query, setQuery] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
-	const [isLoading, setIsLoading] = useState(false);
 
 	useEffect(() => {
 		getItems(currentPage);
-	}, [currentPage]);
+	}, []);
 
 	useEffect(() => {
 		if (query) {
@@ -41,18 +41,19 @@ const Items = () => {
 	}, [query, items]);
 
 	const getItems = async (page) => {
-		const pageSize = 5; // Number of items to display per page
-		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/exebir-itens?page=${page}&pageSize=${pageSize}`;
+		const pageSize = 5;
+		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/exibir-itens?page=${page}&pageSize=${pageSize}`;
 
 		try {
+			setIsLoading(true);
 			const response = await axios.get(API_URL);
-			const data = response.data;
-			console.log("Number of items received:", data.length);
-			setItems(data);
-			setFilteredItems(data);
 
-			const totalPages = Math.ceil(data.length / pageSize);
-			console.log("Total pages:", totalPages);
+			const { total, data: items } = response.data;
+
+			setItems(items);
+			setFilteredItems(items);
+
+			const totalPages = Math.ceil(total / pageSize);
 			setTotalPages(totalPages);
 			setShowItems(true);
 		} catch (error) {
@@ -65,7 +66,7 @@ const Items = () => {
 	const newItem = () => {
 		router.push({
 			pathname: "items/new_item",
-			params: { onItemCreated: () => getItems(currentPage) },
+			params: { onItemCreated: () => getItems },
 		});
 	};
 
@@ -77,8 +78,8 @@ const Items = () => {
 	};
 
 	const qrCodePopUp = async (item) => {
-		id = item.id;
-		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/GenerateCode/3f67a445-0a1e-4d91-b40d-c98c6e6fa97e/${id}`;
+		const id = item.id;
+		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/GenerateCode/b460c987-0539-4a92-97ed-ad287499ee14/${id}`;
 
 		try {
 			const response = await axios.post(API_URL);
@@ -94,12 +95,14 @@ const Items = () => {
 	const handleNextPage = () => {
 		if (currentPage < totalPages) {
 			setCurrentPage(currentPage + 1);
+			getItems(currentPage + 1);
 		}
 	};
 
 	const handlePreviousPage = () => {
 		if (currentPage > 1) {
 			setCurrentPage(currentPage - 1);
+			getItems(currentPage - 1);
 		}
 	};
 
@@ -168,7 +171,7 @@ const Items = () => {
 			)}
 
 			<View className="absolute self-center bottom-0 p-4 w-96 mb-10">
-				<CustomButtom
+				<CustomButton
 					title="Novo Item"
 					handlePress={newItem}
 					containerStyles="w-full"

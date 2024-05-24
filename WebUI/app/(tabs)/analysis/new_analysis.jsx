@@ -24,8 +24,8 @@ const NewAnalysis = ({ onItemCreated }) => {
 
 		setisSubmitting(true);
 		try {
-			// TODO: Adicionar o id do item no final da API_URL
-			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Create-Analysis/`;
+			// TODO: Adicionar o id do USUÁRIO no final da API_URL
+			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Create-Analysis/b460c987-0539-4a92-97ed-ad287499ee14`;
 			const response = await axios.post(API_URL, form);
 
 			if (response.status === 200) {

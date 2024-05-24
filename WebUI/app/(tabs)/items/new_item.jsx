@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, ScrollView, Text, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { router, useRouter } from "expo-router";
 import axios from "axios";
 
 import CustomButtom from "../../../components/CustomButtom";
@@ -15,6 +15,7 @@ const NewItem = ({ onItemCreated }) => {
 	});
 
 	const [isSubmitting, setisSubmitting] = useState(false);
+	const router = useRouter();
 
 	const submit = async () => {
 		if (!form.name || !form.code) {
@@ -29,7 +30,9 @@ const NewItem = ({ onItemCreated }) => {
 
 			if (response.status === 200) {
 				alert("Success", "Item created successfully");
-				onItemCreated();
+				if (onItemCreated && typeof onItemCreated === "function") {
+					onItemCreated();
+				}
 				router.push("items");
 			} else {
 				alert("Error, Something went wrong. Please try again.");

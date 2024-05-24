@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, StyleSheet, Alert } from "react-native";
+import { View, Text, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
@@ -7,19 +7,19 @@ import axios from "axios";
 import FormField from "../../../components/FormField";
 import CustomButtom from "../../../components/CustomButtom";
 
-const ItemDetails = () => {
+const ItemDetails = ({ onItemUpdated }) => {
 	const { id } = useLocalSearchParams();
 	const [form, setForm] = useState({
 		name: "",
 		code: "",
-		isActive: true || false,
+		isActive: true,
 	});
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const router = useRouter();
 
 	useEffect(() => {
-		const getItems = async () => {
+		const getItem = async () => {
 			try {
 				const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/exibir-item/${id}`;
 				const response = await axios.get(API_URL);
@@ -31,15 +31,15 @@ const ItemDetails = () => {
 						isActive: itemData.isActive,
 					});
 				} else {
-					alert("Error", "Failed to fetch user data.");
+					Alert.alert("Error", "Failed to fetch item data.");
 				}
 			} catch (error) {
-				alert("Error", "Failed to fetch user data.");
+				Alert.alert("Error", "Failed to fetch item data.");
 				console.error("Error:", error);
 			}
 		};
 
-		getItems();
+		getItem();
 	}, [id]);
 
 	const updateItem = async () => {
@@ -47,24 +47,24 @@ const ItemDetails = () => {
 
 		try {
 			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/edit/${id}`;
-
-			console.log(form.isActive);
-			if (form.isActive === "false") {
-				form.isActive = false;
-			} else {
-				form.isActive = true;
-			}
-
-			const response = await axios.put(API_URL, form);
+			const response = await axios.put(API_URL, {
+				name: form.name,
+				code: form.code,
+				isActive: form.isActive,
+			});
 
 			if (response.status === 200) {
-				alert("Success", "User updated successfully.");
+				Alert.alert("Success", "Item updated successfully.");
+				if (onItemUpdated) onItemUpdated(); // Notify parent about the update
 				router.push("/(tabs)/items");
 			} else {
-				alert("Error", "Failed to update user. Please try again.");
+				Alert.alert(
+					"Error",
+					"Failed to update item. Please try again."
+				);
 			}
 		} catch (error) {
-			alert("Error", "Failed to update user. Please try again.");
+			Alert.alert("Error", "Failed to update item. Please try again.");
 			console.error("Error:", error);
 		} finally {
 			setIsSubmitting(false);
@@ -72,7 +72,7 @@ const ItemDetails = () => {
 	};
 
 	const cancel = () => {
-		router.push("items");
+		router.push("/(tabs)/items");
 	};
 
 	return (
@@ -101,9 +101,9 @@ const ItemDetails = () => {
 
 					<FormField
 						title="Status"
-						value={form.isActive}
+						value={String(form.isActive)}
 						handleChangeText={(e) =>
-							setForm({ ...form, isActive: e })
+							setForm({ ...form, isActive: e === "true" })
 						}
 						otherStyles="mt-8"
 					/>

@@ -47,6 +47,7 @@ const Admin = () => {
 		try {
 			setIsLoading(true);
 			const response = await axios.get(API_URL);
+			console.log(response);
 			const { totalUsers, users } = response.data;
 			console.log("Number of users received:", users.length);
 			setUsers(users);
