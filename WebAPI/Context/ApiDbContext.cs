@@ -11,7 +11,6 @@ namespace WebAPI.Context
                 
         }
 
-        public DbSet<User> Users { get; set; }
         public DbSet<Item> Items { get; set; }
         public DbSet<Analysis> Analyses { get; set; }
         public DbSet<UserItemCode> UserItemCodes { get; set; }

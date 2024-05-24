@@ -82,9 +82,13 @@ namespace WebAPI.Controllers
             return Ok("Item atualizado com sucesso.");
         }
 
-        [HttpGet("exebir-itens")]
-        public async Task<ActionResult<IEnumerable<Item>>> GetActiveItems([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        [HttpGet("exibir-itens")]
+        public async Task<ActionResult<PaginatedResult<Item>>> GetActiveItems([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {
+            // Calcula o total de itens ativos
+            var totalItems = await _context.Items.CountAsync(i => i.IsActive);
+
+            // Obtém os itens paginados
             var activeItems = await _context.Items
                 .Where(i => i.IsActive)
                 .OrderBy(i => i.Id)
@@ -98,12 +102,19 @@ namespace WebAPI.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(activeItems);
+            // Cria o resultado paginado
+            var result = PaginatedResult<object>.Create(totalItems, activeItems);
+
+            // Retorna o resultado paginado
+            return Ok(result);
         }
 
-        [HttpGet("exebir-itens-inativos")]
-        public async Task<ActionResult<IEnumerable<Item>>> GetInactiveItems([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+
+        [HttpGet("exibir-itens-inativos")]
+        public async Task<ActionResult<PaginatedResult<Item>>> GetInactiveItems([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {
+            var totalItems = await _context.Items.CountAsync(i => !i.IsActive);
+
             var inactiveItems = await _context.Items
                 .Where(i => !i.IsActive)
                 .OrderBy(i => i.Id)
@@ -117,7 +128,9 @@ namespace WebAPI.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(inactiveItems);
+            var result = PaginatedResult<object>.Create(totalItems, inactiveItems);
+
+            return Ok(result);
         }
 
         [HttpGet("exibir-item/{id}")]
