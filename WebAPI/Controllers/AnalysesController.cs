@@ -22,6 +22,7 @@ namespace WebAPI.Controllers
             _userManager = userManager;
         }
 
+        [Authorize(Roles = "Admin,ItemCreator")]
         [HttpPost("GenerateCode/{userId}/{itemId}")]
         public async Task<IActionResult> GenerateCode([FromRoute] string userId, [FromRoute] int itemId)
         {
@@ -67,7 +68,7 @@ namespace WebAPI.Controllers
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,ItemAnalyzer")]
         [HttpPost("Create-Analysis/{id}")]
         public async Task<IActionResult> CreateAnalysisByCode([FromRoute] string id, [FromBody] CreateAnalysisModel model)
         {
@@ -125,7 +126,7 @@ namespace WebAPI.Controllers
             return Ok(analysis);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,ItemAnalyzer")]
         [HttpPut("Edit-Analysis/{id}")]
         public async Task<IActionResult> EditAnalysis([FromRoute] int id, [FromBody] EditAnalysisModel model)
         {
@@ -157,14 +158,12 @@ namespace WebAPI.Controllers
             analysis.Laudo = model.Laudo;
             analysis.AnalysisType = model.AnalysisType;
 
-            // Salva as alterações no banco de dados
-            //_context.Analyses.Update(analysis);
             await _context.SaveChangesAsync();
 
             return Ok(analysis);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,ItemAnalyzer")]
         [HttpPut("Send-Analysis/{analysisId}")]
         public async Task<IActionResult> SendAnalysis([FromRoute] int analysisId)
         {
@@ -193,7 +192,7 @@ namespace WebAPI.Controllers
             return Ok(analysis);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,ItemCreator")]
         [HttpPut("Confirm-Analysis/{analysisId}")]
         public async Task<IActionResult> ConfirmAnalysis([FromRoute] int analysisId)
         {
@@ -229,6 +228,7 @@ namespace WebAPI.Controllers
             return Ok(analysis);
         }
 
+        [Authorize(Roles = "Admin,ItemCreator")]
         [HttpGet("Analysis-pending-confirmed")]
         public async Task<ActionResult<IEnumerable<Analysis>>> GetFinishedAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {
@@ -251,7 +251,8 @@ namespace WebAPI.Controllers
 
             return Ok(result);
         }
-        
+
+        [Authorize(Roles = "Admin,ItemCreator,ItemAnalyzer")]
         [HttpGet("Analysis-detail/{id}")]
         public async Task<ActionResult<Analysis>> GetAnalysis(int id)
         {
@@ -278,6 +279,7 @@ namespace WebAPI.Controllers
             return Ok(analysis);
         }
 
+        [Authorize(Roles = "Admin,ItemCreator,ItemAnalyzer")]
         [HttpGet("Analysis-confirmed")]
         public async Task<ActionResult<PaginatedResult<Analysis>>> GetConfirmedAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {
@@ -301,6 +303,8 @@ namespace WebAPI.Controllers
 
             return Ok(result);
         }
+
+        [Authorize(Roles = "Admin,ItemCreator,ItemAnalyzer")]
         [HttpGet("Typing-analysis")]
         public async Task<ActionResult<PaginatedResult<Analysis>>> GetTypingAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {

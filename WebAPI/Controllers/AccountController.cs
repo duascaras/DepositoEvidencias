@@ -14,6 +14,7 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class AccountController : ControllerBase
     {
         private readonly UserManager<ExtendedIdentityUser> _userManager;
@@ -29,7 +30,6 @@ namespace WebAPI.Controllers
             _roleManager = roleManager;
         }
 
-        //[Authorize(Roles ="Admin")]
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterModel model)
         {
@@ -70,7 +70,6 @@ namespace WebAPI.Controllers
 
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPut("edit-user")]
         public async Task<IActionResult> EditUser(EditUserModel model)
         {
@@ -197,7 +196,7 @@ namespace WebAPI.Controllers
             }
         }
 
-
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginModel model)
         {
