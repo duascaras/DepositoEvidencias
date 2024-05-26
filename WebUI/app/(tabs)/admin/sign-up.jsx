@@ -101,21 +101,9 @@ const SignUp = ({ onItemCreated = () => {} }) => {
 								style={styles.picker}
 								itemStyle={styles.pickerItem}
 							>
-								<Picker.Item
-									label="Selecione a Permissão"
-									value=""
-									color="#000000"
-								/>
-								<Picker.Item
-									label="Admin"
-									value="admin"
-									color="#000000"
-								/>
-								<Picker.Item
-									label="User"
-									value="user"
-									color="#000000"
-								/>
+								<Picker.Item label="Selecione a Permissão" />
+								<Picker.Item label="Admin" value="admin" />
+								<Picker.Item label="User" value="user" />
 							</Picker>
 						</View>
 					</View>

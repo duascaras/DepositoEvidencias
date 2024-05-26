@@ -1,10 +1,8 @@
 import { Redirect, useRouter } from "expo-router";
-import { useAuth } from "../context/AuthContext";
-import { Text, View } from "react-native";
+import { useAuth } from "../../context/AuthContext";
 
 export default function App() {
 	const { authState } = useAuth();
-	const router = useRouter();
 
 	if (authState.authenticated) {
 		return <Redirect href="/home" />;

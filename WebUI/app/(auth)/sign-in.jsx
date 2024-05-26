@@ -23,10 +23,10 @@ const SignIn = () => {
 		setIsSubmitting(true);
 		try {
 			const result = await onLogin(form.username, form.password);
-			if (result.msg != "An unexpected error occurred") {
+			if (result.error) {
 				alert(result.msg);
 			} else {
-				router.push("/home");
+				router.replace("/home");
 			}
 		} catch (error) {
 			console.log("Error", error.message);
@@ -35,11 +35,9 @@ const SignIn = () => {
 		}
 	};
 
-	console.log("DEBUG -> Authenticated: ", authState.authenticated);
-
 	useEffect(() => {
 		if (authState.authenticated) {
-			router.push("/home");
+			router.replace("/home");
 		}
 	}, [authState]);
 
@@ -47,7 +45,7 @@ const SignIn = () => {
 		<SafeAreaView className="bg-soft_white h-full">
 			<ScrollView>
 				<View>
-					<Header title={"Login"}></Header>
+					<Header title={"Login"} />
 				</View>
 
 				<View className="w-full justify-center min-h-[60vh] px-14">

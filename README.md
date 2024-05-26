@@ -75,6 +75,9 @@ dropdown picker
 npx expo install @react-native-picker/picker
 ```
 
+file structure
+
+```
   app
   |- (auth)
   |   |- _layout.jsx
@@ -100,4 +103,18 @@ npx expo install @react-native-picker/picker
   |   |- [query].jsx
   |- _layout.jsx
   |- index.jsx
+  assets
+  |- fonts
+  |- icons
+  |- images
+  components
+  constants
+  context
+  |- AuthContext.js
+```
 
+we use this to log on the web
+
+```
+npx expo install @react-native-async-storage/async-storage
+```

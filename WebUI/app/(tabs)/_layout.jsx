@@ -1,6 +1,6 @@
 import { View, Image, Text } from "react-native";
-import { Tabs } from "expo-router";
-
+import { Tabs, Redirect } from "expo-router";
+import { useAuth } from "../../context/AuthContext";
 import { icons } from "../../constants";
 
 const TabIcon = ({ icon, color, name, focused }) => {
@@ -25,6 +25,12 @@ const TabIcon = ({ icon, color, name, focused }) => {
 };
 
 const TabsLayout = () => {
+	const { authState } = useAuth();
+
+	if (!authState.authenticated) {
+		return <Redirect href="/sign-in" />;
+	}
+
 	return (
 		<>
 			<Tabs

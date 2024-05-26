@@ -41,12 +41,13 @@ const Items = () => {
 	}, [query, items]);
 
 	const getItems = async (page) => {
-		const pageSize = 5;
+		const pageSize = 4;
 		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/exibir-itens?page=${page}&pageSize=${pageSize}`;
 
 		try {
 			setIsLoading(true);
 			const response = await axios.get(API_URL);
+			console.log(response);
 
 			const { total, data: items } = response.data;
 
