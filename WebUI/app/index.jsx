@@ -4,7 +4,6 @@ import { Text, View } from "react-native";
 
 export default function App() {
 	const { authState } = useAuth();
-	const router = useRouter();
 
 	if (authState.authenticated) {
 		return <Redirect href="/home" />;
