@@ -1,12 +1,12 @@
 import { View, ScrollView, Text, Alert, StyleSheet } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
 
 import FormField from "../../../components/FormField";
-import CustomButtom from "../../../components/CustomButtom";
+import CustomButton from "../../../components/CustomButtom";
 
 const SignUp = ({ onItemCreated = () => {} }) => {
 	const [form, setForm] = useState({
@@ -17,6 +17,7 @@ const SignUp = ({ onItemCreated = () => {} }) => {
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [selectedPermission, setSelectedPermission] = useState("");
+
 	const router = useRouter();
 
 	const submit = async () => {
@@ -49,7 +50,7 @@ const SignUp = ({ onItemCreated = () => {} }) => {
 				alert("Error", "Something went wrong. Please try again.");
 			}
 		} catch (error) {
-			alert("Error: ", error);
+			alert("Error: ", error.message);
 			console.error("Error:", error);
 		} finally {
 			setIsSubmitting(false);
@@ -57,7 +58,7 @@ const SignUp = ({ onItemCreated = () => {} }) => {
 	};
 
 	const cancel = () => {
-		router.push("admin");
+		router.push("/(tabs)/admin");
 	};
 
 	return (
@@ -101,22 +102,32 @@ const SignUp = ({ onItemCreated = () => {} }) => {
 								style={styles.picker}
 								itemStyle={styles.pickerItem}
 							>
-								<Picker.Item label="Selecione a Permissão" />
+								<Picker.Item
+									label="Selecione a Permissão"
+									value=""
+								/>
 								<Picker.Item label="Admin" value="admin" />
-								<Picker.Item label="User" value="user" />
+								<Picker.Item
+									label="Creator"
+									value="ItemCreator"
+								/>
+								<Picker.Item
+									label="Analyzer"
+									value="ItemAnalyzer"
+								/>
 							</Picker>
 						</View>
 					</View>
 
 					<View className="flex flex-row justify-between mt-20">
-						<CustomButtom
+						<CustomButton
 							title="Confirmar"
 							handlePress={submit}
 							containerStyles="flex-1 mr-2"
 							isLoading={isSubmitting}
 						/>
 
-						<CustomButtom
+						<CustomButton
 							title="Cancelar"
 							handlePress={cancel}
 							containerStyles="flex-1 ml-2 bg-red-500"
@@ -139,7 +150,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16, // Adjust padding to match your FormField
 	},
 	// picker: {
-	// 	color: "#F6F7F7", // Set text color
+	//  color: "#F6F7F7", // Set text color
 	// },
 	pickerItem: {
 		fontSize: 25, // Adjust fontSize to match your FormField

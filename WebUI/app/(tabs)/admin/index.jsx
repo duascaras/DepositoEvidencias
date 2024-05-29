@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
 	View,
 	Text,
@@ -11,8 +11,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import Header from "../../../components/Header";
-import CustomButton from "../../../components/CustomButtom"; // Assuming you have a CustomButton component
-import { router } from "expo-router";
+import CustomButton from "../../../components/CustomButtom";
+import { router, useFocusEffect } from "expo-router";
 import SearchInput from "../../../components/SearchInput";
 import { icons } from "../../../constants";
 
@@ -25,9 +25,11 @@ const Admin = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 
-	useEffect(() => {
-		getUsers(currentPage); // Fetch users for the initial page
-	}, []);
+	useFocusEffect(
+		useCallback(() => {
+			getUsers(currentPage);
+		}, [currentPage])
+	);
 
 	useEffect(() => {
 		if (query) {
@@ -47,14 +49,11 @@ const Admin = () => {
 		try {
 			setIsLoading(true);
 			const response = await axios.get(API_URL);
-			console.log(response);
 			const { totalUsers, users } = response.data;
-			console.log("Number of users received:", users.length);
 			setUsers(users);
 			setFilteredUsers(users);
 
 			const totalPages = Math.ceil(totalUsers / pageSize);
-			console.log("Total pages:", totalPages);
 			setTotalPages(totalPages);
 			setShowUsers(true);
 		} catch (error) {
@@ -67,7 +66,7 @@ const Admin = () => {
 	const newUser = () => {
 		router.push({
 			pathname: "admin/sign-up",
-			params: { onItemCreated: getUsers },
+			params: { onItemCreated: () => getUsers(currentPage) },
 		});
 	};
 

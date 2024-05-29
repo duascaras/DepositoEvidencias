@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, StyleSheet, Alert } from "react-native";
+import { View, Text, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
 
 import FormField from "../../../components/FormField";
-import CustomButtom from "../../../components/CustomButtom";
+import CustomButton from "../../../components/CustomButtom"; // Fix typo from CustomButtom to CustomButton
 
-const AnalysisDetails = () => {
+const AnalysisDetails = ({ onAnalysisUpdated }) => {
 	const { id } = useLocalSearchParams();
 	const [form, setForm] = useState({
 		laudo: "",
@@ -20,7 +20,7 @@ const AnalysisDetails = () => {
 	useEffect(() => {
 		const getAnalysis = async () => {
 			try {
-				const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Analysis-Datail${id}`;
+				const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Analysis-detail/${id}`;
 				const response = await axios.get(API_URL);
 				if (response.status === 200) {
 					const analysisData = response.data;
@@ -29,10 +29,11 @@ const AnalysisDetails = () => {
 						analysisType: analysisData.analysisType,
 					});
 				} else {
-					alert("Error 1");
+					alert("Error", "Failed to fetch analysis data.");
 				}
 			} catch (error) {
-				alert("Error 2");
+				alert("Error", "Failed to fetch analysis data.");
+				console.error("Error:", error);
 			}
 		};
 
@@ -43,17 +44,18 @@ const AnalysisDetails = () => {
 		setIsSubmitting(true);
 
 		try {
-			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/update-user/${id}`;
+			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Edit-Analysis/${id}`;
 			const response = await axios.put(API_URL, form);
 
 			if (response.status === 200) {
-				alert("Success", "User updated successfully.");
-				router.push("/(tabs)/admin");
+				alert("Success", "Analysis updated successfully.");
+				if (onAnalysisUpdated) onAnalysisUpdated(); // Notify parent about the update
+				router.push("/analysis");
 			} else {
-				alert("Error", "Failed to update user. Please try again.");
+				alert("Error", "Failed to update analysis. Please try again.");
 			}
 		} catch (error) {
-			alert("Error", "Failed to update user. Please try again.");
+			alert("Error", "Failed to update analysis. Please try again.");
 			console.error("Error:", error);
 		} finally {
 			setIsSubmitting(false);
@@ -61,7 +63,7 @@ const AnalysisDetails = () => {
 	};
 
 	const cancel = () => {
-		router.push("analysis");
+		router.push("/analysis");
 	};
 
 	return (
@@ -85,19 +87,20 @@ const AnalysisDetails = () => {
 						title="Análises Feitas"
 						value={form.analysisType}
 						handleChangeText={(e) =>
-							setForm({ ...form, analysisDone: e })
+							setForm({ ...form, analysisType: e })
 						}
 						otherStyles="mt-8"
 					/>
 
 					<View className="flex flex-row justify-between mt-20">
-						<CustomButtom
+						<CustomButton
 							title="Confirmar"
 							handlePress={submit}
 							containerStyles="flex-1 mr-2"
 							isLoading={isSubmitting}
 						/>
-						<CustomButtom
+
+						<CustomButton
 							title="Cancelar"
 							handlePress={cancel}
 							containerStyles="flex-1 ml-2 bg-red-500"
@@ -108,25 +111,5 @@ const AnalysisDetails = () => {
 		</SafeAreaView>
 	);
 };
-
-const styles = StyleSheet.create({
-	pickerContainer: {
-		height: 64, // Adjust height to match your FormField height
-		backgroundColor: "#2A316E",
-		borderRadius: 16, // Adjust borderRadius to match your FormField
-		borderWidth: 2,
-		borderColor: "#000",
-		justifyContent: "center",
-		paddingHorizontal: 16, // Adjust padding to match your FormField
-	},
-	// picker: {
-	// 	color: "#F6F7F7", // Set text color
-	// },
-	pickerItem: {
-		fontSize: 18, // Adjust fontSize to match your FormField
-		fontWeight: "bold", // Set fontWeight to match your FormField
-		textAlign: "center", // Center the text
-	},
-});
 
 export default AnalysisDetails;

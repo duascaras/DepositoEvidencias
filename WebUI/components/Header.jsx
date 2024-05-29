@@ -18,12 +18,15 @@ const Header = ({ title }) => {
 			<Text className="text-4xl text-soft_white text-primary text-semibold font-psemibold text-center">
 				{title}
 			</Text>
-			<TouchableOpacity
-				onPress={handleLogout}
-				className="p-2 bg-red-500 rounded"
-			>
-				<Text className="text-soft_white">Logout</Text>
-			</TouchableOpacity>
+
+			{title != "Login" && (
+				<TouchableOpacity
+					onPress={handleLogout}
+					className="p-2 bg-red-500 rounded"
+				>
+					<Text className="text-soft_white">Logout</Text>
+				</TouchableOpacity>
+			)}
 		</View>
 	);
 };

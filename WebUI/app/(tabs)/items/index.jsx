@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
 	View,
 	Text,
@@ -12,7 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import Header from "../../../components/Header";
 import CustomButton from "../../../components/CustomButtom";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import SearchInput from "../../../components/SearchInput";
 import { icons } from "../../../constants";
 
@@ -24,21 +24,6 @@ const Items = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
-
-	useEffect(() => {
-		getItems(currentPage);
-	}, []);
-
-	useEffect(() => {
-		if (query) {
-			const filtered = items.filter((item) =>
-				item.name.toLowerCase().includes(query.toLowerCase())
-			);
-			setFilteredItems(filtered);
-		} else {
-			setFilteredItems(items);
-		}
-	}, [query, items]);
 
 	const getItems = async (page) => {
 		const pageSize = 4;
@@ -64,6 +49,23 @@ const Items = () => {
 		}
 	};
 
+	useFocusEffect(
+		useCallback(() => {
+			getItems(currentPage);
+		}, [currentPage])
+	);
+
+	useEffect(() => {
+		if (query) {
+			const filtered = items.filter((item) =>
+				item.name.toLowerCase().includes(query.toLowerCase())
+			);
+			setFilteredItems(filtered);
+		} else {
+			setFilteredItems(items);
+		}
+	}, [query, items]);
+
 	const newItem = () => {
 		router.push({
 			pathname: "items/new_item",
@@ -80,7 +82,7 @@ const Items = () => {
 
 	const qrCodePopUp = async (item) => {
 		const id = item.id;
-		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/GenerateCode/b460c987-0539-4a92-97ed-ad287499ee14/${id}`;
+		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/GenerateCode/2bba2917-f514-4eba-b51c-08b3be49cb6c/${id}`;
 
 		try {
 			const response = await axios.post(API_URL);

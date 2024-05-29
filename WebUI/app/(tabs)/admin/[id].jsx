@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, StyleSheet, Alert } from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
@@ -12,11 +12,11 @@ const AdminDetail = () => {
 	const { id } = useLocalSearchParams();
 	const [form, setForm] = useState({
 		userName: "",
-		password: "", // You may not want to fetch or display the password for security reasons
 		roleName: "",
 	});
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [selectedPermission, setSelectedPermission] = useState("");
 	const router = useRouter();
 
 	useEffect(() => {
@@ -31,11 +31,10 @@ const AdminDetail = () => {
 						roleName: userData.role,
 					});
 				} else {
-					alert("Error", "Failed to fetch user data.");
+					alert("Error");
 				}
 			} catch (error) {
-				alert("Error", "Failed to fetch user data.");
-				console.error("Error:", error);
+				alert(error.response.data);
 			}
 		};
 
@@ -46,20 +45,17 @@ const AdminDetail = () => {
 		setIsSubmitting(true);
 
 		try {
-			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/update-user/${id}`;
+			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/edit-user/`;
 			const response = await axios.put(API_URL, form);
 
 			if (response.status === 200) {
-				Alert.alert("Success", "User updated successfully.");
+				alert("Success", "User updated successfully.");
 				router.push("/(tabs)/admin");
 			} else {
-				Alert.alert(
-					"Error",
-					"Failed to update user. Please try again."
-				);
+				alert("Error", "Failed to update user. Please try again.");
 			}
 		} catch (error) {
-			Alert.alert("Error", "Failed to update user. Please try again.");
+			alert("Error", "Failed to update user. Please try again.");
 			console.error("Error:", error);
 		} finally {
 			setIsSubmitting(false);
@@ -91,9 +87,9 @@ const AdminDetail = () => {
 						</Text>
 						<View style={styles.pickerContainer}>
 							<Picker
-								selectedValue={form.roleName}
+								selectedValue={selectedPermission}
 								onValueChange={(itemValue) =>
-									setForm({ ...form, roleName: itemValue })
+									setSelectedPermission(itemValue)
 								}
 								style={styles.picker}
 								itemStyle={styles.pickerItem}
@@ -103,7 +99,14 @@ const AdminDetail = () => {
 									value=""
 								/>
 								<Picker.Item label="Admin" value="admin" />
-								<Picker.Item label="User" value="user" />
+								<Picker.Item
+									label="Creator"
+									value="ItemCreator"
+								/>
+								<Picker.Item
+									label="Analyzer"
+									value="ItemAnalyzer"
+								/>
 							</Picker>
 						</View>
 					</View>

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { View, ScrollView, Image, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 import axios from "axios";
 
 import { icons } from "../../../constants";
-import CustomButtom from "../../../components/CustomButtom";
+import CustomButton from "../../../components/CustomButtom";
 import FormField from "../../../components/FormField";
 import Header from "../../../components/Header";
 
@@ -15,6 +15,7 @@ const NewAnalysis = ({ onItemCreated }) => {
 	});
 
 	const [isSubmitting, setisSubmitting] = useState(false);
+	const router = useRouter();
 
 	const submit = async () => {
 		if (!form.code) {
@@ -24,13 +25,14 @@ const NewAnalysis = ({ onItemCreated }) => {
 
 		setisSubmitting(true);
 		try {
-			// TODO: Adicionar o id do USUÁRIO no final da API_URL
-			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Create-Analysis/b460c987-0539-4a92-97ed-ad287499ee14`;
+			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Create-Analysis/2bba2917-f514-4eba-b51c-08b3be49cb6c`;
 			const response = await axios.post(API_URL, form);
 
 			if (response.status === 200) {
 				alert("Success. Analysis created successfully");
-				onItemCreated();
+				if (onItemCreated && typeof onItemCreated === "function") {
+					onItemCreated();
+				}
 				router.push("analysis");
 			} else {
 				alert("Error. Something went wrong. Please try again.");
@@ -81,13 +83,13 @@ const NewAnalysis = ({ onItemCreated }) => {
 					</View>
 
 					<View className="flex flex-row justify-between mt-20">
-						<CustomButtom
+						<CustomButton
 							title="Confirmar"
 							handlePress={submit}
 							containerStyles="flex-1 mr-2"
 							isLoading={isSubmitting}
 						/>
-						<CustomButtom
+						<CustomButton
 							title="Cancelar"
 							handlePress={cancel}
 							containerStyles="flex-1 ml-2 bg-red-500"

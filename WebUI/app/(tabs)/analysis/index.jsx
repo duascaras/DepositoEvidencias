@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
 	View,
 	Text,
@@ -11,8 +11,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import Header from "../../../components/Header";
-import CustomButtom from "../../../components/CustomButtom";
-import { router } from "expo-router";
+import CustomButton from "../../../components/CustomButtom";
+import { useFocusEffect, useRouter } from "expo-router";
 import SearchInput from "../../../components/SearchInput";
 import { icons } from "../../../constants";
 
@@ -24,10 +24,13 @@ const Analysis = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [isLoading, setIsLoading] = useState(false);
+	const router = useRouter();
 
-	useEffect(() => {
-		getAnalyses(currentPage);
-	}, [currentPage]);
+	useFocusEffect(
+		useCallback(() => {
+			getAnalyses(currentPage);
+		}, [currentPage])
+	);
 
 	useEffect(() => {
 		if (query) {
@@ -47,13 +50,11 @@ const Analysis = () => {
 		try {
 			setIsLoading(true);
 			const response = await axios.get(API_URL);
-			const { total, data: analyses } = response.data; // Extracting the data properly
-			console.log("Number of analyses received:", analyses.length);
+			const { total, data: analyses } = response.data;
 			setAnalyses(analyses);
 			setFilteredAnalyses(analyses);
 
 			const totalPages = Math.ceil(total / pageSize);
-			console.log("Total pages:", totalPages);
 			setTotalPages(totalPages);
 			setShowAnalyses(true);
 		} catch (error) {
@@ -145,7 +146,7 @@ const Analysis = () => {
 			</View>
 
 			<View className="absolute self-center bottom-0 p-4 w-96 mb-10">
-				<CustomButtom
+				<CustomButton
 					title="Nova Análise"
 					handlePress={newAnalysis}
 					containerStyles="w-full"

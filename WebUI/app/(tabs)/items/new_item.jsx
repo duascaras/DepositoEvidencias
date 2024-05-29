@@ -38,8 +38,7 @@ const NewItem = ({ onItemCreated }) => {
 				alert("Error, Something went wrong. Please try again.");
 			}
 		} catch (error) {
-			alert(error);
-			console.error("Error:", error);
+			alert(error.response.data);
 		} finally {
 			setisSubmitting(false);
 		}
