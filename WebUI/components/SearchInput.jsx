@@ -13,7 +13,7 @@ const SearchInput = ({ initialQuery, onSearch }) => {
 	};
 
 	return (
-		<View className="flex-row mt-10 self-center items-center h-14 px-4 rounded-full border-4">
+		<View className="flex-row mt-2 self-center items-center h-14 px-4 rounded-full border-4">
 			<TouchableOpacity onPress={() => handleTextChange(query)}>
 				<Image
 					source={icons.search}

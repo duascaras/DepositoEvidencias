@@ -24,7 +24,7 @@ const Header = ({ title }) => {
 					onPress={handleLogout}
 					className="p-2 bg-red-500 rounded"
 				>
-					<Text className="text-soft_white">Logout</Text>
+					<Text className="text-lg text-soft_white">Logout</Text>
 				</TouchableOpacity>
 			)}
 		</View>

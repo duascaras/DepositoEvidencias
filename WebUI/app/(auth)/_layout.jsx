@@ -20,6 +20,7 @@ const AuthLayout = () => {
 					}}
 				/>
 			</Stack>
+
 			{/* Only on Mobile: Defines the top of the page (where the hours are shown)*/}
 			<StatusBar backgroundColor="#2A316E" style="light" />
 		</>

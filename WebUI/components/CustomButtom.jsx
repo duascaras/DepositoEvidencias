@@ -18,7 +18,7 @@ const CustomButtom = ({
 			disabled={isLoading}
 		>
 			<Text
-				className={`text-2xl text-center text-soft_white font-bold ${textStyles}`}
+				className={`text-xl text-center text-soft_white font-bold ${textStyles}`}
 			>
 				{title}
 			</Text>

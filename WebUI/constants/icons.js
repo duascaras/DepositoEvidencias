@@ -14,6 +14,7 @@ import play from "../assets/icons/play.png";
 import edit from "../assets/icons/edit.png";
 import qrcode from "../assets/icons/qrcode.png";
 import camera from "../assets/icons/camera.png";
+import user from "../assets/icons/person.png";
 
 export default {
 	play,
@@ -32,4 +33,5 @@ export default {
 	edit,
 	qrcode,
 	camera,
+	user,
 };

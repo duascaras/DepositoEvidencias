@@ -49,14 +49,13 @@ const AdminDetail = () => {
 			const response = await axios.put(API_URL, form);
 
 			if (response.status === 200) {
-				alert("Success", "User updated successfully.");
+				alert("User updated successfully.");
 				router.push("/(tabs)/admin");
 			} else {
-				alert("Error", "Failed to update user. Please try again.");
+				alert("Failed to update user. Please try again.");
 			}
 		} catch (error) {
-			alert("Error", "Failed to update user. Please try again.");
-			console.error("Error:", error);
+			alert("Failed to update user. Please try again.");
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -133,9 +132,6 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 		paddingHorizontal: 16, // Adjust padding to match your FormField
 	},
-	// picker: {
-	// 	color: "#F6F7F7", // Set text color
-	// },
 	pickerItem: {
 		fontSize: 18, // Adjust fontSize to match your FormField
 		fontWeight: "bold", // Set fontWeight to match your FormField

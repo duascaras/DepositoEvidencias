@@ -1,18 +1,18 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	View,
 	Text,
 	FlatList,
 	TouchableOpacity,
 	Image,
-	Button,
 	ActivityIndicator,
+	ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import Header from "../../../components/Header";
 import CustomButton from "../../../components/CustomButtom";
-import { router, useFocusEffect } from "expo-router";
+import { router } from "expo-router";
 import SearchInput from "../../../components/SearchInput";
 import { icons } from "../../../constants";
 
@@ -25,11 +25,9 @@ const Admin = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 
-	useFocusEffect(
-		useCallback(() => {
-			getUsers(currentPage);
-		}, [currentPage])
-	);
+	useEffect(() => {
+		getUsers(currentPage);
+	}, []);
 
 	useEffect(() => {
 		if (query) {
@@ -57,16 +55,34 @@ const Admin = () => {
 			setTotalPages(totalPages);
 			setShowUsers(true);
 		} catch (error) {
-			console.error("Error:", error);
+			alert(error);
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
+	const goToInactiveUsers = () => {
+		router.push({
+			pathname: "admin/inactive-users",
+		});
+	};
+
+	const goToEditPassword = () => {
+		router.push({
+			pathname: "admin/edit-password",
+		});
+	};
+
+	const goToInactivateUser = () => {
+		router.push({
+			pathname: "admin/inactivate-user",
+		});
+	};
+
 	const newUser = () => {
 		router.push({
 			pathname: "admin/sign-up",
-			params: { onItemCreated: () => getUsers(currentPage) },
+			params: { onItemCreated: getUsers },
 		});
 	};
 
@@ -92,71 +108,103 @@ const Admin = () => {
 	};
 
 	return (
-		<SafeAreaView className="bg-soft_white h-full">
+		<SafeAreaView className="bg-soft_white h-full relative">
 			<Header title={"Administrador"} />
 
 			<SearchInput initialQuery={query} onSearch={setQuery} />
 
-			<View>
-				{isLoading ? ( // Show loading indicator while fetching users
-					<ActivityIndicator size="large" color="#0000ff" />
-				) : showUsers ? (
-					<FlatList
-						data={filteredUsers}
-						keyExtractor={(user) => user.id}
-						renderItem={({ item }) => (
-							<View className="flex-row mt-10 self-center items-center h-14 px-4 rounded-2xl border-2 w-96">
-								<Text className="text-xl ml-4 mt-0.5 text-black flex-1 font-pregular">
-									{item.userName}
-								</Text>
-
-								<TouchableOpacity
-									onPress={() => editUser(item)}
-								>
-									<Image
-										source={icons.edit}
-										className="w-6 h-6"
-										resizeMode="contain"
-									/>
-								</TouchableOpacity>
-							</View>
-						)}
+			<View className="flex-row p-2">
+				<View className="w-1/3 mt-2 p-2">
+					<CustomButton
+						title="Novo Usuário"
+						handlePress={newUser}
+						containerStyles="mb-4"
 					/>
-				) : (
-					<Text>No users to display</Text>
-				)}
+					<CustomButton
+						title="Usuários Inativos"
+						handlePress={goToInactiveUsers}
+						containerStyles="mb-4"
+					/>
+					<CustomButton
+						title="Editar Senhas"
+						handlePress={goToEditPassword}
+						containerStyles="mb-4"
+					/>
+					<CustomButton
+						title="Inativar Usuário"
+						handlePress={goToInactivateUser}
+						containerStyles="mb-4"
+					/>
+				</View>
+
+				<View className="flex-1 p-2">
+					{isLoading ? (
+						<ActivityIndicator size="large" color="#0000ff" />
+					) : showUsers ? (
+						<ScrollView>
+							<FlatList
+								data={filteredUsers}
+								keyExtractor={(user) => user.id}
+								renderItem={({ item }) => (
+									<View className="flex-row mt-2 items-center h-12 px-2 rounded-xl border-2">
+										<Image
+											source={icons.user}
+											className="w-8 h-8"
+											resizeMode="contain"
+										/>
+										<Text className="text-lg ml-2 text-black flex-1 font-pregular">
+											{item.userName}
+										</Text>
+										<TouchableOpacity
+											onPress={() => editUser(item)}
+										>
+											<Image
+												source={icons.edit}
+												className="w-5 h-5"
+												resizeMode="contain"
+											/>
+										</TouchableOpacity>
+									</View>
+								)}
+							/>
+						</ScrollView>
+					) : (
+						<Text>No users to display</Text>
+					)}
+				</View>
 			</View>
 
-			<View
-				style={{
-					flexDirection: "row",
-					justifyContent: "space-between",
-					paddingHorizontal: 14,
-					marginTop: 20,
-				}}
-			>
-				<Button
-					title="Previous"
-					onPress={handlePreviousPage}
-					disabled={currentPage === 1}
-				/>
-				<Text style={{ fontSize: 18, fontWeight: "bold" }}>
-					Page {currentPage} of {totalPages}
-				</Text>
-				<Button
-					title="Next"
-					onPress={handleNextPage}
-					disabled={currentPage === totalPages}
-				/>
-			</View>
+			{showUsers && (
+				<View className="absolute bottom-0 w-full flex-row justify-between p-2 bg-soft_white border-t border-gray-300">
+					<TouchableOpacity
+						className={`bg-blue-500 border-2 border-black p-2 rounded ${
+							currentPage === 1 ? "opacity-50" : ""
+						}`}
+						onPress={handlePreviousPage}
+						disabled={currentPage === 1}
+					>
+						<Text className="text-sm text-center text-white">
+							Previous
+						</Text>
+					</TouchableOpacity>
 
-			<View className="absolute self-center bottom-0 p-4 w-96 mb-10">
-				<CustomButton
-					title="Criar novo usuário"
-					handlePress={newUser}
-					containerStyles="w-full"
-				/>
-			</View>
+					<Text className="text-lg self-center p-2 text-black font-pregular text-center">
+						Page {currentPage} of {totalPages}
+					</Text>
+
+					<TouchableOpacity
+						className={`bg-blue-500 border-2 border-black p-2 rounded ${
+							currentPage === totalPages ? "opacity-50" : ""
+						}`}
+						onPress={handleNextPage}
+						disabled={currentPage === totalPages}
+					>
+						<Text className="text-sm text-center text-white">
+							Next
+						</Text>
+					</TouchableOpacity>
+				</View>
+			)}
 		</SafeAreaView>
 	);
 };
