@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import axios from "axios";
 
 import { icons } from "../../../constants";
-import CustomButton from "../../../components/CustomButtom";
+import CustomButton from "../../../components/CustomButton";
 import FormField from "../../../components/FormField";
 import Header from "../../../components/Header";
 

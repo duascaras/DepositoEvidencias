@@ -2,7 +2,7 @@ import { View, Text } from "react-native";
 import { React } from "react";
 import { router } from "expo-router";
 
-import CustomButtom from "../../components/CustomButtom";
+import CustomButton from "../../components/CustomButton";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../../components/Header";
 
@@ -30,25 +30,25 @@ const Home = () => {
 			</View>
 
 			<View className="w-full justify-center min-h-[60vh] px-14">
-				<CustomButtom
+				<CustomButton
 					title="Itens"
 					handlePress={goToItems}
 					containerStyles="mt-20"
 				/>
 
-				<CustomButtom
+				<CustomButton
 					title="Análises"
 					handlePress={goToAnalysis}
 					containerStyles="mt-20"
 				/>
 
-				<CustomButtom
+				<CustomButton
 					title="Administrador"
 					handlePress={goToAdmin}
 					containerStyles="mt-20"
 				/>
 
-				<CustomButtom
+				<CustomButton
 					title="Pendentes"
 					handlePress={goToPending}
 					containerStyles="mt-20"

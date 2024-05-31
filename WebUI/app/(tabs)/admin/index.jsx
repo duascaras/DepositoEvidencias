@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
 	View,
 	Text,
@@ -6,15 +6,14 @@ import {
 	TouchableOpacity,
 	Image,
 	ActivityIndicator,
-	ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import Header from "../../../components/Header";
-import CustomButton from "../../../components/CustomButtom";
-import { router } from "expo-router";
 import SearchInput from "../../../components/SearchInput";
 import { icons } from "../../../constants";
+import CustomButton from "../../../components/CustomButton";
+import { useRouter, useFocusEffect } from "expo-router";
 
 const Admin = () => {
 	const [users, setUsers] = useState([]);
@@ -24,10 +23,43 @@ const Admin = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
+	const [filter, setFilter] = useState("active");
+	const router = useRouter();
+
+	const filterOptions = [
+		{ key: "active", value: "Ativos" },
+		{ key: "inactive", value: "Inativos" },
+	];
+
+	const getUsers = useCallback(
+		async (page) => {
+			const pageSize = 5;
+			const endpoint =
+				filter === "active" ? "get-users-active" : "get-users-inactive";
+			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/${endpoint}?pageNumber=${page}&pageSize=${pageSize}`;
+
+			try {
+				setIsLoading(true);
+				const response = await axios.get(API_URL);
+				const { totalUsers, users } = response.data;
+				setUsers(users);
+				setFilteredUsers(users);
+
+				const totalPages = Math.ceil(totalUsers / pageSize);
+				setTotalPages(totalPages);
+				setShowUsers(true);
+			} catch (error) {
+				alert(error);
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[filter]
+	);
 
 	useEffect(() => {
 		getUsers(currentPage);
-	}, []);
+	}, [currentPage, getUsers, filter]);
 
 	useEffect(() => {
 		if (query) {
@@ -40,48 +72,15 @@ const Admin = () => {
 		}
 	}, [query, users]);
 
-	const getUsers = async (page) => {
-		const pageSize = 5;
-		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/get-users-active?pageNumber=${page}&pageSize=${pageSize}`;
-
-		try {
-			setIsLoading(true);
-			const response = await axios.get(API_URL);
-			const { totalUsers, users } = response.data;
-			setUsers(users);
-			setFilteredUsers(users);
-
-			const totalPages = Math.ceil(totalUsers / pageSize);
-			setTotalPages(totalPages);
-			setShowUsers(true);
-		} catch (error) {
-			alert(error);
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
-	const goToInactiveUsers = () => {
-		router.push({
-			pathname: "admin/inactive-users",
-		});
-	};
-
-	const goToEditPassword = () => {
-		router.push({
-			pathname: "admin/edit-password",
-		});
-	};
-
-	const goToInactivateUser = () => {
-		router.push({
-			pathname: "admin/inactivate-user",
-		});
-	};
+	useFocusEffect(
+		useCallback(() => {
+			getUsers(currentPage);
+		}, [currentPage, getUsers])
+	);
 
 	const newUser = () => {
 		router.push({
-			pathname: "admin/sign-up",
+			pathname: "admin/register",
 			params: { onItemCreated: getUsers },
 		});
 	};
@@ -107,75 +106,95 @@ const Admin = () => {
 		}
 	};
 
+	const handleFilterChange = (newFilter) => {
+		setFilter(newFilter);
+		setCurrentPage(1);
+	};
+
 	return (
 		<SafeAreaView className="bg-soft_white h-full relative">
 			<Header title={"Administrador"} />
-
-			<SearchInput initialQuery={query} onSearch={setQuery} />
-
-			<View className="flex-row p-2">
-				<View className="w-1/3 mt-2 p-2">
-					<CustomButton
-						title="Novo Usuário"
-						handlePress={newUser}
-						containerStyles="mb-4"
-					/>
-					<CustomButton
-						title="Usuários Inativos"
-						handlePress={goToInactiveUsers}
-						containerStyles="mb-4"
-					/>
-					<CustomButton
-						title="Editar Senhas"
-						handlePress={goToEditPassword}
-						containerStyles="mb-4"
-					/>
-					<CustomButton
-						title="Inativar Usuário"
-						handlePress={goToInactivateUser}
-						containerStyles="mb-4"
-					/>
-				</View>
-
-				<View className="flex-1 p-2">
-					{isLoading ? (
-						<ActivityIndicator size="large" color="#0000ff" />
-					) : showUsers ? (
-						<ScrollView>
-							<FlatList
-								data={filteredUsers}
-								keyExtractor={(user) => user.id}
-								renderItem={({ item }) => (
-									<View className="flex-row mt-2 items-center h-12 px-2 rounded-xl border-2">
-										<Image
-											source={icons.user}
-											className="w-8 h-8"
-											resizeMode="contain"
-										/>
-										<Text className="text-lg ml-2 text-black flex-1 font-pregular">
-											{item.userName}
-										</Text>
-										<TouchableOpacity
-											onPress={() => editUser(item)}
-										>
-											<Image
-												source={icons.edit}
-												className="w-5 h-5"
-												resizeMode="contain"
-											/>
-										</TouchableOpacity>
-									</View>
-								)}
-							/>
-						</ScrollView>
-					) : (
-						<Text>No users to display</Text>
-					)}
+			<View className="p-4">
+				<SearchInput initialQuery={query} onSearch={setQuery} />
+				<View className="flex-row justify-between">
+					<TouchableOpacity
+						className={`p-2 rounde ${
+							filter === "active" ? "bg-blue-500" : "bg-gray-300"
+						}`}
+						onPress={() => handleFilterChange("active")}
+						disabled={filter === "active"}
+					>
+						<Text className="text-white">Ativos</Text>
+					</TouchableOpacity>
+					<TouchableOpacity
+						className={`p-2 rounded ${
+							filter === "inactive"
+								? "bg-blue-500"
+								: "bg-gray-300"
+						}`}
+						onPress={() => handleFilterChange("inactive")}
+						disabled={filter === "inactive"}
+					>
+						<Text className="text-white">Inativos</Text>
+					</TouchableOpacity>
 				</View>
 			</View>
 
+			{isLoading ? (
+				<ActivityIndicator
+					size="large"
+					color="#0000ff"
+					className="flex-1 justify-center items-center"
+				/>
+			) : showUsers ? (
+				<View className="flex-1">
+					<FlatList
+						data={filteredUsers}
+						keyExtractor={(user) => user.id}
+						renderItem={({ item }) => (
+							<TouchableOpacity
+								className="flex-row mt-2 items-center p-4 bg-white rounded-xl border-2 border-gray-300 shadow-sm mx-4"
+								onPress={() => editUser(item)}
+							>
+								<Image
+									source={icons.user}
+									className="w-10 h-10"
+									resizeMode="contain"
+								/>
+								<View className="ml-4 flex-1">
+									<Text className="text-lg text-black font-pregular">
+										{item.userName}
+									</Text>
+									<Text className="text-sm text-gray-500">
+										{item.role}
+									</Text>
+								</View>
+								<Image
+									source={icons.edit}
+									className="w-5 h-5"
+									resizeMode="contain"
+								/>
+							</TouchableOpacity>
+						)}
+						ListFooterComponent={() => (
+							<View className="self-center bottom-0 p-4 w-96 mb-10">
+								<CustomButton
+									title="Novo Usuário"
+									handlePress={newUser}
+									containerStyles="w-full"
+								/>
+							</View>
+						)}
+					/>
+				</View>
+			) : (
+				<Text className="text-center text-gray-500 mt-4">
+					No users to display
+				</Text>
+			)}
+
 			{showUsers && (
-				<View className="absolute bottom-0 w-full flex-row justify-between p-2 bg-soft_white border-t border-gray-300">
+				<View className="absolute bottom-0 w-full flex-row justify-between p-1 bg-soft_white border-t border-gray-300">
 					<TouchableOpacity
 						className={`bg-blue-500 border-2 border-black p-2 rounded ${
 							currentPage === 1 ? "opacity-50" : ""
@@ -184,7 +203,7 @@ const Admin = () => {
 						disabled={currentPage === 1}
 					>
 						<Text className="text-sm text-center text-white">
-							Previous
+							Anterior
 						</Text>
 					</TouchableOpacity>
 
@@ -200,7 +219,7 @@ const Admin = () => {
 						disabled={currentPage === totalPages}
 					>
 						<Text className="text-sm text-center text-white">
-							Next
+							Próxima
 						</Text>
 					</TouchableOpacity>
 				</View>

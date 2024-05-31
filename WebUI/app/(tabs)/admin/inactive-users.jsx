@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import Header from "../../../components/Header";
-import CustomButton from "../../../components/CustomButtom"; // Assuming you have a CustomButton component
+import CustomButton from "../../../components/CustomButton"; // Assuming you have a CustomButton component
 import { router } from "expo-router";
 import SearchInput from "../../../components/SearchInput";
 import { icons } from "../../../constants";
@@ -63,7 +63,7 @@ const Admin = () => {
 
 	const newUser = () => {
 		router.push({
-			pathname: "admin/sign-up",
+			pathname: "admin/register",
 			params: { onItemCreated: getUsers },
 		});
 	};

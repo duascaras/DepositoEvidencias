@@ -5,7 +5,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
 
 import FormField from "../../../components/FormField";
-import CustomButtom from "../../../components/CustomButtom";
+import CustomButton from "../../../components/CustomButton";
 
 const ItemDetails = ({ onItemUpdated }) => {
 	const { id } = useLocalSearchParams();
@@ -109,13 +109,13 @@ const ItemDetails = ({ onItemUpdated }) => {
 					/>
 
 					<View className="flex flex-row justify-between mt-20">
-						<CustomButtom
+						<CustomButton
 							title="Confirmar"
 							handlePress={updateItem}
 							containerStyles="flex-1 mr-2"
 							isLoading={isSubmitting}
 						/>
-						<CustomButtom
+						<CustomButton
 							title="Cancelar"
 							handlePress={cancel}
 							containerStyles="flex-1 ml-2 bg-red-500"

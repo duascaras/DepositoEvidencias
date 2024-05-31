@@ -1,22 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import axios from "axios";
-import { Picker } from "@react-native-picker/picker";
+import { SelectList } from "react-native-dropdown-select-list";
 
-import CustomButton from "../../../components/CustomButtom";
+import CustomButton from "../../../components/CustomButton";
 import FormField from "../../../components/FormField";
+import Header from "../../../components/Header";
 
-const AdminDetail = () => {
+const UserDetail = () => {
 	const { id } = useLocalSearchParams();
 	const [form, setForm] = useState({
-		userName: "",
-		roleName: "",
+		username: "",
+		roles: "",
+		newPassword: "",
+		confirmedPassword: "",
 	});
-
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [selectedPermission, setSelectedPermission] = useState("");
+	const [permissionData, setPermissionData] = useState([]);
 	const router = useRouter();
 
 	useEffect(() => {
@@ -26,10 +29,28 @@ const AdminDetail = () => {
 				const response = await axios.get(API_URL);
 				if (response.status === 200) {
 					const userData = response.data;
-					setForm({
-						userName: userData.userName,
-						roleName: userData.role,
+					const roles = userData.roles;
+					setForm((prevForm) => ({
+						...prevForm,
+						username: userData.userName,
+						roles: roles,
+					}));
+					setSelectedPermission(roles);
+
+					const allRoles = [
+						{ key: "1", value: "Admin" },
+						{ key: "2", value: "ItemCreator" },
+						{ key: "3", value: "ItemAnalyzer" },
+					];
+
+					const updatedRoles = allRoles.map((role) => {
+						if (roles.includes(role.value)) {
+							return { ...role, disabled: true };
+						}
+						return role;
 					});
+
+					setPermissionData(updatedRoles);
 				} else {
 					alert("Error");
 				}
@@ -37,16 +58,34 @@ const AdminDetail = () => {
 				alert(error.response.data);
 			}
 		};
-
 		getUser();
 	}, [id]);
 
+	const inactivateUser = async () => {
+		try {
+			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/desativar-ativar-usuario?username=${form.username}`;
+			const response = await axios.put(API_URL, {
+				username: form.username,
+			});
+			if (response.status === 200) {
+				alert("User inactivated successfully.");
+				router.push("/(tabs)/admin");
+			} else {
+				alert("Failed to inactivate user. Please try again.");
+			}
+		} catch (error) {
+			alert("Failed to inactivate user. Please try again.");
+		}
+	};
 	const updateUser = async () => {
 		setIsSubmitting(true);
 
 		try {
 			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/edit-user/`;
-			const response = await axios.put(API_URL, form);
+			const response = await axios.put(API_URL, {
+				...form,
+				roleName: selectedPermission,
+			});
 
 			if (response.status === 200) {
 				alert("User updated successfully.");
@@ -61,60 +100,168 @@ const AdminDetail = () => {
 		}
 	};
 
+	const updatePassword = async () => {
+		setIsSubmitting(true);
+
+		try {
+			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/edit-password-admin`;
+			const response = await axios.put(API_URL, {
+				username: form.username,
+				newPassword: form.newPassword,
+				confirmedPassword: form.confirmedPassword,
+			});
+
+			if (response.status === 200) {
+				alert("Password updated successfully.");
+				setForm((prevForm) => ({
+					...prevForm,
+					newPassword: "",
+					confirmedPassword: "",
+				}));
+				router.push("/(tabs)/admin");
+			} else {
+				alert("Failed to update password. Please try again.");
+			}
+		} catch (error) {
+			alert("Failed to update password. Please try again.");
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
+	useFocusEffect(
+		useCallback(() => {
+			const fetchData = async () => {
+				try {
+					const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/get-user/${id}`;
+					const response = await axios.get(API_URL);
+					if (response.status === 200) {
+						const userData = response.data;
+						const roles = userData.roles;
+						setForm((prevForm) => ({
+							...prevForm,
+							username: userData.userName,
+							roles: roles,
+						}));
+						setSelectedPermission(roles);
+
+						const allRoles = [
+							{ key: "1", value: "Admin" },
+							{ key: "2", value: "ItemCreator" },
+							{ key: "3", value: "ItemAnalyzer" },
+						];
+
+						const updatedRoles = allRoles.map((role) => {
+							if (roles.includes(role.value)) {
+								return { ...role, disabled: true };
+							}
+							return role;
+						});
+
+						setPermissionData(updatedRoles);
+					} else {
+						alert("Error");
+					}
+				} catch (error) {
+					alert(error.response.data);
+				}
+			};
+			fetchData();
+		}, [id])
+	);
+
 	return (
 		<SafeAreaView className="bg-soft_white h-full">
 			<ScrollView>
-				<View className="bg-blue">
-					<Text className="text-4xl text-soft_white text-primary text-semibold my-10 font-psemibold text-center">
-						Editar Usuário
-					</Text>
-				</View>
+				<Header title={"Editar Usuário"} />
 
-				<View className="w-full justify-center min-h-[60vh] px-14">
-					<FormField
-						title="Nome do Usuário"
-						value={form.userName}
-						handleChangeText={(e) =>
-							setForm({ ...form, userName: e })
-						}
-						otherStyles="mt-8"
-					/>
-
-					<View className="mt-8 space-y-2">
-						<Text className="text-xl text-semibold font-psemibold">
-							Permissão
+				<View style={styles.containerColumn}>
+					<View style={styles.table}>
+						<Text className="text-xl font-bold font-psemibold">
+							Editar Função do Usuário
 						</Text>
-						<View style={styles.pickerContainer}>
-							<Picker
-								selectedValue={selectedPermission}
-								onValueChange={(itemValue) =>
-									setSelectedPermission(itemValue)
-								}
-								style={styles.picker}
-								itemStyle={styles.pickerItem}
-							>
-								<Picker.Item
-									label="Selecione a Permissão"
-									value=""
-								/>
-								<Picker.Item label="Admin" value="admin" />
-								<Picker.Item
-									label="Creator"
-									value="ItemCreator"
-								/>
-								<Picker.Item
-									label="Analyzer"
-									value="ItemAnalyzer"
-								/>
-							</Picker>
+						<View className="space-y-2">
+							<FormField
+								title="Nome do Usuário"
+								value={form.username}
+								handleChangeText={() => {}}
+								otherStyles="mt-4"
+								editable={false}
+							/>
 						</View>
+
+						<View className="mt-8 space-y-2">
+							<Text className="text-xl text-semibold font-psemibold">
+								Permissão
+							</Text>
+							<SelectList
+								setSelected={setSelectedPermission}
+								data={permissionData}
+								save="value"
+								defaultOption={{
+									key: selectedPermission,
+									value: selectedPermission,
+								}}
+								boxStyles={styles.selectListBox}
+								inputStyles={styles.selectListInput}
+								dropdownStyles={styles.selectListDropdown}
+								dropdownItemStyles={
+									styles.selectListDropdownItem
+								}
+								dropdownTextStyles={
+									styles.selectListDropdownText
+								}
+							/>
+						</View>
+
+						<CustomButton
+							title="Atualizar Função"
+							handlePress={updateUser}
+							containerStyles="mt-10"
+							isLoading={isSubmitting}
+						/>
+					</View>
+
+					<View style={styles.table}>
+						<Text className="text-xl font-bold font-psemibold">
+							Editar Senha do Usuário
+						</Text>
+						<FormField
+							title="Nome do Usuário"
+							value={form.username}
+							handleChangeText={() => {}}
+							otherStyles="mt-4"
+							editable={false}
+						/>
+						<FormField
+							title="Nova Senha"
+							value={form.newPassword}
+							handleChangeText={(e) =>
+								setForm({ ...form, newPassword: e })
+							}
+							otherStyles="mt-8"
+						/>
+						<FormField
+							title="Confirme a nova senha"
+							value={form.confirmedPassword}
+							handleChangeText={(e) =>
+								setForm({ ...form, confirmedPassword: e })
+							}
+							otherStyles="mt-8"
+						/>
+
+						<CustomButton
+							title="Atualizar Senha"
+							handlePress={updatePassword}
+							containerStyles="mt-10"
+							isLoading={isSubmitting}
+						/>
 					</View>
 
 					<CustomButton
-						title="Atualizar"
-						handlePress={updateUser}
-						containerStyles="mt-20"
-						isLoading={isSubmitting}
+						title="Inativar Usuário"
+						handlePress={inactivateUser}
+						containerStyles={"self-center bottom-0 p-4 w-96 mb-10"}
 					/>
 				</View>
 			</ScrollView>
@@ -123,20 +270,40 @@ const AdminDetail = () => {
 };
 
 const styles = StyleSheet.create({
-	pickerContainer: {
-		height: 64, // Adjust height to match your FormField height
-		backgroundColor: "#2A316E",
-		borderRadius: 16, // Adjust borderRadius to match your FormField
-		borderWidth: 2,
-		borderColor: "#000",
-		justifyContent: "center",
-		paddingHorizontal: 16, // Adjust padding to match your FormField
+	containerColumn: {
+		flexDirection: "column",
+		justifyContent: "space-between",
+		paddingHorizontal: 20,
 	},
-	pickerItem: {
-		fontSize: 18, // Adjust fontSize to match your FormField
-		fontWeight: "bold", // Set fontWeight to match your FormField
-		textAlign: "center", // Center the text
+	table: {
+		padding: 10,
+		marginVertical: 10,
+		backgroundColor: "#f0f0f0",
+		borderRadius: 10,
+		padding: 20,
+	},
+	selectListBox: {
+		height: 60,
+		borderWidth: 2,
+		borderColor: "black",
+		paddingLeft: 16,
+		paddingRight: 16,
+		borderRadius: 14,
+		padding: 8,
+	},
+	selectListInput: {
+		color: "#000000",
+		marginTop: 6.5,
+	},
+	selectListDropdown: {
+		borderColor: "black",
+	},
+	selectListDropdownItem: {
+		padding: 8,
+	},
+	selectListDropdownText: {
+		color: "#000000",
 	},
 });
 
-export default AdminDetail;
+export default UserDetail;

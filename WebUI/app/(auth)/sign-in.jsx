@@ -3,7 +3,7 @@ import { View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 
-import CustomButton from "../../components/CustomButtom";
+import CustomButton from "../../components/CustomButton";
 import Header from "../../components/Header";
 import FormField from "../../components/FormField";
 
@@ -29,7 +29,7 @@ const SignIn = () => {
 				router.replace("/home");
 			}
 		} catch (error) {
-			console.log("Error", error.message);
+			alert(error);
 		} finally {
 			setIsSubmitting(false);
 		}

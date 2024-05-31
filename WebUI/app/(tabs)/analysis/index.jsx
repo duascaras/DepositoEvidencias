@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import Header from "../../../components/Header";
-import CustomButton from "../../../components/CustomButtom";
+import CustomButton from "../../../components/CustomButton";
 import { useFocusEffect, useRouter } from "expo-router";
 import SearchInput from "../../../components/SearchInput";
 import { icons } from "../../../constants";

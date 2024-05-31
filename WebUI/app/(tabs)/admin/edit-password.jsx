@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
-import CustomButton from "../../../components/CustomButtom";
+import CustomButton from "../../../components/CustomButton";
 import FormField from "../../../components/FormField";
 import Header from "../../../components/Header";
 import { useAuth } from "../../../context/AuthContext"; // Import the useAuth hook
@@ -18,6 +18,28 @@ const EditPassword = () => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const router = useRouter();
 	const { authState } = useAuth(); // Get authState from AuthContext
+	const { id } = useLocalSearchParams(); // Get user ID from URL parameters
+
+	useEffect(() => {
+		const getUser = async () => {
+			try {
+				const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/get-user/${id}`;
+				const response = await axios.get(API_URL);
+				if (response.status === 200) {
+					const userData = response.data;
+					setForm((prevForm) => ({
+						...prevForm,
+						userName: userData.userName,
+					}));
+				} else {
+					alert("Error");
+				}
+			} catch (error) {
+				alert(error.response.data);
+			}
+		};
+		getUser();
+	}, [id]);
 
 	const updateUser = async () => {
 		setIsSubmitting(true);
@@ -25,7 +47,6 @@ const EditPassword = () => {
 		try {
 			// Determine the API endpoint based on the user's role
 			let API_URL;
-			console.log(authState);
 			if (authState.user.role === "Admin") {
 				API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}/api/Account/edit-password-admin`;
 			} else {
@@ -58,6 +79,7 @@ const EditPassword = () => {
 					value={form.userName}
 					handleChangeText={(e) => setForm({ ...form, userName: e })}
 					otherStyles="mt-8"
+					disabled={true}
 				/>
 
 				<FormField
@@ -79,7 +101,7 @@ const EditPassword = () => {
 				/>
 
 				<CustomButton
-					title="Atualizar"
+					title="Atualizar Permissão"
 					handlePress={updateUser}
 					containerStyles="mt-10"
 					isLoading={isSubmitting}

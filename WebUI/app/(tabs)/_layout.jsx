@@ -155,7 +155,7 @@ const TabsLayout = () => {
 				/>
 
 				<Tabs.Screen
-					name="admin/sign-up"
+					name="admin/register"
 					options={{
 						href: null,
 						headerShown: false,
@@ -180,14 +180,6 @@ const TabsLayout = () => {
 
 				<Tabs.Screen
 					name="admin/inactive-users"
-					options={{
-						href: null,
-						headerShown: false,
-					}}
-				/>
-
-				<Tabs.Screen
-					name="admin/inactivate-user"
 					options={{
 						href: null,
 						headerShown: false,

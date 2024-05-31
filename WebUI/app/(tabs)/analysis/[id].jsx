@@ -5,7 +5,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
 
 import FormField from "../../../components/FormField";
-import CustomButton from "../../../components/CustomButtom"; // Fix typo from CustomButtom to CustomButton
+import CustomButton from "../../../components/CustomButton"; // Fix typo from CustomButton to CustomButton
 
 const AnalysisDetails = ({ onAnalysisUpdated }) => {
 	const { id } = useLocalSearchParams();
