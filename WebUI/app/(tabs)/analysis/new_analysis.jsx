@@ -1,8 +1,10 @@
-import React, { useState } from "react";
-import { View, ScrollView, Image, TouchableOpacity } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, ScrollView, Image, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import axios from "axios";
+import { Camera } from "expo-camera";
+import * as Clipboard from "expo-clipboard";
 
 import { icons } from "../../../constants";
 import CustomButton from "../../../components/CustomButton";
@@ -13,9 +15,44 @@ const NewAnalysis = ({ onItemCreated }) => {
 	const [form, setForm] = useState({
 		code: "",
 	});
-
-	const [isSubmitting, setisSubmitting] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [cameraPermission, setCameraPermission] = useState(null);
+	const [scannerPermission, setScannerPermission] = useState(null);
+	const [cameraVisible, setCameraVisible] = useState(false);
+	const [scanned, setScanned] = useState(false);
+	const cameraRef = useRef(null);
 	const router = useRouter();
+
+	useEffect(() => {
+		const requestPermissions = async () => {
+			const cameraStatus = await Camera.requestCameraPermissionsAsync();
+			setCameraPermission(cameraStatus.status === "granted");
+
+			const scannerStatus =
+				await BarCodeScanner.requestPermissionsAsync();
+			setScannerPermission(scannerStatus.status === "granted");
+		};
+
+		requestPermissions();
+	}, []);
+
+	const handleCameraPress = () => {
+		if (!cameraPermission || !scannerPermission) {
+			Alert.alert(
+				"Permissions not granted",
+				"Camera and Scanner permissions are required."
+			);
+			return;
+		}
+		setCameraVisible(true);
+	};
+
+	const handleBarCodeScanned = async ({ type, data }) => {
+		setScanned(true);
+		Alert.alert("QR Code Scanned", `Scanned QR code: ${data}`);
+		await Clipboard.setStringAsync(data);
+		setCameraVisible(false);
+	};
 
 	const submit = async () => {
 		if (!form.code) {
@@ -23,7 +60,7 @@ const NewAnalysis = ({ onItemCreated }) => {
 			return;
 		}
 
-		setisSubmitting(true);
+		setIsSubmitting(true);
 		try {
 			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Create-Analysis/2bba2917-f514-4eba-b51c-08b3be49cb6c`;
 			const response = await axios.post(API_URL, form);
@@ -35,22 +72,17 @@ const NewAnalysis = ({ onItemCreated }) => {
 				}
 				router.push("analysis");
 			} else {
-				alert("Error. Something went wrong. Please try again.");
+				alert("Something went wrong. Please try again.");
 			}
 		} catch (error) {
-			alert("Error. Failed to create analysis. Please try again.");
-			console.error("Error:", error);
+			alert("Failed to create analysis. Please try again.");
 		} finally {
-			setisSubmitting(false);
+			setIsSubmitting(false);
 		}
 	};
 
 	const cancel = () => {
 		router.push("analysis");
-	};
-
-	const handleCameraPress = () => {
-		console.log("Camera Pressed");
 	};
 
 	return (
@@ -97,6 +129,22 @@ const NewAnalysis = ({ onItemCreated }) => {
 					</View>
 				</View>
 			</ScrollView>
+			{cameraVisible && (
+				<View style={{ flex: 1 }}>
+					<Camera
+						style={{ flex: 1 }}
+						type={Camera.Constants.Type.back}
+						ref={cameraRef}
+					>
+						<BarCodeScanner
+							onBarCodeScanned={
+								scanned ? undefined : handleBarCodeScanned
+							}
+							style={{ flex: 1 }}
+						/>
+					</Camera>
+				</View>
+			)}
 		</SafeAreaView>
 	);
 };

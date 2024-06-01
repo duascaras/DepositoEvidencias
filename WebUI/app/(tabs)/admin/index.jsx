@@ -11,9 +11,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import Header from "../../../components/Header";
 import SearchInput from "../../../components/SearchInput";
-import { icons } from "../../../constants";
 import CustomButton from "../../../components/CustomButton";
 import { useRouter, useFocusEffect } from "expo-router";
+import { icons } from "../../../constants";
 
 const Admin = () => {
 	const [users, setUsers] = useState([]);
@@ -26,14 +26,9 @@ const Admin = () => {
 	const [filter, setFilter] = useState("active");
 	const router = useRouter();
 
-	const filterOptions = [
-		{ key: "active", value: "Ativos" },
-		{ key: "inactive", value: "Inativos" },
-	];
-
 	const getUsers = useCallback(
 		async (page) => {
-			const pageSize = 5;
+			const pageSize = 6;
 			const endpoint =
 				filter === "active" ? "get-users-active" : "get-users-inactive";
 			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/${endpoint}?pageNumber=${page}&pageSize=${pageSize}`;
@@ -57,6 +52,12 @@ const Admin = () => {
 		[filter]
 	);
 
+	useFocusEffect(
+		useCallback(() => {
+			getUsers(currentPage);
+		}, [currentPage, getUsers])
+	);
+
 	useEffect(() => {
 		getUsers(currentPage);
 	}, [currentPage, getUsers, filter]);
@@ -71,12 +72,6 @@ const Admin = () => {
 			setFilteredUsers(users);
 		}
 	}, [query, users]);
-
-	useFocusEffect(
-		useCallback(() => {
-			getUsers(currentPage);
-		}, [currentPage, getUsers])
-	);
 
 	const newUser = () => {
 		router.push({
@@ -116,26 +111,40 @@ const Admin = () => {
 			<Header title={"Administrador"} />
 			<View className="p-4">
 				<SearchInput initialQuery={query} onSearch={setQuery} />
-				<View className="flex-row justify-between">
+				<View className="flex-row justify-between mt-4">
 					<TouchableOpacity
-						className={`p-2 rounde ${
-							filter === "active" ? "bg-blue-500" : "bg-gray-300"
+						className={`p-2 border-2 rounded ${
+							filter === "active"
+								? "bg-blue-500 border-black"
+								: "bg-gray-300 border-gray-300 opacity-50"
 						}`}
 						onPress={() => handleFilterChange("active")}
 						disabled={filter === "active"}
 					>
-						<Text className="text-white">Ativos</Text>
+						<Text
+							className={`text-white ${
+								filter === "active" ? "" : "text-black"
+							}`}
+						>
+							Ativos
+						</Text>
 					</TouchableOpacity>
 					<TouchableOpacity
-						className={`p-2 rounded ${
+						className={`p-2 border-2 rounded ${
 							filter === "inactive"
-								? "bg-blue-500"
-								: "bg-gray-300"
+								? "bg-blue-500 border-black"
+								: "bg-gray-300 border-gray-300 opacity-50"
 						}`}
 						onPress={() => handleFilterChange("inactive")}
 						disabled={filter === "inactive"}
 					>
-						<Text className="text-white">Inativos</Text>
+						<Text
+							className={`text-white ${
+								filter === "inactive" ? "" : "text-black"
+							}`}
+						>
+							Inativos
+						</Text>
 					</TouchableOpacity>
 				</View>
 			</View>
@@ -176,15 +185,6 @@ const Admin = () => {
 								/>
 							</TouchableOpacity>
 						)}
-						ListFooterComponent={() => (
-							<View className="self-center bottom-0 p-4 w-96 mb-10">
-								<CustomButton
-									title="Novo Usuário"
-									handlePress={newUser}
-									containerStyles="w-full"
-								/>
-							</View>
-						)}
 					/>
 				</View>
 			) : (
@@ -224,6 +224,13 @@ const Admin = () => {
 					</TouchableOpacity>
 				</View>
 			)}
+			<View className="self-center bottom-0 p-4 w-96 mb-10">
+				<CustomButton
+					title="Novo Usuário"
+					handlePress={newUser}
+					containerStyles="w-full"
+				/>
+			</View>
 		</SafeAreaView>
 	);
 };

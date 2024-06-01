@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Alert } from "react-native";
+import { View, Text, ScrollView, Alert, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
-
 import FormField from "../../../components/FormField";
 import CustomButton from "../../../components/CustomButton";
+import { SelectList } from "react-native-dropdown-select-list";
+import Header from "../../../components/Header";
 
 const ItemDetails = ({ onItemUpdated }) => {
 	const { id } = useLocalSearchParams();
@@ -17,6 +18,11 @@ const ItemDetails = ({ onItemUpdated }) => {
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const router = useRouter();
+
+	const statusOptions = [
+		{ key: "true", value: "Ativo" },
+		{ key: "false", value: "Inativo" },
+	];
 
 	useEffect(() => {
 		const getItem = async () => {
@@ -31,10 +37,10 @@ const ItemDetails = ({ onItemUpdated }) => {
 						isActive: itemData.isActive,
 					});
 				} else {
-					Alert.alert("Error", "Failed to fetch item data.");
+					alert("Failed to fetch item data.");
 				}
 			} catch (error) {
-				Alert.alert("Error", "Failed to fetch item data.");
+				alert(error);
 				console.error("Error:", error);
 			}
 		};
@@ -54,18 +60,14 @@ const ItemDetails = ({ onItemUpdated }) => {
 			});
 
 			if (response.status === 200) {
-				Alert.alert("Success", "Item updated successfully.");
-				if (onItemUpdated) onItemUpdated(); // Notify parent about the update
+				alert("Success", "Item updated successfully.");
+				if (onItemUpdated) onItemUpdated();
 				router.push("/(tabs)/items");
 			} else {
-				Alert.alert(
-					"Error",
-					"Failed to update item. Please try again."
-				);
+				alert("Failed to update item. Please try again.");
 			}
 		} catch (error) {
-			Alert.alert("Error", "Failed to update item. Please try again.");
-			console.error("Error:", error);
+			alert(error);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -78,11 +80,7 @@ const ItemDetails = ({ onItemUpdated }) => {
 	return (
 		<SafeAreaView className="bg-soft_white h-full">
 			<ScrollView>
-				<View className="bg-blue">
-					<Text className="text-4xl text-soft_white text-primary text-semibold my-10 font-psemibold text-center">
-						Editar Itens
-					</Text>
-				</View>
+				<Header title={"Editar Itens"} />
 
 				<View className="w-full justify-center min-h-[60vh] px-14">
 					<FormField
@@ -99,13 +97,24 @@ const ItemDetails = ({ onItemUpdated }) => {
 						otherStyles="mt-8"
 					/>
 
-					<FormField
-						title="Status"
-						value={String(form.isActive)}
-						handleChangeText={(e) =>
-							setForm({ ...form, isActive: e === "true" })
+					<Text className="text-xl text-semibold font-psemibold mt-8">
+						Status
+					</Text>
+					<SelectList
+						setSelected={(val) =>
+							setForm({ ...form, isActive: val === "true" })
 						}
-						otherStyles="mt-8"
+						data={statusOptions}
+						save="key"
+						defaultOption={{
+							key: String(form.isActive),
+							value: form.isActive ? "Ativo" : "Inativo",
+						}}
+						boxStyles={styles.selectListBox}
+						inputStyles={styles.selectListInput}
+						dropdownStyles={styles.selectListDropdown}
+						dropdownItemStyles={styles.selectListDropdownItem}
+						dropdownTextStyles={styles.selectListDropdownText}
 					/>
 
 					<View className="flex flex-row justify-between mt-20">
@@ -126,5 +135,30 @@ const ItemDetails = ({ onItemUpdated }) => {
 		</SafeAreaView>
 	);
 };
+
+const styles = StyleSheet.create({
+	selectListBox: {
+		height: 60,
+		borderWidth: 2,
+		borderColor: "black",
+		paddingLeft: 16,
+		paddingRight: 16,
+		borderRadius: 14,
+		padding: 8,
+	},
+	selectListInput: {
+		color: "#000000",
+		marginTop: 6.5,
+	},
+	selectListDropdown: {
+		borderColor: "black",
+	},
+	selectListDropdownItem: {
+		padding: 8,
+	},
+	selectListDropdownText: {
+		color: "#000000",
+	},
+});
 
 export default ItemDetails;

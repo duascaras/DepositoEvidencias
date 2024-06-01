@@ -118,3 +118,27 @@ we use this to log on the web
 ```
 npx expo install @react-native-async-storage/async-storage
 ```
+
+dropdown list
+
+```
+react-native-dropdown-select-list
+```
+
+camera
+
+```
+npx expo install expo-camera
+```
+
+qrcode/barcode scanner
+
+```
+npx expo install expo-barcode-scanner
+```
+
+clipboard
+
+```
+npx expo install expo-clipboard
+```

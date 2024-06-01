@@ -43,14 +43,14 @@ const Register = ({ onItemCreated = () => {} }) => {
 			const response = await axios.post(API_URL, updatedForm);
 
 			if (response.status === 200) {
-				Alert.alert("Success", "User created successfully");
+				alert("Usuário criado com sucesso.");
 				onItemCreated();
 				router.push("/(tabs)/admin");
 			} else {
-				Alert.alert("Error", "Something went wrong. Please try again.");
+				alert("Erro. Por favor, tente novamente.");
 			}
 		} catch (error) {
-			Alert.alert("Error", error.response.data);
+			alert(error.response.data);
 		} finally {
 			setIsSubmitting(false);
 		}

@@ -93,9 +93,9 @@ const Analysis = () => {
 	return (
 		<SafeAreaView className="bg-soft_white h-full">
 			<Header title={"Análises"} />
-
-			<SearchInput initialQuery={query} onSearch={setQuery} />
-
+			<View className="p-4">
+				<SearchInput initialQuery={query} onSearch={setQuery} />
+			</View>
 			<View>
 				{isLoading ? (
 					<ActivityIndicator size="large" color="#0000ff" />
@@ -104,14 +104,27 @@ const Analysis = () => {
 						data={filteredAnalyses}
 						keyExtractor={(analysis) => analysis.id.toString()}
 						renderItem={({ item }) => (
-							<View className="flex-row mt-10 self-center items-center h-14 px-4 rounded-2xl border-2 w-96">
-								<Text className="text-xl ml-4 mt-0.5 text-black flex-1 font-pregular">
-									{item.itemId}
-								</Text>
-								<Text className="text-xl ml-4 mt-0.5 text-black flex-1 font-pregular">
-									{item.writtenUserId}
-								</Text>
-
+							<View className="flex-row mt-2 items-center p-4 bg-white rounded-xl border-2 border-gray-300 shadow-sm mx-4">
+								<TouchableOpacity
+									onPress={() => editAnalysis(item)}
+								>
+									<Image
+										source={icons.checklist}
+										className="w-10 h-10"
+										resizeMode="contain"
+									/>
+								</TouchableOpacity>
+								<TouchableOpacity
+									className="ml-4 flex-1"
+									onPress={() => editAnalysis(item)}
+								>
+									<Text className="text-lg text-black font-pregular">
+										{item.itemId}
+									</Text>
+									<Text className="text-gray-500">
+										Written by: {item.writtenUserId}
+									</Text>
+								</TouchableOpacity>
 								<TouchableOpacity
 									onPress={() => editAnalysis(item)}
 								>
@@ -129,21 +142,37 @@ const Analysis = () => {
 				)}
 			</View>
 
-			<View className="flex-row justify-between px-14 mt-4">
-				<Button
-					title="Previous"
-					onPress={handlePreviousPage}
-					disabled={currentPage === 1}
-				/>
-				<Text className="text-xl text-semibold font-psemibold">
-					Page {currentPage} of {totalPages}
-				</Text>
-				<Button
-					title="Next"
-					onPress={handleNextPage}
-					disabled={currentPage === totalPages}
-				/>
-			</View>
+			{showAnalyses && (
+				<View className="absolute bottom-0 w-full flex-row justify-between p-1 bg-soft_white border-t border-gray-300">
+					<TouchableOpacity
+						className={`bg-blue-500 border-2 border-black p-2 rounded ${
+							currentPage === 1 ? "opacity-50" : ""
+						}`}
+						onPress={handlePreviousPage}
+						disabled={currentPage === 1}
+					>
+						<Text className="text-sm text-center text-white">
+							Anterior
+						</Text>
+					</TouchableOpacity>
+
+					<Text className="text-lg self-center p-2 text-black font-pregular text-center">
+						Page {currentPage} of {totalPages}
+					</Text>
+
+					<TouchableOpacity
+						className={`bg-blue-500 border-2 border-black p-2 rounded ${
+							currentPage === totalPages ? "opacity-50" : ""
+						}`}
+						onPress={handleNextPage}
+						disabled={currentPage === totalPages}
+					>
+						<Text className="text-sm text-center text-white">
+							Próxima
+						</Text>
+					</TouchableOpacity>
+				</View>
+			)}
 
 			<View className="absolute self-center bottom-0 p-4 w-96 mb-10">
 				<CustomButton
