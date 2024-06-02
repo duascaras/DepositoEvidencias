@@ -185,6 +185,11 @@ namespace WebAPI.Controllers
                 return BadRequest("Você não tem permissão para editar esta análise.");
             }
 
+            if (analysis.Laudo == null || analysis.AnalysisType == null)
+            {
+                return BadRequest("Preencha o Laudo e as Análises e depois aplique alterações antes de enviar.");
+            }
+
             analysis.IsFinished = true;
             analysis.SentDate = DateTime.UtcNow;
 
@@ -267,7 +272,9 @@ namespace WebAPI.Controllers
                     ItemId = a.Item.Name,
                     Laudo = a.Laudo,
                     AnalysisType = a.AnalysisType,
-                    SentData = a.SentDate
+                    SentData = a.SentDate,
+                    ConfirmedUser = a.ConfirmedUser,
+                    ConfimationData = a.ConfirmationDate
                 })
                 .FirstOrDefaultAsync();
 
