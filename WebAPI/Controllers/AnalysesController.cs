@@ -22,7 +22,6 @@ namespace WebAPI.Controllers
             _userManager = userManager;
         }
 
-        [Authorize(Roles = "Admin,ItemCreator")]
         [HttpPost("GenerateCode/{userId}/{itemId}")]
         public async Task<IActionResult> GenerateCode([FromRoute] string userId, [FromRoute] int itemId)
         {
@@ -68,7 +67,7 @@ namespace WebAPI.Controllers
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        [Authorize(Roles = "Admin,ItemAnalyzer")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("Create-Analysis/{id}")]
         public async Task<IActionResult> CreateAnalysisByCode([FromRoute] string id, [FromBody] CreateAnalysisModel model)
         {
@@ -126,7 +125,7 @@ namespace WebAPI.Controllers
             return Ok(analysis);
         }
 
-        [Authorize(Roles = "Admin,ItemAnalyzer")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("Edit-Analysis/{id}")]
         public async Task<IActionResult> EditAnalysis([FromRoute] int id, [FromBody] EditAnalysisModel model)
         {
@@ -158,12 +157,14 @@ namespace WebAPI.Controllers
             analysis.Laudo = model.Laudo;
             analysis.AnalysisType = model.AnalysisType;
 
+            // Salva as alterações no banco de dados
+            //_context.Analyses.Update(analysis);
             await _context.SaveChangesAsync();
 
             return Ok(analysis);
         }
 
-        [Authorize(Roles = "Admin,ItemAnalyzer")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("Send-Analysis/{analysisId}")]
         public async Task<IActionResult> SendAnalysis([FromRoute] int analysisId)
         {
@@ -185,11 +186,6 @@ namespace WebAPI.Controllers
                 return BadRequest("Você não tem permissão para editar esta análise.");
             }
 
-            if (analysis.Laudo == null || analysis.AnalysisType == null)
-            {
-                return BadRequest("Preencha o Laudo e as Análises e depois aplique alterações antes de enviar.");
-            }
-
             analysis.IsFinished = true;
             analysis.SentDate = DateTime.UtcNow;
 
@@ -197,7 +193,7 @@ namespace WebAPI.Controllers
             return Ok(analysis);
         }
 
-        [Authorize(Roles = "Admin,ItemCreator")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("Confirm-Analysis/{analysisId}")]
         public async Task<IActionResult> ConfirmAnalysis([FromRoute] int analysisId)
         {
@@ -233,14 +229,11 @@ namespace WebAPI.Controllers
             return Ok(analysis);
         }
 
-        [Authorize(Roles = "Admin,ItemCreator")]
         [HttpGet("Analysis-pending-confirmed")]
         public async Task<ActionResult<IEnumerable<Analysis>>> GetFinishedAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {
-            var totalPending = await _context.Analyses.CountAsync(a => a.IsFinished && !a.IsConfirmed);
-
-            var pendingAnalysis = await _context.Analyses
-                .Where(a => a.IsFinished && !a.IsConfirmed)
+            var finishedAnalysis = await _context.Analyses
+                .Where(a => a.IsFinished)
                 .OrderBy(a => a.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -252,14 +245,11 @@ namespace WebAPI.Controllers
                 })
                 .ToListAsync();
 
-            var result = PaginatedResult<object>.Create(totalPending, pendingAnalysis);
-
-            return Ok(result);
+            return Ok(finishedAnalysis);
         }
-
-        [Authorize(Roles = "Admin,ItemCreator,ItemAnalyzer")]
-        [HttpGet("Analysis-detail/{id}")]
-        public async Task<ActionResult<Analysis>> GetAnalysis(int id)
+        
+        [HttpGet("Analysis-Datail{id}")]
+        public async Task<ActionResult<object>> GetAnalysis(int id)
         {
             var analysis = await _context.Analyses
                 .Where(a => a.Id == id)
@@ -272,9 +262,7 @@ namespace WebAPI.Controllers
                     ItemId = a.Item.Name,
                     Laudo = a.Laudo,
                     AnalysisType = a.AnalysisType,
-                    SentData = a.SentDate,
-                    ConfirmedUser = a.ConfirmedUser,
-                    ConfimationData = a.ConfirmationDate
+                    SentData = a.SentDate
                 })
                 .FirstOrDefaultAsync();
 
@@ -286,13 +274,10 @@ namespace WebAPI.Controllers
             return Ok(analysis);
         }
 
-        [Authorize(Roles = "Admin,ItemCreator,ItemAnalyzer")]
         [HttpGet("Analysis-confirmed")]
-        public async Task<ActionResult<PaginatedResult<Analysis>>> GetConfirmedAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        public async Task<ActionResult<IEnumerable<Analysis>>> GetConfirmedAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {
-            var totalConfirmed = await _context.Analyses.CountAsync(a => a.IsConfirmed);
-
-            var confirmedAnalysis = await _context.Analyses
+            var finishedAnalysis = await _context.Analyses
                 .Where(a => a.IsConfirmed)
                 .OrderBy(a => a.Id)
                 .Skip((page - 1) * pageSize)
@@ -306,18 +291,12 @@ namespace WebAPI.Controllers
                 })
                 .ToListAsync();
 
-            var result = PaginatedResult<object>.Create(totalConfirmed, confirmedAnalysis);
-
-            return Ok(result);
+            return Ok(finishedAnalysis);
         }
-
-        [Authorize(Roles = "Admin,ItemCreator,ItemAnalyzer")]
-        [HttpGet("Typing-analysis")]
-        public async Task<ActionResult<PaginatedResult<Analysis>>> GetTypingAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        [HttpGet("Analysis-awaiting")]
+        public async Task<ActionResult<IEnumerable<Analysis>>> GetAwaitingAnalysis([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {
-            var totalTyping = await _context.Analyses.CountAsync(a => !a.IsFinished);
-
-            var typingAnalysis = await _context.Analyses
+            var finishedAnalysis = await _context.Analyses
                 .Where(a => !a.IsFinished)
                 .OrderBy(a => a.Id)
                 .Skip((page - 1) * pageSize)
@@ -330,9 +309,7 @@ namespace WebAPI.Controllers
                 })
                 .ToListAsync();
 
-            var result = PaginatedResult<object>.Create(totalTyping, typingAnalysis);
-
-            return Ok(result);
+            return Ok(finishedAnalysis);
         }
     }
 }

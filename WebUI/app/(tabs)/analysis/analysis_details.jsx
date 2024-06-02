@@ -8,7 +8,7 @@ import Header from "../../../components/Header";
 import CustomButtom from "../../../components/CustomButtom";
 import { router } from "expo-router";
 
-const Analysis = () => {
+const ItemDetails = () => {
 	const [items, setItems] = useState([]);
 	const [showItems, setShowItems] = useState(false);
 
@@ -17,11 +17,7 @@ const Analysis = () => {
 	}, []);
 
 	const goToDetails = async () => {
-		router.push("analysis/analysis_details");
-	};
-
-	const newAnalysis = async () => {
-		router.push("analysis/new_analysis");
+		router.push("items/[id]");
 	};
 
 	const getItems = async () => {
@@ -36,11 +32,13 @@ const Analysis = () => {
 		}
 	};
 
-	// TODO: Add tailwind styles
 	return (
 		<SafeAreaView className="bg-soft_white h-full">
 			<View>
-				<Header title={"Análises"}></Header>
+				<Header title={"Editar Análises"}></Header>
+				<Header
+					title={"Isso vai mudar pq ta puxando os itens"}
+				></Header>
 			</View>
 
 			<View>
@@ -51,10 +49,25 @@ const Analysis = () => {
 						renderItem={({ item }) => (
 							<View className={"mt-5 ml-5"}>
 								<Text className={`text-xl  font-bold`}>
-									Nome do Item: {item.name}
+									Nome: {item.name}
 								</Text>
+
+								<Text className={`text-xl  font-bold`}>
+									Código: {item.code}
+								</Text>
+
+								<Text className={`text-xl  font-bold`}>
+									Status: {item.isActive}
+								</Text>
+
 								<CustomButtom
-									title="Detalhes"
+									title="Aplicar Alterações"
+									handlePress={goToDetails}
+									containerStyles="mt-4"
+								/>
+
+								<CustomButtom
+									title="Cancelar"
 									handlePress={goToDetails}
 									containerStyles="mt-4"
 								/>
@@ -65,14 +78,10 @@ const Analysis = () => {
 			</View>
 
 			<View>
-				<CustomButtom
-					title="Nova Análise"
-					handlePress={newAnalysis}
-					containerStyles="mt-80"
-				/>
+				<CustomButtom title="Novo item" containerStyles="mt-60" />
 			</View>
 		</SafeAreaView>
 	);
 };
 
-export default Analysis;
+export default ItemDetails;
