@@ -13,6 +13,11 @@ import eye from "../assets/icons/eye.png";
 import play from "../assets/icons/play.png";
 import edit from "../assets/icons/edit.png";
 import qrcode from "../assets/icons/qrcode.png";
+import qrcodeChecked from "../assets/icons/qrcode-checked.png";
+import camera from "../assets/icons/camera.png";
+import user from "../assets/icons/person.png";
+import checklist from "../assets/icons/checklist.png";
+import disabled from "../assets/icons/disabled.png";
 
 export default {
 	play,
@@ -30,4 +35,9 @@ export default {
 	eye,
 	edit,
 	qrcode,
+	qrcodeChecked,
+	camera,
+	user,
+	checklist,
+	disabled,
 };

@@ -68,3 +68,84 @@ qrcode generator
 ```
 https://snack.expo.dev/@duascaras/ffb3af
 ```
+
+dropdown picker
+
+```
+npx expo install @react-native-picker/picker
+```
+
+file structure
+
+```
+  app
+  |- (auth)
+  |   |- _layout.jsx
+  |   |- sign-in.jsx
+  |- (tabs)
+  |   |- admin
+  |   |   |- [id].jsx
+  |   |   |- edit-password.jsx
+  |   |   |- index.jsx
+  |   |   |- register.jsx
+  |   |- analysis
+  |   |   |- [id].jsx
+  |   |   |- index.jsx
+  |   |   |- new_analysis.jsx
+  |   |- items
+  |   |   |- [id].jsx
+  |   |   |- index.jsx
+  |   |   |- new_items.jsx
+  |   |- pending
+  |   |   |- index.jsx
+  |   |- _layout.jsx
+  |   |- home.jsx
+  |   |- index.jsx
+  |- search
+  |   |- [query].jsx
+  |- _layout.jsx
+  |- index.jsx
+  assets
+  |- fonts
+  |- icons
+  |- images
+  components
+  |   |- CustomButton.jsx
+  |   |- CustomQRCodes.jsx
+  |   |- FormField.jsx
+  |   |- Header.jsx
+  |   |- SearchInput.jsx
+  constants
+  context
+  |- AuthContext.js
+```
+
+we use this to log on the web
+
+```
+npx expo install @react-native-async-storage/async-storage
+```
+
+dropdown list
+
+```
+react-native-dropdown-select-list
+```
+
+camera
+
+```
+npx expo install expo-camera
+```
+
+qrcode/barcode scanner
+
+```
+npx expo install expo-barcode-scanner
+```
+
+clipboard
+
+```
+npx expo install expo-clipboard
+```

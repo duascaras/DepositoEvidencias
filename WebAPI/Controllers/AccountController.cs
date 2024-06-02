@@ -14,6 +14,7 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class AccountController : ControllerBase
     {
         private readonly UserManager<ExtendedIdentityUser> _userManager;
@@ -29,7 +30,6 @@ namespace WebAPI.Controllers
             _roleManager = roleManager;
         }
 
-        //[Authorize(Roles ="Admin")]
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterModel model)
         {
@@ -70,7 +70,6 @@ namespace WebAPI.Controllers
 
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPut("edit-user")]
         public async Task<IActionResult> EditUser(EditUserModel model)
         {
@@ -97,7 +96,6 @@ namespace WebAPI.Controllers
             //adiciona a nova
             await _userManager.AddToRoleAsync(user, model.RoleName);
             
-
             return Ok("Role do usuário atualizada com sucesso.");
         }
 
@@ -141,9 +139,39 @@ namespace WebAPI.Controllers
             return Ok("Senha do usuário atualizada com sucesso.");
         }
 
-        //A ver se continuará assim
-        //Talvez eu junte o inativar com o edit-user, depende de o que ficar melhor no front
-        //Ficaria igual o edit do item
+        [HttpPut("edit-password-user")]
+        public async Task<IActionResult> EditUserPasswordOwn(EditOwnerPasswordModel model)
+        {
+            var authUser = await _userManager.GetUserAsync(User);
+            if (authUser == null)
+            {
+                return NotFound("Usuário não encontrado.");
+            }
+
+            var passwordVerificationResult = _userManager.PasswordHasher.VerifyHashedPassword(authUser, authUser.PasswordHash, model.CurrentPassword);
+            if (passwordVerificationResult != PasswordVerificationResult.Success)
+            {
+                return BadRequest("A senha atual está incorreta.");
+            }
+
+            if (model.NewPassword != model.ConfirmedPassword)
+            {
+                return BadRequest("A nova senha e a confirmação precisam ser iguais.");
+            }
+
+            // Tentar alterar a senha do usuário
+            var changePasswordResult = await _userManager.ChangePasswordAsync(authUser, model.CurrentPassword, model.NewPassword);
+            if (!changePasswordResult.Succeeded)
+            {
+                return BadRequest("Erro ao redefinir senha.");
+            }
+
+            return Ok("Senha alterada com sucesso.");
+        }
+
+        // A ver se continuará assim
+        // Talvez eu junte o inativar com o edit-user, depende de o que ficar melhor no front
+        // Ficaria igual o edit do item
         [HttpPut("desativar-ativar-usuario")]
         public async Task<IActionResult> ToggleUserActivation(string username)
         {
@@ -168,7 +196,7 @@ namespace WebAPI.Controllers
             }
         }
 
-
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginModel model)
         {
@@ -255,44 +283,6 @@ namespace WebAPI.Controllers
             });
         }
 
-
-        //[Authorize]
-        [HttpPost("search-user-active")]
-        public async Task<IActionResult> GetUsersBySearch(SearchModel search)
-        {
-            if (search == null || search.Keywords == null || search.Keywords.Length == 0)
-            {
-                return BadRequest("Digite algo para buscar.");
-            }
-
-            var usersQuery = _userManager.Users.Where(user => search.Keywords.Any(keyword => user.UserName.Contains(keyword)) && user.IsActive);
-
-            var totalUsers = await usersQuery.CountAsync();
-            var users = await usersQuery.Skip((search.PageNumber - 1) * search.PageSize).Take(search.PageSize).ToListAsync();
-
-            var userDetailsList = new List<object>();
-
-            foreach (var user in users)
-            {
-                var userRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
-                var userDetails = new
-                {
-                    user.Id,
-                    user.UserName,
-                    Role = userRole
-                };
-                userDetailsList.Add(userDetails);
-            }
-
-            return Ok(new
-            {
-                TotalUsers = totalUsers,
-                PageNumber = search.PageNumber,
-                PageSize = search.PageSize,
-                Users = userDetailsList
-            });
-        }
-
         [HttpGet("get-users-inactive")]
         public async Task<IActionResult> GetAllUsersInactive(int pageNumber = 1, int pageSize = 5)
         {
@@ -346,17 +336,6 @@ namespace WebAPI.Controllers
 
             return Ok(userDetails);
         }
-
-
-
-
-
-
-
-
-
-
-
     }
 }
 

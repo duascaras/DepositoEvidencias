@@ -1,7 +1,8 @@
 import { View, Image, Text } from "react-native";
-import { Tabs } from "expo-router";
-
+import { Tabs, Redirect } from "expo-router";
+import { useAuth } from "../../context/AuthContext";
 import { icons } from "../../constants";
+import { StatusBar } from "expo-status-bar";
 
 const TabIcon = ({ icon, color, name, focused }) => {
 	return (
@@ -25,6 +26,12 @@ const TabIcon = ({ icon, color, name, focused }) => {
 };
 
 const TabsLayout = () => {
+	const { authState } = useAuth();
+
+	if (!authState.authenticated) {
+		return <Redirect href="/sign-in" />;
+	}
+
 	return (
 		<>
 			<Tabs
@@ -40,6 +47,14 @@ const TabsLayout = () => {
 					},
 				}}
 			>
+				<Tabs.Screen
+					name="index"
+					options={{
+						href: null,
+						headerShown: false,
+					}}
+				/>
+
 				<Tabs.Screen
 					name="home"
 					options={{
@@ -73,6 +88,25 @@ const TabsLayout = () => {
 				/>
 
 				<Tabs.Screen
+					name="items/[id]"
+					options={{
+						href: null,
+						title: "Items",
+						headerShown: false,
+						tabBarVisible: false,
+					}}
+				/>
+
+				<Tabs.Screen
+					name="items/new_item"
+					options={{
+						href: null,
+						headerShown: false,
+						tabBarVisible: false,
+					}}
+				/>
+
+				<Tabs.Screen
 					name="analysis/index"
 					options={{
 						title: "Analysis",
@@ -97,7 +131,7 @@ const TabsLayout = () => {
 				/>
 
 				<Tabs.Screen
-					name="analysis/analysis_details"
+					name="analysis/[id]"
 					options={{
 						href: null,
 						headerShown: false,
@@ -121,7 +155,7 @@ const TabsLayout = () => {
 				/>
 
 				<Tabs.Screen
-					name="admin/sign-up"
+					name="admin/register"
 					options={{
 						href: null,
 						headerShown: false,
@@ -129,21 +163,26 @@ const TabsLayout = () => {
 				/>
 
 				<Tabs.Screen
-					name="items/[id]"
+					name="admin/[id]"
 					options={{
 						href: null,
-						title: "Items",
 						headerShown: false,
-						tabBarVisible: false,
 					}}
 				/>
 
 				<Tabs.Screen
-					name="items/new_item"
+					name="admin/edit-password"
 					options={{
 						href: null,
 						headerShown: false,
-						tabBarVisible: false,
+					}}
+				/>
+
+				<Tabs.Screen
+					name="admin/inactive-users"
+					options={{
+						href: null,
+						headerShown: false,
 					}}
 				/>
 
@@ -156,6 +195,9 @@ const TabsLayout = () => {
 					}}
 				/>
 			</Tabs>
+
+			{/* Only on Mobile: Defines the top of the page (where the hours are shown)*/}
+			<StatusBar backgroundColor="#2A316E" style="light" />
 		</>
 	);
 };

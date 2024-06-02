@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { View, ScrollView, Text, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { router, useRouter } from "expo-router";
 import axios from "axios";
 
-import CustomButtom from "../../../components/CustomButtom";
+import CustomButton from "../../../components/CustomButton";
 import FormField from "../../../components/FormField";
 import Header from "../../../components/Header";
 
@@ -15,24 +15,30 @@ const NewItem = ({ onItemCreated }) => {
 	});
 
 	const [isSubmitting, setisSubmitting] = useState(false);
+	const router = useRouter();
 
 	const submit = async () => {
-		setisSubmitting(true);
+		if (!form.name || !form.code) {
+			alert("Por favor, preencha todos os campos.");
+			return;
+		}
 
+		setisSubmitting(true);
 		try {
-			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/novo-item`;
+			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/create-item`;
 			const response = await axios.post(API_URL, form);
 
 			if (response.status === 200) {
-				Alert.alert("Success", "Item created successfully");
-				onItemCreated(); // Trigger the callback
+				alert("Success", "Item created successfully");
+				if (onItemCreated && typeof onItemCreated === "function") {
+					onItemCreated();
+				}
 				router.push("items");
 			} else {
-				Alert.alert("Error", "Something went wrong. Please try again.");
+				alert("Error, Something went wrong. Please try again.");
 			}
 		} catch (error) {
-			Alert.alert("Error", "Failed to create item. Please try again.");
-			console.error("Error:", error);
+			alert(error.response.data);
 		} finally {
 			setisSubmitting(false);
 		}
@@ -65,13 +71,13 @@ const NewItem = ({ onItemCreated }) => {
 					/>
 
 					<View className="flex flex-row justify-between mt-20">
-						<CustomButtom
+						<CustomButton
 							title="Confirmar"
 							handlePress={submit}
 							containerStyles="flex-1 mr-2"
 							isLoading={isSubmitting}
 						/>
-						<CustomButtom
+						<CustomButton
 							title="Cancelar"
 							handlePress={cancel}
 							containerStyles="flex-1 ml-2 bg-red-500"

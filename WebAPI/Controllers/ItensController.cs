@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using System.Security.Claims;
 using WebAPI.Context;
 using WebAPI.Entities;
@@ -22,6 +24,7 @@ namespace WebAPI.Controllers
             _userManager = userManager;
         }
 
+        [Authorize(Roles = "Admin,ItemCreator")]
         [HttpPost("create-item")]
         public async Task<IActionResult> CreateItem(ItemCreateModel model)
         {
@@ -49,6 +52,7 @@ namespace WebAPI.Controllers
             return Ok("Item criado com sucesso.");
         }
 
+        [Authorize(Roles = "Admin,ItemCreator")]
         [HttpPut("edit/{id}")]
         public async Task<IActionResult> EditItem([FromRoute] int id, ItemEditModel model)
         {
@@ -82,11 +86,16 @@ namespace WebAPI.Controllers
             return Ok("Item atualizado com sucesso.");
         }
 
-        [HttpGet("exebir-itens")]
-        public async Task<ActionResult<IEnumerable<Item>>> GetActiveItems([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        [Authorize(Roles = "Admin,ItemCreator,ItemAnalyzer")]
+        [HttpGet("exibir-itens")]
+        public async Task<ActionResult<PaginatedResult<Item>>> GetActiveItems([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {
+            // Calcula o total de itens ativos
+            var totalItems = await _context.Items.CountAsync(i => i.IsActive && !i.InAnalysis);
+
+            // Obtém os itens paginados
             var activeItems = await _context.Items
-                .Where(i => i.IsActive)
+                .Where(i => i.IsActive && !i.InAnalysis)
                 .OrderBy(i => i.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -98,12 +107,19 @@ namespace WebAPI.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(activeItems);
+            // Cria o resultado paginado
+            var result = PaginatedResult<object>.Create(totalItems, activeItems);
+
+            // Retorna o resultado paginado
+            return Ok(result);
         }
 
-        [HttpGet("exebir-itens-inativos")]
-        public async Task<ActionResult<IEnumerable<Item>>> GetInactiveItems([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        [Authorize(Roles = "Admin,ItemCreator")]
+        [HttpGet("exibir-itens-inativos")]
+        public async Task<ActionResult<PaginatedResult<Item>>> GetInactiveItems([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {
+            var totalItems = await _context.Items.CountAsync(i => !i.IsActive);
+
             var inactiveItems = await _context.Items
                 .Where(i => !i.IsActive)
                 .OrderBy(i => i.Id)
@@ -117,9 +133,12 @@ namespace WebAPI.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(inactiveItems);
+            var result = PaginatedResult<object>.Create(totalItems, inactiveItems);
+
+            return Ok(result);
         }
 
+        [Authorize(Roles = "Admin,ItemCreator,ItemAnalyzer")]
         [HttpGet("exibir-item/{id}")]
         public async Task<ActionResult<Item>> GetAnalysis(int id)
         {
@@ -145,6 +164,30 @@ namespace WebAPI.Controllers
             }
 
             return Ok(item);
+        }
+
+        [Authorize(Roles = "Admin,ItemCreator,ItemAnalyzer")]
+        [HttpGet("exibir-itens-inAnalysis")]
+        public async Task<ActionResult<PaginatedResult<Item>>> GetInAnalysisItems([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        {
+            var totalItems = await _context.Items.CountAsync(i => i.InAnalysis);
+
+            var inAnalysisItems = await _context.Items
+                .Where(i => i.InAnalysis)
+                .OrderBy(i => i.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(i => new
+                {
+                    Id = i.Id,
+                    Name = i.Name,
+                    UserName = i.User.UserName
+                })
+                .ToListAsync();
+
+            var result = PaginatedResult<object>.Create(totalItems, inAnalysisItems);
+
+            return Ok(result);
         }
     }
 
