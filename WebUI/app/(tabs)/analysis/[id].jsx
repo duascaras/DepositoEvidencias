@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Alert } from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
 
 import FormField from "../../../components/FormField";
-import CustomButton from "../../../components/CustomButton"; // Fix typo from CustomButton to CustomButton
+import CustomButton from "../../../components/CustomButton";
+import Header from "../../../components/Header";
 
 const AnalysisDetails = ({ onAnalysisUpdated }) => {
 	const { id } = useLocalSearchParams();
 	const [form, setForm] = useState({
 		laudo: "",
 		analysisType: "",
+		itemName: "",
 	});
-
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const router = useRouter();
 
@@ -25,38 +26,68 @@ const AnalysisDetails = ({ onAnalysisUpdated }) => {
 				if (response.status === 200) {
 					const analysisData = response.data;
 					setForm({
-						laudo: analysisData.laudo,
-						analysisType: analysisData.analysisType,
+						laudo: analysisData.laudo || "",
+						analysisType: analysisData.analysisType || "",
+						itemName: analysisData.itemId || "",
 					});
 				} else {
-					alert("Error", "Failed to fetch analysis data.");
+					alert("Error fetching analysis data");
 				}
 			} catch (error) {
-				alert("Error", "Failed to fetch analysis data.");
-				console.error("Error:", error);
+				alert(error);
 			}
 		};
+
+		setForm({
+			laudo: "",
+			analysisType: "",
+			itemName: "",
+		});
 
 		getAnalysis();
 	}, [id]);
 
-	const submit = async () => {
+	const saveAnalysis = async () => {
 		setIsSubmitting(true);
+
+		const requestBody = {
+			laudo: form.laudo,
+			analysisType: form.analysisType,
+		};
 
 		try {
 			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Edit-Analysis/${id}`;
-			const response = await axios.put(API_URL, form);
+			const response = await axios.put(API_URL, requestBody);
 
 			if (response.status === 200) {
-				alert("Success", "Analysis updated successfully.");
-				if (onAnalysisUpdated) onAnalysisUpdated(); // Notify parent about the update
+				alert("Analysis updated successfully.");
+				if (onAnalysisUpdated) onAnalysisUpdated();
 				router.push("/analysis");
 			} else {
-				alert("Error", "Failed to update analysis. Please try again.");
+				alert("Error updating analysis");
 			}
 		} catch (error) {
-			alert("Error", "Failed to update analysis. Please try again.");
-			console.error("Error:", error);
+			alert(error.message);
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
+	const sendAnalysis = async () => {
+		setIsSubmitting(true);
+
+		try {
+			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Send-Analysis/${id}`;
+			const response = await axios.put(API_URL);
+
+			if (response.status === 200) {
+				alert("Analysis sent successfully.");
+				router.push("/analysis");
+			} else {
+				alert("Error sending analysis");
+			}
+		} catch (error) {
+			alert(error.message);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -69,47 +100,82 @@ const AnalysisDetails = ({ onAnalysisUpdated }) => {
 	return (
 		<SafeAreaView className="bg-soft_white h-full">
 			<ScrollView>
-				<View className="bg-blue">
-					<Text className="text-4xl text-soft_white text-primary text-semibold my-10 font-psemibold text-center">
-						Editar Análises
-					</Text>
-				</View>
+				<Header title={"Editar Análises"} />
 
-				<View className="w-full justify-center min-h-[60vh] px-14">
-					<FormField
-						title="Laudo"
-						value={form.laudo}
-						handleChangeText={(e) => setForm({ ...form, laudo: e })}
-						otherStyles="mt-8"
-					/>
+				<View style={styles.containerColumn}>
+					<View style={styles.table}>
+						<Text className="text-xl font-bold font-psemibold">
+							Informe as Análises realizadas:
+						</Text>
+						<Text className="text-lg mt-4">
+							Item: {form.itemName} {/* Display the item name */}
+						</Text>
 
-					<FormField
-						title="Análises Feitas"
-						value={form.analysisType}
-						handleChangeText={(e) =>
-							setForm({ ...form, analysisType: e })
-						}
-						otherStyles="mt-8"
-					/>
-
-					<View className="flex flex-row justify-between mt-20">
-						<CustomButton
-							title="Confirmar"
-							handlePress={submit}
-							containerStyles="flex-1 mr-2"
-							isLoading={isSubmitting}
+						<FormField
+							title="Laudo"
+							value={form.laudo}
+							handleChangeText={(e) =>
+								setForm({ ...form, laudo: e })
+							}
+							otherStyles="mt-4"
 						/>
 
-						<CustomButton
-							title="Cancelar"
-							handlePress={cancel}
-							containerStyles="flex-1 ml-2 bg-red-500"
+						<FormField
+							title="Análises Feitas"
+							value={form.analysisType}
+							handleChangeText={(e) =>
+								setForm({ ...form, analysisType: e })
+							}
+							otherStyles="mt-8"
 						/>
+
+						<View style={styles.buttonContainer}>
+							<CustomButton
+								title="Salvar"
+								handlePress={saveAnalysis}
+								containerStyles="flex-1 mr-2"
+								isLoading={isSubmitting}
+							/>
+							<CustomButton
+								title="Cancelar"
+								handlePress={cancel}
+								containerStyles="flex-1 ml-2 bg-red-500"
+							/>
+						</View>
 					</View>
 				</View>
+				<CustomButton
+					title="Enviar Análise"
+					handlePress={sendAnalysis}
+					containerStyles={"self-center bottom-0 p-4 w-96 mb-6"}
+				/>
 			</ScrollView>
 		</SafeAreaView>
 	);
 };
+
+const styles = StyleSheet.create({
+	containerColumn: {
+		marginTop: 70,
+		flexDirection: "column",
+		justifyContent: "center",
+		alignItems: "center",
+		paddingHorizontal: 20,
+	},
+	table: {
+		padding: 10,
+		marginVertical: 10,
+		backgroundColor: "#f0f0f0",
+		borderRadius: 10,
+		padding: 20,
+		width: "100%",
+		maxWidth: 500,
+	},
+	buttonContainer: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		marginTop: 20,
+	},
+});
 
 export default AnalysisDetails;

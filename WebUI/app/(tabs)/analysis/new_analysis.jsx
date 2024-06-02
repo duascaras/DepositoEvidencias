@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { View, ScrollView, Image, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import axios from "axios";
-import { Camera } from "expo-camera";
-import * as Clipboard from "expo-clipboard";
 
 import { icons } from "../../../constants";
 import CustomButton from "../../../components/CustomButton";
@@ -12,46 +10,12 @@ import FormField from "../../../components/FormField";
 import Header from "../../../components/Header";
 
 const NewAnalysis = ({ onItemCreated }) => {
-	const [form, setForm] = useState({
-		code: "",
-	});
+	const [form, setForm] = useState({ code: "" });
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [cameraPermission, setCameraPermission] = useState(null);
-	const [scannerPermission, setScannerPermission] = useState(null);
-	const [cameraVisible, setCameraVisible] = useState(false);
-	const [scanned, setScanned] = useState(false);
-	const cameraRef = useRef(null);
 	const router = useRouter();
 
-	useEffect(() => {
-		const requestPermissions = async () => {
-			const cameraStatus = await Camera.requestCameraPermissionsAsync();
-			setCameraPermission(cameraStatus.status === "granted");
-
-			const scannerStatus =
-				await BarCodeScanner.requestPermissionsAsync();
-			setScannerPermission(scannerStatus.status === "granted");
-		};
-
-		requestPermissions();
-	}, []);
-
 	const handleCameraPress = () => {
-		if (!cameraPermission || !scannerPermission) {
-			Alert.alert(
-				"Permissions not granted",
-				"Camera and Scanner permissions are required."
-			);
-			return;
-		}
-		setCameraVisible(true);
-	};
-
-	const handleBarCodeScanned = async ({ type, data }) => {
-		setScanned(true);
-		Alert.alert("QR Code Scanned", `Scanned QR code: ${data}`);
-		await Clipboard.setStringAsync(data);
-		setCameraVisible(false);
+		console.log("Camera Pressed");
 	};
 
 	const submit = async () => {
@@ -129,22 +93,6 @@ const NewAnalysis = ({ onItemCreated }) => {
 					</View>
 				</View>
 			</ScrollView>
-			{cameraVisible && (
-				<View style={{ flex: 1 }}>
-					<Camera
-						style={{ flex: 1 }}
-						type={Camera.Constants.Type.back}
-						ref={cameraRef}
-					>
-						<BarCodeScanner
-							onBarCodeScanned={
-								scanned ? undefined : handleBarCodeScanned
-							}
-							style={{ flex: 1 }}
-						/>
-					</Camera>
-				</View>
-			)}
 		</SafeAreaView>
 	);
 };

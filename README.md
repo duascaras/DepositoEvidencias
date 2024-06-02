@@ -85,8 +85,9 @@ file structure
   |- (tabs)
   |   |- admin
   |   |   |- [id].jsx
+  |   |   |- edit-password.jsx
   |   |   |- index.jsx
-  |   |   |- sign-up.jsx
+  |   |   |- register.jsx
   |   |- analysis
   |   |   |- [id].jsx
   |   |   |- index.jsx
@@ -99,6 +100,7 @@ file structure
   |   |   |- index.jsx
   |   |- _layout.jsx
   |   |- home.jsx
+  |   |- index.jsx
   |- search
   |   |- [query].jsx
   |- _layout.jsx
@@ -108,6 +110,11 @@ file structure
   |- icons
   |- images
   components
+  |   |- CustomButton.jsx
+  |   |- CustomQRCodes.jsx
+  |   |- FormField.jsx
+  |   |- Header.jsx
+  |   |- SearchInput.jsx
   constants
   context
   |- AuthContext.js

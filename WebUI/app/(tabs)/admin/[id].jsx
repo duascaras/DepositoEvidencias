@@ -176,19 +176,18 @@ const UserDetail = () => {
 				<Header title={"Editar Usuário"} />
 
 				<View style={styles.containerColumn}>
-					<View style={styles.table}>
+					<View style={[styles.table, styles.marginTop]}>
 						<Text className="text-xl font-bold font-psemibold">
 							Editar Função do Usuário
 						</Text>
-						<View className="space-y-2">
-							<FormField
-								title="Nome do Usuário"
-								value={form.username}
-								handleChangeText={() => {}}
-								otherStyles="mt-4"
-								editable={false}
-							/>
-						</View>
+
+						<FormField
+							title="Nome do Usuário"
+							value={form.username}
+							handleChangeText={() => {}}
+							otherStyles="mt-4"
+							editable={false}
+						/>
 
 						<View className="mt-8 space-y-2">
 							<Text className="text-xl text-semibold font-psemibold">
@@ -272,7 +271,8 @@ const UserDetail = () => {
 const styles = StyleSheet.create({
 	containerColumn: {
 		flexDirection: "column",
-		justifyContent: "space-between",
+		justifyContent: "center",
+		alignItems: "center",
 		paddingHorizontal: 20,
 	},
 	table: {
@@ -281,6 +281,11 @@ const styles = StyleSheet.create({
 		backgroundColor: "#f0f0f0",
 		borderRadius: 10,
 		padding: 20,
+		width: "100%",
+		maxWidth: 500,
+	},
+	marginTop: {
+		marginTop: 20,
 	},
 	selectListBox: {
 		height: 60,

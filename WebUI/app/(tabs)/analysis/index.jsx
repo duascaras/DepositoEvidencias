@@ -5,7 +5,6 @@ import {
 	FlatList,
 	TouchableOpacity,
 	Image,
-	Button,
 	ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -24,12 +23,51 @@ const Analysis = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [isLoading, setIsLoading] = useState(false);
+	const [filter, setFilter] = useState("inAnalysis");
 	const router = useRouter();
+
+	const getAnalyses = useCallback(
+		async (page) => {
+			const pageSize = 6;
+			let endpoint;
+			switch (filter) {
+				case "active":
+					endpoint = "Analyses/Analysis-pending-confirmed";
+					break;
+				case "inactive":
+					endpoint = "Analyses/Analysis-confirmed";
+					break;
+				case "inAnalysis":
+					endpoint = "Analyses/Typing-analysis";
+					break;
+				default:
+					endpoint = "Analyses/Typing-analysis";
+			}
+			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}${endpoint}?page=${page}&pageSize=${pageSize}`;
+
+			try {
+				setIsLoading(true);
+				const response = await axios.get(API_URL);
+				const { total, data: analyses } = response.data;
+				setAnalyses(analyses);
+				setFilteredAnalyses(analyses);
+
+				const totalPages = Math.ceil(total / pageSize);
+				setTotalPages(totalPages);
+				setShowAnalyses(true);
+			} catch (error) {
+				alert(error);
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[filter]
+	);
 
 	useFocusEffect(
 		useCallback(() => {
 			getAnalyses(currentPage);
-		}, [currentPage])
+		}, [currentPage, getAnalyses])
 	);
 
 	useEffect(() => {
@@ -42,27 +80,6 @@ const Analysis = () => {
 			setFilteredAnalyses(analyses);
 		}
 	}, [query, analyses]);
-
-	const getAnalyses = async (page) => {
-		const pageSize = 5;
-		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Typing-analysis?page=${page}&pageSize=${pageSize}`;
-
-		try {
-			setIsLoading(true);
-			const response = await axios.get(API_URL);
-			const { total, data: analyses } = response.data;
-			setAnalyses(analyses);
-			setFilteredAnalyses(analyses);
-
-			const totalPages = Math.ceil(total / pageSize);
-			setTotalPages(totalPages);
-			setShowAnalyses(true);
-		} catch (error) {
-			console.error("Error:", error);
-		} finally {
-			setIsLoading(false);
-		}
-	};
 
 	const newAnalysis = () => {
 		router.push({
@@ -81,66 +98,136 @@ const Analysis = () => {
 	const handleNextPage = () => {
 		if (currentPage < totalPages) {
 			setCurrentPage(currentPage + 1);
+			getAnalyses(currentPage + 1);
 		}
 	};
 
 	const handlePreviousPage = () => {
 		if (currentPage > 1) {
 			setCurrentPage(currentPage - 1);
+			getAnalyses(currentPage - 1);
 		}
 	};
 
+	const handleFilterChange = (newFilter) => {
+		setFilter(newFilter);
+		setCurrentPage(1);
+		getAnalyses(1);
+	};
+
 	return (
-		<SafeAreaView className="bg-soft_white h-full">
+		<SafeAreaView className="bg-soft_white h-full relative">
 			<Header title={"Análises"} />
 			<View className="p-4">
 				<SearchInput initialQuery={query} onSearch={setQuery} />
+				<View className="flex-row justify-between mt-4">
+					<TouchableOpacity
+						className={`p-2 border-2 rounded ${
+							filter === "inAnalysis"
+								? "bg-blue-500 border-black"
+								: "bg-gray-300 border-gray-300 opacity-50"
+						}`}
+						onPress={() => handleFilterChange("inAnalysis")}
+						disabled={filter === "inAnalysis"}
+					>
+						<Text
+							className={`text-white ${
+								filter === "inAnalysis" ? "" : "text-black"
+							}`}
+						>
+							Em Análise
+						</Text>
+					</TouchableOpacity>
+					<TouchableOpacity
+						className={`p-2 border-2 rounded ${
+							filter === "active"
+								? "bg-blue-500 border-black"
+								: "bg-gray-300 border-gray-300 opacity-50"
+						}`}
+						onPress={() => handleFilterChange("active")}
+						disabled={filter === "active"}
+					>
+						<Text
+							className={`text-white ${
+								filter === "active" ? "" : "text-black"
+							}`}
+						>
+							Aguardando Confirmação
+						</Text>
+					</TouchableOpacity>
+					<TouchableOpacity
+						className={`p-2 border-2 rounded ${
+							filter === "inactive"
+								? "bg-blue-500 border-black"
+								: "bg-gray-300 border-gray-300 opacity-50"
+						}`}
+						onPress={() => handleFilterChange("inactive")}
+						disabled={filter === "inactive"}
+					>
+						<Text
+							className={`text-white ${
+								filter === "inactive" ? "" : "text-black"
+							}`}
+						>
+							Finalizadas
+						</Text>
+					</TouchableOpacity>
+				</View>
 			</View>
-			<View>
-				{isLoading ? (
-					<ActivityIndicator size="large" color="#0000ff" />
-				) : showAnalyses ? (
-					<FlatList
-						data={filteredAnalyses}
-						keyExtractor={(analysis) => analysis.id.toString()}
-						renderItem={({ item }) => (
-							<View className="flex-row mt-2 items-center p-4 bg-white rounded-xl border-2 border-gray-300 shadow-sm mx-4">
-								<TouchableOpacity
-									onPress={() => editAnalysis(item)}
-								>
-									<Image
-										source={icons.checklist}
-										className="w-10 h-10"
-										resizeMode="contain"
-									/>
-								</TouchableOpacity>
-								<TouchableOpacity
-									className="ml-4 flex-1"
-									onPress={() => editAnalysis(item)}
-								>
-									<Text className="text-lg text-black font-pregular">
-										{item.itemId}
-									</Text>
-									<Text className="text-gray-500">
-										Written by: {item.writtenUserId}
-									</Text>
-								</TouchableOpacity>
-								<TouchableOpacity
-									onPress={() => editAnalysis(item)}
-								>
-									<Image
-										source={icons.edit}
-										className="w-6 h-6"
-										resizeMode="contain"
-									/>
-								</TouchableOpacity>
-							</View>
-						)}
-					/>
-				) : (
-					<Text>No analyses to display</Text>
-				)}
-			</View>
+
+			{isLoading ? (
+				<ActivityIndicator
+					size="large"
+					color="#0000ff"
+					className="flex-1 justify-center items-center"
+				/>
+			) : (
+				<View className="flex-1">
+					{showAnalyses ? (
+						<FlatList
+							data={filteredAnalyses}
+							keyExtractor={(analysis) => analysis.id.toString()}
+							renderItem={({ item }) => (
+								<View className="flex-row mt-2 items-center p-4 bg-white rounded-xl border-2 border-gray-300 shadow-sm mx-4">
+									<TouchableOpacity
+										onPress={() => editAnalysis(item)}
+									>
+										<Image
+											source={icons.checklist}
+											className="w-10 h-10"
+											resizeMode="contain"
+										/>
+									</TouchableOpacity>
+									<TouchableOpacity
+										className="ml-4 flex-1"
+										onPress={() => editAnalysis(item)}
+									>
+										<Text className="text-lg text-black font-pregular">
+											{item.itemId}
+										</Text>
+										<Text className="text-gray-500">
+											Written by: {item.writtenUserId}
+										</Text>
+									</TouchableOpacity>
+									<TouchableOpacity
+										onPress={() => editAnalysis(item)}
+									>
+										<Image
+											source={icons.edit}
+											className="w-6 h-6"
+											resizeMode="contain"
+										/>
+									</TouchableOpacity>
+								</View>
+							)}
+						/>
+					) : (
+						<Text className="text-center mt-4">
+							No analyses to display
+						</Text>
+					)}
+				</View>
+			)}
 
 			{showAnalyses && (
 				<View className="absolute bottom-0 w-full flex-row justify-between p-1 bg-soft_white border-t border-gray-300">
@@ -174,11 +261,11 @@ const Analysis = () => {
 				</View>
 			)}
 
-			<View className="absolute self-center bottom-0 p-4 w-96 mb-10">
+			<View className="self-center bottom-0 p-4 w-96 mb-10">
 				<CustomButton
-					title="Nova Análise"
+					title={"Iniciar Análise"}
 					handlePress={newAnalysis}
-					containerStyles="w-full"
+					containerStyles={"w-full"}
 				/>
 			</View>
 		</SafeAreaView>
