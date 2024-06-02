@@ -9,7 +9,6 @@ const FormField = ({
 	placeholder,
 	handleChangeText,
 	otherStyles,
-	disabled,
 	...props
 }) => {
 	const [showPassword, setShowPassword] = useState(false);
@@ -19,15 +18,14 @@ const FormField = ({
 			<Text className="text-xl text-semibold font-psemibold ">
 				{title}
 			</Text>
-			<View className="h-16 px-4 bg-soft_white rounded-2xl border-2 border-black flex-row items-center">
+			<View className="h-16 px-4 bg-blue rounded-2xl border-2 border-black flex-row items-center">
 				<TextInput
-					className="flex-1 text-base"
+					className="flex-1 text-soft_white font-bold font-lg text-base"
 					value={value}
 					placeholder={placeholder}
 					placeholderTextColor="#7B7B8B"
 					onChangeText={handleChangeText}
 					secureTextEntry={title === "Senha" && !showPassword}
-					editable={!disabled} // Disable the input if the disabled prop is true
 					{...props}
 				/>
 
