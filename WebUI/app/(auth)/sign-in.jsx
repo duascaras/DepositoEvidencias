@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, Text, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 
-import CustomButton from "../../components/CustomButton";
+import CustomButton from "../../components/CustomButtom";
 import Header from "../../components/Header";
 import FormField from "../../components/FormField";
 
@@ -23,21 +23,23 @@ const SignIn = () => {
 		setIsSubmitting(true);
 		try {
 			const result = await onLogin(form.username, form.password);
-			if (result.error) {
+			if (result.msg != "An unexpected error occurred") {
 				alert(result.msg);
 			} else {
-				router.replace("/home");
+				router.push("/home");
 			}
 		} catch (error) {
-			alert(error);
+			console.log("Error", error.message);
 		} finally {
 			setIsSubmitting(false);
 		}
 	};
 
+	console.log("DEBUG -> Authenticated: ", authState.authenticated);
+
 	useEffect(() => {
 		if (authState.authenticated) {
-			router.replace("/home");
+			router.push("/home");
 		}
 	}, [authState]);
 
@@ -45,7 +47,7 @@ const SignIn = () => {
 		<SafeAreaView className="bg-soft_white h-full">
 			<ScrollView>
 				<View>
-					<Header title={"Login"} />
+					<Header title={"Login"}></Header>
 				</View>
 
 				<View className="w-full justify-center min-h-[60vh] px-14">

@@ -1,7 +1,9 @@
 import { SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
+
 import { AuthProvider } from "../context/AuthContext";
+
 import { NativeWindStyleSheet } from "nativewind";
 
 SplashScreen.preventAutoHideAsync();
@@ -27,7 +29,7 @@ const RootLayout = () => {
 		if (fontsLoaded) SplashScreen.hideAsync();
 	}, [fontsLoaded, error]);
 
-	if (!fontsLoaded) return null;
+	if (!fontsLoaded && !error) return null;
 
 	return (
 		<AuthProvider>
@@ -35,6 +37,10 @@ const RootLayout = () => {
 				<Stack.Screen name="home" options={{ headerShown: false }} />
 				<Stack.Screen name="(auth)" options={{ headerShown: false }} />
 				<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+				{/* <Stack.Screen
+				name="/search/[query]"
+				options={{ headerShown: false }}
+			/> */}
 			</Stack>
 		</AuthProvider>
 	);

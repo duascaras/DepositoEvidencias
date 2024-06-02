@@ -1,32 +1,12 @@
-// components/Header.jsx
+import { View, Text } from "react-native";
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import { useAuth } from "../context/AuthContext";
-import { useRouter } from "expo-router";
 
 const Header = ({ title }) => {
-	const { onLogout } = useAuth();
-	const router = useRouter();
-
-	const handleLogout = async () => {
-		await onLogout();
-		router.replace("/sign-in");
-	};
-
 	return (
-		<View className="bg-blue flex-row justify-between items-center px-4 py-4">
-			<Text className="text-4xl text-soft_white text-primary text-semibold font-psemibold text-center">
+		<View className="bg-blue">
+			<Text className="text-4xl text-soft_white text-primary text-semibold my-10 font-psemibold text-center ">
 				{title}
 			</Text>
-
-			{title != "Login" && (
-				<TouchableOpacity
-					onPress={handleLogout}
-					className="p-2 bg-red-500 rounded"
-				>
-					<Text className="text-lg text-soft_white">Logout</Text>
-				</TouchableOpacity>
-			)}
 		</View>
 	);
 };

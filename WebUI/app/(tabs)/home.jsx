@@ -1,8 +1,17 @@
+// import { Redirect } from "expo-router";
+
+// export default function App() {
+// 	// const { isLoading, isLoggedIn } = useGlobalContext();
+// 	// if (!isLoading && isLoggedIn) return <Redirect href="/home" />;
+
+// 	return <Redirect href={"sign-in"}></Redirect>;
+// }
+
 import { View, Text } from "react-native";
 import { React } from "react";
 import { router } from "expo-router";
 
-import CustomButton from "../../components/CustomButton";
+import CustomButtom from "../../components/CustomButtom";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../../components/Header";
 
@@ -26,29 +35,29 @@ const Home = () => {
 	return (
 		<SafeAreaView className="bg-soft_white h-full">
 			<View>
-				<Header title={"Página Inicial"} />
+				<Header title={"Página Inicial"}></Header>
 			</View>
 
 			<View className="w-full justify-center min-h-[60vh] px-14">
-				<CustomButton
+				<CustomButtom
 					title="Itens"
 					handlePress={goToItems}
 					containerStyles="mt-20"
 				/>
 
-				<CustomButton
+				<CustomButtom
 					title="Análises"
 					handlePress={goToAnalysis}
 					containerStyles="mt-20"
 				/>
 
-				<CustomButton
+				<CustomButtom
 					title="Administrador"
 					handlePress={goToAdmin}
 					containerStyles="mt-20"
 				/>
 
-				<CustomButton
+				<CustomButtom
 					title="Pendentes"
 					handlePress={goToPending}
 					containerStyles="mt-20"
