@@ -149,3 +149,9 @@ clipboard
 ```
 npx expo install expo-clipboard
 ```
+
+qrcode working on web:
+
+```
+npx expo install react-native-qrcode-svg
+```

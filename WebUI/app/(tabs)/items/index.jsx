@@ -14,6 +14,7 @@ import CustomButton from "../../../components/CustomButton";
 import { router, useFocusEffect } from "expo-router";
 import SearchInput from "../../../components/SearchInput";
 import { icons } from "../../../constants";
+import QRCode from "react-native-qrcode-svg";
 
 const Items = () => {
 	const [items, setItems] = useState([]);
@@ -65,12 +66,13 @@ const Items = () => {
 
 	const qrCodePopUp = async (item) => {
 		const id = item.id;
-		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/GenerateCode/b460c987-0539-4a92-97ed-ad287499ee14/${id}`;
+		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/GenerateCode/2bba2917-f514-4eba-b51c-08b3be49cb6c/${id}`;
 
 		try {
 			const response = await axios.post(API_URL);
 			const data = response.data.code;
 			alert(data);
+			return data;
 		} catch (error) {
 			alert(error);
 		} finally {
@@ -296,6 +298,8 @@ const Items = () => {
 					</TouchableOpacity>
 				</View>
 			)}
+
+			<QRCode value="Brancao Safadinho"></QRCode>
 
 			<View className="self-center bottom-0 p-4 w-96 mb-10">
 				<CustomButton
