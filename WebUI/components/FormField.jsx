@@ -27,7 +27,7 @@ const FormField = ({
 					placeholderTextColor="#7B7B8B"
 					onChangeText={handleChangeText}
 					secureTextEntry={title === "Senha" && !showPassword}
-					editable={!disabled} // Disable the input if the disabled prop is true
+					editable={!disabled}
 					{...props}
 				/>
 

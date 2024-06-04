@@ -18,6 +18,7 @@ import camera from "../assets/icons/camera.png";
 import user from "../assets/icons/person.png";
 import checklist from "../assets/icons/checklist.png";
 import disabled from "../assets/icons/disabled.png";
+import close from "../assets/icons/close.png";
 
 export default {
 	play,
@@ -40,4 +41,5 @@ export default {
 	user,
 	checklist,
 	disabled,
+	close,
 };

@@ -162,7 +162,7 @@ const Admin = () => {
 						keyExtractor={(user) => user.id}
 						renderItem={({ item }) => (
 							<TouchableOpacity
-								className="flex-row mt-2 items-center p-4 bg-white rounded-xl border-2 border-gray-300 shadow-sm mx-4"
+								className="flex-row mt-2 items-center p-4 bg-white rounded-xl border-2 border-gray-300 boxShadow-sm mx-4"
 								onPress={() => editUser(item)}
 							>
 								<Image

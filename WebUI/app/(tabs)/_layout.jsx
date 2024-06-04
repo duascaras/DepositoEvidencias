@@ -179,14 +179,6 @@ const TabsLayout = () => {
 				/>
 
 				<Tabs.Screen
-					name="admin/inactive-users"
-					options={{
-						href: null,
-						headerShown: false,
-					}}
-				/>
-
-				<Tabs.Screen
 					name="pending/index"
 					options={{
 						href: null,

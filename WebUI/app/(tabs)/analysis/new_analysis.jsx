@@ -8,14 +8,25 @@ import { icons } from "../../../constants";
 import CustomButton from "../../../components/CustomButton";
 import FormField from "../../../components/FormField";
 import Header from "../../../components/Header";
+import CameraComponent from "../../../components/Camera";
 
 const NewAnalysis = ({ onItemCreated }) => {
 	const [form, setForm] = useState({ code: "" });
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [cameraVisible, setCameraVisible] = useState(false);
 	const router = useRouter();
 
 	const handleCameraPress = () => {
-		console.log("Camera Pressed");
+		setCameraVisible(true);
+	};
+
+	const handleCloseCamera = () => {
+		setCameraVisible(false);
+	};
+
+	const handleCodeScanned = (data) => {
+		setForm({ ...form, code: data });
+		setCameraVisible(false);
 	};
 
 	const submit = async () => {
@@ -56,42 +67,51 @@ const NewAnalysis = ({ onItemCreated }) => {
 					<Header title={"Nova Análise"} />
 				</View>
 
-				<View className="w-full justify-center min-h-[60vh] px-14">
-					<View className="flex-row items-center mt-10">
-						<FormField
-							title="Código"
-							value={form.code}
-							handleChangeText={(e) =>
-								setForm({ ...form, code: e })
-							}
-							otherStyles="flex-1"
+				{cameraVisible ? (
+					<View>
+						<CameraComponent
+							onClose={handleCloseCamera}
+							onCodeScanned={handleCodeScanned}
 						/>
-						<TouchableOpacity
-							onPress={handleCameraPress}
-							className="ml-4"
-						>
-							<Image
-								source={icons.camera}
-								className="w-10 h-10 mt-7"
-								resizeMode="contain"
+					</View>
+				) : (
+					<View className="w-full justify-center min-h-[60vh] px-14">
+						<View className="flex-row items-center mt-10">
+							<FormField
+								title="Código"
+								value={form.code}
+								handleChangeText={(e) =>
+									setForm({ ...form, code: e })
+								}
+								otherStyles="flex-1"
 							/>
-						</TouchableOpacity>
-					</View>
+							<TouchableOpacity
+								onPress={handleCameraPress}
+								className="ml-4"
+							>
+								<Image
+									source={icons.camera}
+									className="w-10 h-10 mt-7"
+									resizeMode="contain"
+								/>
+							</TouchableOpacity>
+						</View>
 
-					<View className="flex flex-row justify-between mt-20">
-						<CustomButton
-							title="Confirmar"
-							handlePress={submit}
-							containerStyles="flex-1 mr-2"
-							isLoading={isSubmitting}
-						/>
-						<CustomButton
-							title="Cancelar"
-							handlePress={cancel}
-							containerStyles="flex-1 ml-2 bg-red-500"
-						/>
+						<View className="flex flex-row justify-between mt-20">
+							<CustomButton
+								title="Confirmar"
+								handlePress={submit}
+								containerStyles="flex-1 mr-2"
+								isLoading={isSubmitting}
+							/>
+							<CustomButton
+								title="Cancelar"
+								handlePress={cancel}
+								containerStyles="flex-1 ml-2 bg-red-500"
+							/>
+						</View>
 					</View>
-				</View>
+				)}
 			</ScrollView>
 		</SafeAreaView>
 	);

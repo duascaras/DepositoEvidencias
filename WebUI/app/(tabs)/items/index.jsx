@@ -205,7 +205,7 @@ const Items = () => {
 							data={filteredItems}
 							keyExtractor={(item) => item.id.toString()}
 							renderItem={({ item }) => (
-								<View className="flex-row mt-2 items-center p-4 bg-white rounded-xl border-2 border-gray-300 shadow-sm mx-4">
+								<View className="flex-row mt-2 items-center p-4 bg-white rounded-xl border-2 border-gray-300 boxShadow-sm mx-4">
 									{filter === "inAnalysis" ? (
 										<Image
 											source={icons.qrcodeChecked}
