@@ -6,6 +6,8 @@ import {
 	TouchableOpacity,
 	Image,
 	ActivityIndicator,
+	Modal,
+	TouchableWithoutFeedback,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
@@ -25,6 +27,7 @@ const Items = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [filter, setFilter] = useState("active");
+	const [qrCodeData, setQrCodeData] = useState(null);
 
 	const getItems = useCallback(
 		async (page) => {
@@ -69,10 +72,10 @@ const Items = () => {
 		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/GenerateCode/2bba2917-f514-4eba-b51c-08b3be49cb6c/${id}`;
 
 		try {
+			setIsLoading(true);
 			const response = await axios.post(API_URL);
 			const data = response.data.code;
-			alert(data);
-			return data;
+			setQrCodeData(data);
 		} catch (error) {
 			alert(error);
 		} finally {
@@ -132,6 +135,10 @@ const Items = () => {
 	const handleFilterChange = (newFilter) => {
 		setFilter(newFilter);
 		setCurrentPage(1);
+	};
+
+	const closeQRCode = () => {
+		setQrCodeData(null);
 	};
 
 	return (
@@ -299,8 +306,6 @@ const Items = () => {
 				</View>
 			)}
 
-			<QRCode value="Brancao Safadinho"></QRCode>
-
 			<View className="self-center bottom-0 p-4 w-96 mb-10">
 				<CustomButton
 					title="Novo Item"
@@ -308,6 +313,28 @@ const Items = () => {
 					containerStyles="w-full"
 				/>
 			</View>
+
+			<Modal
+				visible={!!qrCodeData}
+				transparent={false}
+				animationType="slide"
+			>
+				<TouchableWithoutFeedback onPress={closeQRCode}>
+					<View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+						<View className="bg-white p-4 rounded-lg">
+							{qrCodeData && <QRCode value={qrCodeData} />}
+							<TouchableOpacity
+								onPress={closeQRCode}
+								className="mt-4 p-2 bg-red-500 rounded"
+							>
+								<Text className="text-white text-center">
+									Close
+								</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</TouchableWithoutFeedback>
+			</Modal>
 		</SafeAreaView>
 	);
 };
