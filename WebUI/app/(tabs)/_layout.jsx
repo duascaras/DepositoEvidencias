@@ -179,10 +179,27 @@ const TabsLayout = () => {
 				/>
 
 				<Tabs.Screen
+					name="pending/[id]"
+					options={{
+						href: null,
+						title: "Items",
+						headerShown: false,
+					}}
+				/>
+
+				<Tabs.Screen
 					name="pending/index"
 					options={{
 						href: null,
 						title: "Items",
+						headerShown: false,
+					}}
+				/>
+
+				<Tabs.Screen
+					name="user/index"
+					options={{
+						href: null,
 						headerShown: false,
 					}}
 				/>

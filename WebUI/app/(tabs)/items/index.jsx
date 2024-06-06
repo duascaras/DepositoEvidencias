@@ -132,7 +132,6 @@ const Items = () => {
 	const closeQRCode = () => {
 		setQrCodeData(null);
 	};
-
 	return (
 		<SafeAreaView className="bg-soft_white h-full relative">
 			<Header title={"Itens"} />
@@ -156,6 +155,7 @@ const Items = () => {
 							Ativos
 						</Text>
 					</TouchableOpacity>
+
 					<TouchableOpacity
 						className={`p-2 border-2 rounded ${
 							filter === "inAnalysis"
@@ -173,6 +173,7 @@ const Items = () => {
 							Em Análise
 						</Text>
 					</TouchableOpacity>
+
 					<TouchableOpacity
 						className={`p-2 border-2 rounded ${
 							filter === "inactive"
@@ -208,59 +209,72 @@ const Items = () => {
 							renderItem={({ item }) => (
 								<View className="flex-row mt-2 items-center p-4 bg-white rounded-xl border-2 border-gray-300 boxShadow-sm mx-4">
 									{filter === "inAnalysis" ? (
-										<Image
-											source={icons.qrcodeChecked}
-											className="w-10 h-10"
-											resizeMode="contain"
-										/>
-									) : filter === "inactive" ? (
-										<TouchableOpacity
-											onPress={() => editItem(item)}
-										>
-											<Image
-												source={icons.disabled}
-												className="w-10 h-10"
-												resizeMode="contain"
-											/>
-										</TouchableOpacity>
+										<>
+											<TouchableOpacity
+												onPress={() =>
+													qrCodePopUp(item)
+												}
+											>
+												<Image
+													source={icons.qrcodeChecked}
+													className="w-10 h-10"
+													resizeMode="contain"
+												/>
+											</TouchableOpacity>
+											<View className="ml-4 flex-1">
+												<Text className="text-lg text-black font-pregular">
+													{item.name}
+												</Text>
+												<Text className="text-gray-500">
+													por: {item.userName}
+												</Text>
+											</View>
+										</>
 									) : (
-										<TouchableOpacity
-											onPress={() => qrCodePopUp(item)}
-										>
-											<Image
-												source={icons.qrcode}
-												className="w-10 h-10"
-												resizeMode="contain"
-											/>
-										</TouchableOpacity>
+										<>
+											<TouchableOpacity
+												onPress={() =>
+													qrCodePopUp(item)
+												}
+											>
+												<Image
+													source={icons.qrcode}
+													className="w-10 h-10"
+													resizeMode="contain"
+												/>
+											</TouchableOpacity>
+											<TouchableOpacity
+												className="ml-4 flex-1"
+												onPress={() => editItem(item)}
+											>
+												<Text className="text-lg text-black font-pregular">
+													{item.name}
+												</Text>
+												<Text className="text-gray-500">
+													por: {item.userName}
+												</Text>
+											</TouchableOpacity>
+											{filter !== "inAnalysis" && (
+												<TouchableOpacity
+													onPress={() =>
+														editItem(item)
+													}
+												>
+													<Image
+														source={icons.edit}
+														className="w-6 h-6"
+														resizeMode="contain"
+													/>
+												</TouchableOpacity>
+											)}
+										</>
 									)}
-									<TouchableOpacity
-										className="ml-4 flex-1"
-										onPress={() => editItem(item)}
-									>
-										<Text className="text-lg text-black font-pregular">
-											{item.name}
-										</Text>
-										<Text className="text-gray-500">
-											ID: {item.id}, Created by:{" "}
-											{item.userName}
-										</Text>
-									</TouchableOpacity>
-									<TouchableOpacity
-										onPress={() => editItem(item)}
-									>
-										<Image
-											source={icons.edit}
-											className="w-6 h-6"
-											resizeMode="contain"
-										/>
-									</TouchableOpacity>
 								</View>
 							)}
 						/>
 					) : (
 						<Text className="text-center mt-4">
-							No items to display
+							Sem Itens para exibir.
 						</Text>
 					)}
 				</View>
@@ -268,9 +282,9 @@ const Items = () => {
 
 			<View className="self-center bottom-0 p-4 w-96 mb-2">
 				<CustomButton
-					title="Novo Item"
+					title={"Novo Item"}
 					handlePress={newItem}
-					containerStyles="w-full"
+					containerStyles={"w-full"}
 				/>
 			</View>
 
@@ -282,6 +296,9 @@ const Items = () => {
 				<TouchableWithoutFeedback onPress={closeQRCode}>
 					<View className="flex-1 full justify-center items-center bg-black bg-opacity-50">
 						<View className="bg-soft_white p-4 rounded-lg">
+							<Text className="mb-4 text-black text-2xl font-bold font-pmsemibold text-center">
+								{qrCodeData}
+							</Text>
 							{qrCodeData && (
 								<QRCode size={250} value={qrCodeData} />
 							)}

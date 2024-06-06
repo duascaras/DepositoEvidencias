@@ -145,9 +145,9 @@ const AnalysisDetails = ({ onAnalysisUpdated }) => {
 					</View>
 				</View>
 				<CustomButton
-					title="Enviar Análise"
+					title="Finalizar Análise"
 					handlePress={sendAnalysis}
-					containerStyles={"self-center bottom-0 p-4 w-96 mb-6"}
+					containerStyles={"mt-6 self-center bottom-0 p-4 w-96 mb-6"}
 				/>
 			</ScrollView>
 		</SafeAreaView>

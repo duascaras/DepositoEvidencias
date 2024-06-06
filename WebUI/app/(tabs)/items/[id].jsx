@@ -80,7 +80,7 @@ const ItemDetails = ({ onItemUpdated }) => {
 			<ScrollView>
 				<Header title={"Editar Itens"} />
 
-				<View className="w-full justify-center min-h-[60vh] px-14">
+				<View className="w-full mt-10 justify-center min-h-[60vh] px-14">
 					<FormField
 						title="Nome"
 						value={form.name}

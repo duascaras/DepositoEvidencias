@@ -14,6 +14,8 @@ const FormField = ({
 }) => {
 	const [showPassword, setShowPassword] = useState(false);
 
+	const isSenhaField = title.toLowerCase().includes("senha");
+
 	return (
 		<View className={`space-y-2 ${otherStyles}`}>
 			<Text className="text-xl text-semibold font-psemibold ">
@@ -26,12 +28,12 @@ const FormField = ({
 					placeholder={placeholder}
 					placeholderTextColor="#7B7B8B"
 					onChangeText={handleChangeText}
-					secureTextEntry={title === "Senha" && !showPassword}
+					secureTextEntry={isSenhaField && !showPassword}
 					editable={!disabled}
 					{...props}
 				/>
 
-				{title === "Senha" && (
+				{isSenhaField && (
 					<TouchableOpacity
 						onPress={() => setShowPassword(!showPassword)}
 					>

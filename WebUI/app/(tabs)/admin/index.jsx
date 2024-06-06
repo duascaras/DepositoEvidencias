@@ -28,7 +28,7 @@ const Admin = () => {
 
 	const getUsers = useCallback(
 		async (page) => {
-			const pageSize = 6;
+			const pageSize = 1000;
 			const endpoint =
 				filter === "active" ? "get-users-active" : "get-users-inactive";
 			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/${endpoint}?pageNumber=${page}&pageSize=${pageSize}`;
@@ -85,20 +85,6 @@ const Admin = () => {
 			pathname: `/admin/${user.id}`,
 			params: { id: user.id },
 		});
-	};
-
-	const handleNextPage = () => {
-		if (currentPage < totalPages) {
-			setCurrentPage(currentPage + 1);
-			getUsers(currentPage + 1);
-		}
-	};
-
-	const handlePreviousPage = () => {
-		if (currentPage > 1) {
-			setCurrentPage(currentPage - 1);
-			getUsers(currentPage - 1);
-		}
 	};
 
 	const handleFilterChange = (newFilter) => {
@@ -193,38 +179,7 @@ const Admin = () => {
 				</Text>
 			)}
 
-			{showUsers && (
-				<View className="absolute bottom-0 w-full flex-row justify-between p-1 bg-soft_white border-t border-gray-300">
-					<TouchableOpacity
-						className={`bg-blue-500 border-2 border-black p-2 rounded ${
-							currentPage === 1 ? "opacity-50" : ""
-						}`}
-						onPress={handlePreviousPage}
-						disabled={currentPage === 1}
-					>
-						<Text className="text-sm text-center text-white">
-							Anterior
-						</Text>
-					</TouchableOpacity>
-
-					<Text className="text-lg self-center p-2 text-black font-pregular text-center">
-						Page {currentPage} of {totalPages}
-					</Text>
-
-					<TouchableOpacity
-						className={`bg-blue-500 border-2 border-black p-2 rounded ${
-							currentPage === totalPages ? "opacity-50" : ""
-						}`}
-						onPress={handleNextPage}
-						disabled={currentPage === totalPages}
-					>
-						<Text className="text-sm text-center text-white">
-							Próxima
-						</Text>
-					</TouchableOpacity>
-				</View>
-			)}
-			<View className="self-center bottom-0 p-4 w-96 mb-10">
+			<View className="self-center bottom-0 p-4 w-96 mb-2">
 				<CustomButton
 					title="Novo Usuário"
 					handlePress={newUser}

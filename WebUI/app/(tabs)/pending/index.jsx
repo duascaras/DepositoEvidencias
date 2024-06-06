@@ -9,10 +9,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import Header from "../../../components/Header";
+import { useRouter } from "expo-router";
 
 const Pending = () => {
 	const [analyses, setAnalyses] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
+	const router = useRouter();
 
 	const fetchPendingAnalyses = useCallback(async () => {
 		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Analysis-pending-confirmed`;
@@ -36,7 +38,7 @@ const Pending = () => {
 			alert("Análise confirmada com sucesso!");
 			fetchPendingAnalyses();
 		} catch (error) {
-			alert("Erro ao confirmar a análise: " + error);
+			alert(error);
 		}
 	};
 
@@ -45,7 +47,10 @@ const Pending = () => {
 	}, [fetchPendingAnalyses]);
 
 	const renderItem = ({ item }) => (
-		<View className="flex-row mt-2 items-center p-4 bg-white rounded-xl border-2 border-gray-300 shadow-sm mx-4">
+		<TouchableOpacity
+			onPress={() => router.push(`/pending/${item.id}`)}
+			className="flex-row mt-2 items-center p-4 bg-white rounded-xl border-2 border-gray-300 shadow-sm mx-4"
+		>
 			<View className="flex-1">
 				<Text className="text-lg text-black font-pregular">
 					{item.itemId}
@@ -60,12 +65,12 @@ const Pending = () => {
 			>
 				<Text className="text-white">Confirmar</Text>
 			</TouchableOpacity>
-		</View>
+		</TouchableOpacity>
 	);
 
 	return (
 		<SafeAreaView className="bg-soft_white h-full">
-			<Header title={"Confirmar Análises"} />
+			<Header title={"Pendentes"} />
 			<View className="p-4">
 				{isLoading ? (
 					<ActivityIndicator

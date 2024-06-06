@@ -28,17 +28,11 @@ const Analysis = () => {
 
 	const getAnalyses = useCallback(
 		async (page) => {
-			const pageSize = 6;
+			const pageSize = 1000;
 			let endpoint;
 			switch (filter) {
-				case "active":
-					endpoint = "Analyses/Analysis-pending-confirmed";
-					break;
 				case "inactive":
 					endpoint = "Analyses/Analysis-confirmed";
-					break;
-				case "inAnalysis":
-					endpoint = "Analyses/Typing-analysis";
 					break;
 				default:
 					endpoint = "Analyses/Typing-analysis";
@@ -91,22 +85,7 @@ const Analysis = () => {
 	const editAnalysis = (analysis) => {
 		router.push({
 			pathname: `/analysis/${analysis.id}`,
-			params: { id: analysis.id },
 		});
-	};
-
-	const handleNextPage = () => {
-		if (currentPage < totalPages) {
-			setCurrentPage(currentPage + 1);
-			getAnalyses(currentPage + 1);
-		}
-	};
-
-	const handlePreviousPage = () => {
-		if (currentPage > 1) {
-			setCurrentPage(currentPage - 1);
-			getAnalyses(currentPage - 1);
-		}
 	};
 
 	const handleFilterChange = (newFilter) => {
@@ -138,23 +117,7 @@ const Analysis = () => {
 							Em Análise
 						</Text>
 					</TouchableOpacity>
-					<TouchableOpacity
-						className={`p-2 border-2 rounded ${
-							filter === "active"
-								? "bg-blue-500 border-black"
-								: "bg-gray-300 border-gray-300 opacity-50"
-						}`}
-						onPress={() => handleFilterChange("active")}
-						disabled={filter === "active"}
-					>
-						<Text
-							className={`text-white ${
-								filter === "active" ? "" : "text-black"
-							}`}
-						>
-							Aguardando Confirmação
-						</Text>
-					</TouchableOpacity>
+
 					<TouchableOpacity
 						className={`p-2 border-2 rounded ${
 							filter === "inactive"
@@ -189,79 +152,60 @@ const Analysis = () => {
 							keyExtractor={(analysis) => analysis.id.toString()}
 							renderItem={({ item }) => (
 								<View className="flex-row mt-2 items-center p-4 bg-white rounded-xl border-2 border-gray-300 boxShadow-sm mx-4">
-									<TouchableOpacity
-										onPress={() => editAnalysis(item)}
-									>
-										<Image
-											source={icons.checklist}
-											className="w-10 h-10"
-											resizeMode="contain"
-										/>
-									</TouchableOpacity>
-									<TouchableOpacity
-										className="ml-4 flex-1"
-										onPress={() => editAnalysis(item)}
-									>
-										<Text className="text-lg text-black font-pregular">
-											{item.itemId}
-										</Text>
-										<Text className="text-gray-500">
-											Written by: {item.writtenUserId}
-										</Text>
-									</TouchableOpacity>
-									<TouchableOpacity
-										onPress={() => editAnalysis(item)}
-									>
-										<Image
-											source={icons.edit}
-											className="w-6 h-6"
-											resizeMode="contain"
-										/>
-									</TouchableOpacity>
+									<Image
+										source={icons.checklist}
+										className="w-10 h-10"
+										resizeMode="contain"
+									/>
+									{filter === "inactive" ? (
+										<View className="ml-4 flex-1">
+											<Text className="text-lg text-black font-pregular">
+												{item.itemId}
+											</Text>
+											<Text className="text-gray-500">
+												por: {item.writtenUserId}
+											</Text>
+										</View>
+									) : (
+										<>
+											<TouchableOpacity
+												className="ml-4 flex-1"
+												onPress={() =>
+													editAnalysis(item)
+												}
+											>
+												<Text className="text-lg text-black font-pregular">
+													{item.itemId}
+												</Text>
+												<Text className="text-gray-500">
+													por: {item.writtenUserId}
+												</Text>
+											</TouchableOpacity>
+											<TouchableOpacity
+												onPress={() =>
+													editAnalysis(item)
+												}
+											>
+												<Image
+													source={icons.edit}
+													className="w-6 h-6"
+													resizeMode="contain"
+												/>
+											</TouchableOpacity>
+										</>
+									)}
 								</View>
 							)}
 						/>
 					) : (
 						<Text className="text-center mt-4">
-							No analyses to display
+							Sem Análises para exibir.
 						</Text>
 					)}
 				</View>
 			)}
 
-			{showAnalyses && (
-				<View className="absolute bottom-0 w-full flex-row justify-between p-1 bg-soft_white border-t border-gray-300">
-					<TouchableOpacity
-						className={`bg-blue-500 border-2 border-black p-2 rounded ${
-							currentPage === 1 ? "opacity-50" : ""
-						}`}
-						onPress={handlePreviousPage}
-						disabled={currentPage === 1}
-					>
-						<Text className="text-sm text-center text-white">
-							Anterior
-						</Text>
-					</TouchableOpacity>
-
-					<Text className="text-lg self-center p-2 text-black font-pregular text-center">
-						Page {currentPage} of {totalPages}
-					</Text>
-
-					<TouchableOpacity
-						className={`bg-blue-500 border-2 border-black p-2 rounded ${
-							currentPage === totalPages ? "opacity-50" : ""
-						}`}
-						onPress={handleNextPage}
-						disabled={currentPage === totalPages}
-					>
-						<Text className="text-sm text-center text-white">
-							Próxima
-						</Text>
-					</TouchableOpacity>
-				</View>
-			)}
-
-			<View className="self-center bottom-0 p-4 w-96 mb-10">
+			<View className="self-center bottom-0 p-4 w-96 mb-2">
 				<CustomButton
 					title={"Iniciar Análise"}
 					handlePress={newAnalysis}
