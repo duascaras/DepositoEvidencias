@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Alert, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
@@ -37,11 +37,10 @@ const ItemDetails = ({ onItemUpdated }) => {
 						isActive: itemData.isActive,
 					});
 				} else {
-					alert("Failed to fetch item data.");
+					alert("Erro inesperado. Tente novamente");
 				}
 			} catch (error) {
-				alert(error);
-				console.error("Error:", error);
+				alert(error.response.data);
 			}
 		};
 
@@ -50,7 +49,6 @@ const ItemDetails = ({ onItemUpdated }) => {
 
 	const updateItem = async () => {
 		setIsSubmitting(true);
-
 		try {
 			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/edit/${id}`;
 			const response = await axios.put(API_URL, {
@@ -60,14 +58,14 @@ const ItemDetails = ({ onItemUpdated }) => {
 			});
 
 			if (response.status === 200) {
-				alert("Success", "Item updated successfully.");
+				alert(response.data);
 				if (onItemUpdated) onItemUpdated();
 				router.push("/(tabs)/items");
 			} else {
-				alert("Failed to update item. Please try again.");
+				alert("Erro inesperado. Tente novamente");
 			}
 		} catch (error) {
-			alert(error);
+			alert(error.response.data);
 		} finally {
 			setIsSubmitting(false);
 		}

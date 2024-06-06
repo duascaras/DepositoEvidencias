@@ -1,3 +1,4 @@
+// items/index.js
 import React, { useEffect, useState, useCallback } from "react";
 import {
 	View,
@@ -6,8 +7,8 @@ import {
 	TouchableOpacity,
 	Image,
 	ActivityIndicator,
-	Modal,
 	TouchableWithoutFeedback,
+	Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
@@ -16,22 +17,24 @@ import CustomButton from "../../../components/CustomButton";
 import { router, useFocusEffect } from "expo-router";
 import SearchInput from "../../../components/SearchInput";
 import { icons } from "../../../constants";
+import { useAuth } from "../../../context/AuthContext"; // Import useAuth
 import QRCode from "react-native-qrcode-svg";
 
 const Items = () => {
+	const { userId } = useAuth(); // Get userId from context
 	const [items, setItems] = useState([]);
 	const [showItems, setShowItems] = useState(false);
 	const [filteredItems, setFilteredItems] = useState([]);
 	const [query, setQuery] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
-	const [totalPages, setTotalPages] = useState(1);
+	const [, setTotalPages] = useState(1);
 	const [filter, setFilter] = useState("active");
 	const [qrCodeData, setQrCodeData] = useState(null);
 
 	const getItems = useCallback(
 		async (page) => {
-			const pageSize = 6;
+			const pageSize = 1000;
 			let endpoint;
 			switch (filter) {
 				case "active":
@@ -68,8 +71,12 @@ const Items = () => {
 	);
 
 	const qrCodePopUp = async (item) => {
+		if (!userId) {
+			alert("Erro: Tente novamente");
+			return;
+		}
 		const id = item.id;
-		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/GenerateCode/2bba2917-f514-4eba-b51c-08b3be49cb6c/${id}`;
+		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/GenerateCode/${userId}/${id}`;
 
 		try {
 			setIsLoading(true);
@@ -114,22 +121,7 @@ const Items = () => {
 	const editItem = (item) => {
 		router.push({
 			pathname: `/items/${item.id}`,
-			params: { id: item.id },
 		});
-	};
-
-	const handleNextPage = () => {
-		if (currentPage < totalPages) {
-			setCurrentPage(currentPage + 1);
-			getItems(currentPage + 1);
-		}
-	};
-
-	const handlePreviousPage = () => {
-		if (currentPage > 1) {
-			setCurrentPage(currentPage - 1);
-			getItems(currentPage - 1);
-		}
 	};
 
 	const handleFilterChange = (newFilter) => {
@@ -274,39 +266,7 @@ const Items = () => {
 				</View>
 			)}
 
-			{showItems && (
-				<View className="absolute bottom-0 w-full flex-row justify-between p-1 bg-soft_white border-t border-gray-300">
-					<TouchableOpacity
-						className={`bg-blue-500 border-2 border-black p-2 rounded ${
-							currentPage === 1 ? "opacity-50" : ""
-						}`}
-						onPress={handlePreviousPage}
-						disabled={currentPage === 1}
-					>
-						<Text className="text-sm text-center text-white">
-							Anterior
-						</Text>
-					</TouchableOpacity>
-
-					<Text className="text-lg self-center p-2 text-black font-pregular text-center">
-						Page {currentPage} of {totalPages}
-					</Text>
-
-					<TouchableOpacity
-						className={`bg-blue-500 border-2 border-black p-2 rounded ${
-							currentPage === totalPages ? "opacity-50" : ""
-						}`}
-						onPress={handleNextPage}
-						disabled={currentPage === totalPages}
-					>
-						<Text className="text-sm text-center text-white">
-							Próxima
-						</Text>
-					</TouchableOpacity>
-				</View>
-			)}
-
-			<View className="self-center bottom-0 p-4 w-96 mb-10">
+			<View className="self-center bottom-0 p-4 w-96 mb-2">
 				<CustomButton
 					title="Novo Item"
 					handlePress={newItem}
@@ -316,19 +276,21 @@ const Items = () => {
 
 			<Modal
 				visible={!!qrCodeData}
-				transparent={false}
+				transparent={true}
 				animationType="slide"
 			>
 				<TouchableWithoutFeedback onPress={closeQRCode}>
-					<View className="flex-1 justify-center items-center bg-black bg-opacity-50">
-						<View className="bg-white p-4 rounded-lg">
-							{qrCodeData && <QRCode value={qrCodeData} />}
+					<View className="flex-1 full justify-center items-center bg-black bg-opacity-50">
+						<View className="bg-soft_white p-4 rounded-lg">
+							{qrCodeData && (
+								<QRCode size={250} value={qrCodeData} />
+							)}
 							<TouchableOpacity
 								onPress={closeQRCode}
-								className="mt-4 p-2 bg-red-500 rounded"
+								className="mt-4 p-2 rounded"
 							>
-								<Text className="text-white text-center">
-									Close
+								<Text className="text-black font-bold font-pmsemibold text-center">
+									Fechar
 								</Text>
 							</TouchableOpacity>
 						</View>

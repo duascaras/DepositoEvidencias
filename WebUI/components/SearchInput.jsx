@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Image, TextInput, TouchableOpacity } from "react-native";
+import { View, Image, TextInput } from "react-native";
 import { icons } from "../constants";
 
 const SearchInput = ({ initialQuery, onSearch }) => {
@@ -13,14 +13,12 @@ const SearchInput = ({ initialQuery, onSearch }) => {
 	};
 
 	return (
-		<View className="flex-row mb-2 ml-4 mr-4 self-center items-center h-14 px-4 border-4">
-			<TouchableOpacity onPress={() => handleTextChange(query)}>
-				<Image
-					source={icons.search}
-					className="w-6 h-6"
-					resizeMode="contain"
-				/>
-			</TouchableOpacity>
+		<View className="flex-row mb-2 ml-4 mr-4 self-center items-center h-12 px-4 rounded-xl border-4">
+			<Image
+				source={icons.search}
+				className="w-6 h-6"
+				resizeMode="contain"
+			/>
 
 			<TextInput
 				className="text-xl ml-4 flex-1 font-pregular"

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { View, ScrollView, Text, Alert } from "react-native";
+import { View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import axios from "axios";
+import { useFocusEffect } from "@react-navigation/native";
 
 import CustomButton from "../../../components/CustomButton";
 import FormField from "../../../components/FormField";
@@ -14,33 +15,42 @@ const NewItem = ({ onItemCreated }) => {
 		code: "",
 	});
 
-	const [isSubmitting, setisSubmitting] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const router = useRouter();
+
+	useFocusEffect(
+		React.useCallback(() => {
+			setForm({
+				name: "",
+				code: "",
+			});
+		}, [])
+	);
 
 	const submit = async () => {
 		if (!form.name || !form.code) {
-			alert("Por favor, preencha todos os campos.");
+			alert("Preencha todos os campos.");
 			return;
 		}
 
-		setisSubmitting(true);
+		setIsSubmitting(true);
 		try {
 			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Itens/create-item`;
 			const response = await axios.post(API_URL, form);
 
 			if (response.status === 200) {
-				alert("Success", "Item created successfully");
+				alert(response.data);
 				if (onItemCreated && typeof onItemCreated === "function") {
 					onItemCreated();
 				}
 				router.push("items");
 			} else {
-				alert("Error, Something went wrong. Please try again.");
+				alert("Erro inesperado. Tente novamente");
 			}
 		} catch (error) {
 			alert(error.response.data);
 		} finally {
-			setisSubmitting(false);
+			setIsSubmitting(false);
 		}
 	};
 

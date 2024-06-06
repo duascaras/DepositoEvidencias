@@ -12,13 +12,6 @@ const AuthLayout = () => {
 						headerShown: false,
 					}}
 				/>
-
-				<Stack.Screen
-					name="register"
-					options={{
-						headerShown: false,
-					}}
-				/>
 			</Stack>
 
 			{/* Only on Mobile: Defines the top of the page (where the hours are shown)*/}

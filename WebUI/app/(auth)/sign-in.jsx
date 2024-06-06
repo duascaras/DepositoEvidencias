@@ -23,6 +23,7 @@ const SignIn = () => {
 		setIsSubmitting(true);
 		try {
 			const result = await onLogin(form.username, form.password);
+			console.log("Login result:", result);
 			if (result.error) {
 				alert(result.msg);
 			} else {

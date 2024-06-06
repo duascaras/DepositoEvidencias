@@ -1,6 +1,7 @@
 // context/AuthContext.js
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
+import { b64utoutf8 } from "jsrsasign";
 import { setItem, getItem, deleteItem } from "../utils/storage";
 
 const TOKEN_KEY = "my-jwt";
@@ -12,10 +13,32 @@ export const useAuth = () => {
 	return useContext(AuthContext);
 };
 
+const decodeJWT = (token) => {
+	try {
+		const parts = token.split(".");
+		if (parts.length !== 3) {
+			throw new Error("JWT must have 3 parts");
+		}
+		const payload = JSON.parse(b64utoutf8(parts[1]));
+		return {
+			username:
+				payload[
+					"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
+				],
+			id: payload[
+				"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+			],
+		};
+	} catch (e) {
+		return null;
+	}
+};
+
 export const AuthProvider = ({ children }) => {
 	const [authState, setAuthState] = useState({
 		token: null,
 		authenticated: null,
+		user: null,
 	});
 
 	useEffect(() => {
@@ -26,13 +49,17 @@ export const AuthProvider = ({ children }) => {
 					axios.defaults.headers.common[
 						"Authorization"
 					] = `Bearer ${token}`;
-					setAuthState({
-						token: token,
-						authenticated: true,
-					});
+					const user = decodeJWT(token);
+					if (user) {
+						setAuthState({
+							token: token,
+							authenticated: true,
+							user: user,
+						});
+					}
 				}
 			} catch (e) {
-				console.log(e);
+				return e;
 			}
 		};
 		loadToken();
@@ -44,15 +71,22 @@ export const AuthProvider = ({ children }) => {
 				username,
 				password,
 			});
-			setAuthState({
-				token: result.data,
-				authenticated: true,
-			});
-			axios.defaults.headers.common[
-				"Authorization"
-			] = `Bearer ${result.data}`;
-			await setItem(TOKEN_KEY, result.data);
-			return result.data;
+			const token = result.data;
+			const user = decodeJWT(token);
+			if (user) {
+				setAuthState({
+					token: token,
+					authenticated: true,
+					user: user,
+				});
+				axios.defaults.headers.common[
+					"Authorization"
+				] = `Bearer ${token}`;
+				await setItem(TOKEN_KEY, token);
+				return result.data;
+			} else {
+				throw new Error("Failed to decode JWT");
+			}
 		} catch (e) {
 			if (e.response && e.response.data) {
 				return { error: true, msg: e.response.data };
@@ -68,10 +102,11 @@ export const AuthProvider = ({ children }) => {
 			setAuthState({
 				token: null,
 				authenticated: false,
+				user: null,
 			});
 			delete axios.defaults.headers.common["Authorization"];
 		} catch (e) {
-			console.log(e);
+			return e;
 		}
 	};
 
@@ -79,6 +114,7 @@ export const AuthProvider = ({ children }) => {
 		onLogin: login,
 		onLogout: logout,
 		authState,
+		userId: authState.user ? authState.user.id : null,
 	};
 
 	return (
