@@ -65,7 +65,7 @@ const NewItem = ({ onItemCreated }) => {
 					<Header title={"Novo Item"} />
 				</View>
 
-				<View className="w-full justify-center min-h-[60vh] px-14">
+				<View className="w-full justify-center mt-28 md:mt-16 px-14">
 					<FormField
 						title="Nome"
 						value={form.name}

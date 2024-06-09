@@ -1,4 +1,3 @@
-// items/index.js
 import React, { useEffect, useState, useCallback } from "react";
 import {
 	View,
@@ -17,11 +16,11 @@ import CustomButton from "../../../components/CustomButton";
 import { router, useFocusEffect } from "expo-router";
 import SearchInput from "../../../components/SearchInput";
 import { icons } from "../../../constants";
-import { useAuth } from "../../../context/AuthContext"; // Import useAuth
+import { useAuth } from "../../../context/AuthContext";
 import QRCode from "react-native-qrcode-svg";
 
 const Items = () => {
-	const { userId } = useAuth(); // Get userId from context
+	const { userId } = useAuth();
 	const [items, setItems] = useState([]);
 	const [showItems, setShowItems] = useState(false);
 	const [filteredItems, setFilteredItems] = useState([]);
@@ -210,17 +209,11 @@ const Items = () => {
 								<View className="flex-row mt-2 items-center p-4 bg-white rounded-xl border-2 border-gray-300 boxShadow-sm mx-4">
 									{filter === "inAnalysis" ? (
 										<>
-											<TouchableOpacity
-												onPress={() =>
-													qrCodePopUp(item)
-												}
-											>
-												<Image
-													source={icons.qrcodeChecked}
-													className="w-10 h-10"
-													resizeMode="contain"
-												/>
-											</TouchableOpacity>
+											<Image
+												source={icons.qrcodeChecked}
+												className="w-10 h-10"
+												resizeMode="contain"
+											/>
 											<View className="ml-4 flex-1">
 												<Text className="text-lg text-black font-pregular">
 													{item.name}
@@ -229,6 +222,34 @@ const Items = () => {
 													por: {item.userName}
 												</Text>
 											</View>
+										</>
+									) : filter === "inactive" ? (
+										<>
+											<Image
+												source={icons.disabled}
+												className="w-10 h-10"
+												resizeMode="contain"
+											/>
+											<TouchableOpacity
+												className="ml-4 flex-1"
+												onPress={() => editItem(item)}
+											>
+												<Text className="text-lg text-black font-pregular">
+													{item.name}
+												</Text>
+												<Text className="text-gray-500">
+													por: {item.userName}
+												</Text>
+											</TouchableOpacity>
+											<TouchableOpacity
+												onPress={() => editItem(item)}
+											>
+												<Image
+													source={icons.edit}
+													className="w-6 h-6"
+													resizeMode="contain"
+												/>
+											</TouchableOpacity>
 										</>
 									) : (
 										<>
@@ -254,19 +275,15 @@ const Items = () => {
 													por: {item.userName}
 												</Text>
 											</TouchableOpacity>
-											{filter !== "inAnalysis" && (
-												<TouchableOpacity
-													onPress={() =>
-														editItem(item)
-													}
-												>
-													<Image
-														source={icons.edit}
-														className="w-6 h-6"
-														resizeMode="contain"
-													/>
-												</TouchableOpacity>
-											)}
+											<TouchableOpacity
+												onPress={() => editItem(item)}
+											>
+												<Image
+													source={icons.edit}
+													className="w-6 h-6"
+													resizeMode="contain"
+												/>
+											</TouchableOpacity>
 										</>
 									)}
 								</View>

@@ -1,11 +1,14 @@
-import React, { useState } from "react";
-import { View, ScrollView, Text, StyleSheet, Alert } from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import FormField from "../../../components/FormField";
 import CustomButton from "../../../components/CustomButton";
 import Header from "../../../components/Header";
 import { useRouter } from "expo-router";
+import ConfirmationModal from "../../../components/ConfirmationModal";
+import AlertModal from "../../../components/AlertModal";
+import { useFocusEffect } from "@react-navigation/native";
 
 const ChangePassword = () => {
 	const [form, setForm] = useState({
@@ -14,7 +17,24 @@ const ChangePassword = () => {
 		confirmedPassword: "",
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [modalVisible, setModalVisible] = useState(false);
+	const [alertVisible, setAlertVisible] = useState(false);
+	const [alertMessage, setAlertMessage] = useState("");
 	const router = useRouter();
+
+	const resetForm = () => {
+		setForm({
+			currentPassword: "",
+			newPassword: "",
+			confirmedPassword: "",
+		});
+	};
+
+	useFocusEffect(
+		useCallback(() => {
+			resetForm();
+		}, [])
+	);
 
 	const handleChangePassword = async () => {
 		if (
@@ -22,12 +42,12 @@ const ChangePassword = () => {
 			!form.newPassword ||
 			!form.confirmedPassword
 		) {
-			alert("Por favor, preencha todos os campos.");
+			showAlert("Por favor, preencha todos os campos.");
 			return;
 		}
 
 		if (form.newPassword !== form.confirmedPassword) {
-			alert("As senhas novas não coincidem.");
+			showAlert("As senhas novas não coincidem.");
 			return;
 		}
 
@@ -38,16 +58,40 @@ const ChangePassword = () => {
 			const response = await axios.put(API_URL, form);
 
 			if (response.status === 200) {
-				alert("Senha alterada com sucesso.");
-				router.push("/(tabs)/admin");
+				showAlert("Senha alterada com sucesso.");
+				router.push("/home");
 			} else {
-				alert("Erro ao alterar a senha. Por favor, tente novamente.");
+				showAlert(
+					"Erro ao alterar a senha. Por favor, tente novamente."
+				);
 			}
 		} catch (error) {
-			alert(error.response.data);
+			showAlert(error.response.data);
 		} finally {
 			setIsSubmitting(false);
 		}
+	};
+
+	const openModal = () => {
+		setModalVisible(true);
+	};
+
+	const closeModal = () => {
+		setModalVisible(false);
+	};
+
+	const confirmChangePassword = () => {
+		closeModal();
+		handleChangePassword();
+	};
+
+	const showAlert = (message) => {
+		setAlertMessage(message);
+		setAlertVisible(true);
+	};
+
+	const closeAlert = () => {
+		setAlertVisible(false);
 	};
 
 	return (
@@ -56,7 +100,7 @@ const ChangePassword = () => {
 				<Header title={"Alterar Senha"} />
 				<View style={styles.containerColumn}>
 					<View style={styles.table}>
-						<View className="space-y-2">
+						<View className="space-y-2 mt-10 sm:mt-1">
 							<FormField
 								title="Senha Atual"
 								value={form.currentPassword}
@@ -85,38 +129,43 @@ const ChangePassword = () => {
 
 						<View className="flex flex-row justify-between mt-20">
 							<CustomButton
-								title="Confirmar"
-								handlePress={handleChangePassword}
-								containerStyles="flex-1 mr-2"
-								isLoading={isSubmitting}
-							/>
-
-							<CustomButton
 								title="Cancelar"
 								handlePress={() => router.back()}
+								containerStyles="flex-1 mr-2"
+							/>
+							<CustomButton
+								title="Confirmar"
+								handlePress={openModal}
 								containerStyles="flex-1 ml-2 bg-red-500"
+								isLoading={isSubmitting}
 							/>
 						</View>
 					</View>
 				</View>
 			</ScrollView>
+
+			<ConfirmationModal
+				visible={modalVisible}
+				message="Confirmar esta ação?"
+				onConfirm={confirmChangePassword}
+				onCancel={closeModal}
+			/>
+
+			<AlertModal
+				visible={alertVisible}
+				message={alertMessage}
+				onClose={closeAlert}
+			/>
 		</SafeAreaView>
 	);
 };
 
 const styles = StyleSheet.create({
 	containerColumn: {
-		flexDirection: "column",
-		justifyContent: "space-between",
 		paddingHorizontal: 20,
-		marginTop: 30,
 	},
 	table: {
-		marginTop: 10,
-		padding: 10,
 		marginVertical: 10,
-		backgroundColor: "#f0f0f0",
-		borderRadius: 10,
 		padding: 20,
 	},
 });
