@@ -45,16 +45,10 @@ export default function CameraComponent({ onClose, onCodeScanned }) {
 	};
 
 	return (
-		<View className="p-5 max-h-max">
+		<View className="p-5">
 			<CameraView onBarcodeScanned={handleCodeScanned}>
-				<TouchableOpacity
-					className="max-h-max max-w-max"
-					onPress={onClose}
-				>
-					<Image
-						source={icons.disabled}
-						className="max-h-max max-w-max"
-					/>
+				<TouchableOpacity onPress={onClose}>
+					<Image source={icons.disabled} />
 				</TouchableOpacity>
 			</CameraView>
 		</View>

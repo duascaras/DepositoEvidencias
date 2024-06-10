@@ -10,11 +10,26 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import Header from "../../../components/Header";
 import { useRouter } from "expo-router";
+import ConfirmationModal from "../../../components/ConfirmationModal";
+import AlertModal from "../../../components/AlertModal";
 
 const Pending = () => {
 	const [analyses, setAnalyses] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
+	const [alertVisible, setAlertVisible] = useState(false);
+	const [alertMessage, setAlertMessage] = useState("");
+	const [confirmationVisible, setConfirmationVisible] = useState(false);
+	const [selectedAnalysisId, setSelectedAnalysisId] = useState(null);
 	const router = useRouter();
+
+	const showAlert = (message) => {
+		setAlertMessage(message);
+		setAlertVisible(true);
+	};
+
+	const closeAlert = () => {
+		setAlertVisible(false);
+	};
 
 	const fetchPendingAnalyses = useCallback(async () => {
 		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Analysis-pending-confirmed`;
@@ -24,21 +39,23 @@ const Pending = () => {
 			const response = await axios.get(API_URL);
 			setAnalyses(response.data.data);
 		} catch (error) {
-			alert(error);
+			showAlert("Você não possui as permissões necessárias.");
 		} finally {
 			setIsLoading(false);
 		}
 	}, []);
 
-	const confirmAnalysis = async (analysisId) => {
-		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Confirm-Analysis/${analysisId}`;
+	const confirmAnalysis = async () => {
+		const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Confirm-Analysis/${selectedAnalysisId}`;
 
 		try {
 			await axios.put(API_URL);
-			alert("Análise confirmada com sucesso!");
+			showAlert("Análise confirmada com sucesso!");
 			fetchPendingAnalyses();
 		} catch (error) {
-			alert(error);
+			showAlert(error.message);
+		} finally {
+			setConfirmationVisible(false);
 		}
 	};
 
@@ -60,7 +77,10 @@ const Pending = () => {
 				</Text>
 			</View>
 			<TouchableOpacity
-				onPress={() => confirmAnalysis(item.id)}
+				onPress={() => {
+					setSelectedAnalysisId(item.id);
+					setConfirmationVisible(true);
+				}}
 				className="bg-green-500 p-2 rounded"
 			>
 				<Text className="text-white">Confirmar</Text>
@@ -85,12 +105,23 @@ const Pending = () => {
 						renderItem={renderItem}
 						ListEmptyComponent={
 							<Text className="text-center mt-4">
-								Nenhuma análise pendente
+								Nenhuma análise pendente e/ou falta de acesso.
 							</Text>
 						}
 					/>
 				)}
 			</View>
+			<ConfirmationModal
+				visible={confirmationVisible}
+				onConfirm={confirmAnalysis}
+				onCancel={() => setConfirmationVisible(false)}
+				message="Tem certeza de que deseja confirmar a devolução desse item?"
+			/>
+			<AlertModal
+				visible={alertVisible}
+				message={alertMessage}
+				onClose={closeAlert}
+			/>
 		</SafeAreaView>
 	);
 };

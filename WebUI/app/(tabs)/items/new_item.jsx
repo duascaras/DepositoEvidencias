@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import axios from "axios";
 import { useFocusEffect } from "@react-navigation/native";
-
 import CustomButton from "../../../components/CustomButton";
 import FormField from "../../../components/FormField";
 import Header from "../../../components/Header";
+import ConfirmationModal from "../../../components/ConfirmationModal";
+import AlertModal from "../../../components/AlertModal";
 
 const NewItem = ({ onItemCreated }) => {
 	const [form, setForm] = useState({
@@ -16,20 +17,27 @@ const NewItem = ({ onItemCreated }) => {
 	});
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [modalVisible, setModalVisible] = useState(false);
+	const [alertVisible, setAlertVisible] = useState(false);
+	const [alertMessage, setAlertMessage] = useState("");
 	const router = useRouter();
 
+	const resetForm = () => {
+		setForm({
+			name: "",
+			code: "",
+		});
+	};
+
 	useFocusEffect(
-		React.useCallback(() => {
-			setForm({
-				name: "",
-				code: "",
-			});
+		useCallback(() => {
+			resetForm();
 		}, [])
 	);
 
 	const submit = async () => {
 		if (!form.name || !form.code) {
-			alert("Preencha todos os campos.");
+			showAlert("Preencha todos os campos.");
 			return;
 		}
 
@@ -39,19 +47,42 @@ const NewItem = ({ onItemCreated }) => {
 			const response = await axios.post(API_URL, form);
 
 			if (response.status === 200) {
-				alert(response.data);
+				showAlert("Item criado com sucesso.");
 				if (onItemCreated && typeof onItemCreated === "function") {
 					onItemCreated();
 				}
 				router.push("items");
 			} else {
-				alert("Erro inesperado. Tente novamente");
+				showAlert("Erro inesperado. Tente novamente");
 			}
 		} catch (error) {
-			alert(error.response.data);
+			showAlert("Você não tem permissão para registrar um item.");
+			router.push("items");
 		} finally {
 			setIsSubmitting(false);
 		}
+	};
+
+	const showAlert = (message) => {
+		setAlertMessage(message);
+		setAlertVisible(true);
+	};
+
+	const closeAlert = () => {
+		setAlertVisible(false);
+	};
+
+	const openModal = () => {
+		setModalVisible(true);
+	};
+
+	const closeModal = () => {
+		setModalVisible(false);
+	};
+
+	const confirmSubmit = () => {
+		closeModal();
+		submit();
 	};
 
 	const cancel = () => {
@@ -82,19 +113,32 @@ const NewItem = ({ onItemCreated }) => {
 
 					<View className="flex flex-row justify-between mt-20">
 						<CustomButton
-							title="Confirmar"
-							handlePress={submit}
-							containerStyles="flex-1 mr-2"
-							isLoading={isSubmitting}
-						/>
-						<CustomButton
 							title="Cancelar"
 							handlePress={cancel}
+							containerStyles="flex-1 mr-2"
+						/>
+						<CustomButton
+							title="Confirmar"
+							handlePress={openModal}
 							containerStyles="flex-1 ml-2 bg-red-500"
+							isLoading={isSubmitting}
 						/>
 					</View>
 				</View>
 			</ScrollView>
+
+			<ConfirmationModal
+				visible={modalVisible}
+				message="Confirmar a criação do item?"
+				onConfirm={confirmSubmit}
+				onCancel={closeModal}
+			/>
+
+			<AlertModal
+				visible={alertVisible}
+				message={alertMessage}
+				onClose={closeAlert}
+			/>
 		</SafeAreaView>
 	);
 };

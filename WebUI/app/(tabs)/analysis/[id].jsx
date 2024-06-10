@@ -3,12 +3,13 @@ import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
-
 import FormField from "../../../components/FormField";
 import CustomButton from "../../../components/CustomButton";
 import Header from "../../../components/Header";
+import ConfirmationModal from "../../../components/ConfirmationModal";
+import AlertModal from "../../../components/AlertModal";
 
-const AnalysisDetails = ({ onAnalysisUpdated }) => {
+const AnalysisDetails = () => {
 	const { id } = useLocalSearchParams();
 	const [form, setForm] = useState({
 		laudo: "",
@@ -16,6 +17,10 @@ const AnalysisDetails = ({ onAnalysisUpdated }) => {
 		itemName: "",
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [modalVisibleSave, setModalVisibleSave] = useState(false);
+	const [modalVisibleSend, setModalVisibleSend] = useState(false);
+	const [alertVisible, setAlertVisible] = useState(false);
+	const [alertMessage, setAlertMessage] = useState("");
 	const router = useRouter();
 
 	useEffect(() => {
@@ -31,10 +36,10 @@ const AnalysisDetails = ({ onAnalysisUpdated }) => {
 						itemName: analysisData.itemId || "",
 					});
 				} else {
-					alert("Error fetching analysis data");
+					showAlert("Erro ao buscar os dados da análise");
 				}
 			} catch (error) {
-				alert(error);
+				showAlert(error.message);
 			}
 		};
 
@@ -48,6 +53,11 @@ const AnalysisDetails = ({ onAnalysisUpdated }) => {
 	}, [id]);
 
 	const saveAnalysis = async () => {
+		if (!form.laudo || !form.analysisType) {
+			showAlert("Por favor, preencha todos os campos.");
+			return;
+		}
+
 		setIsSubmitting(true);
 
 		const requestBody = {
@@ -60,14 +70,13 @@ const AnalysisDetails = ({ onAnalysisUpdated }) => {
 			const response = await axios.put(API_URL, requestBody);
 
 			if (response.status === 200) {
-				alert("Analysis updated successfully.");
-				if (onAnalysisUpdated) onAnalysisUpdated();
+				showAlert("Análise atualizada com sucesso.");
 				router.push("/analysis");
 			} else {
-				alert("Error updating analysis");
+				showAlert("Erro ao atualizar a análise");
 			}
 		} catch (error) {
-			alert(error.message);
+			showAlert(error.response.data);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -81,20 +90,56 @@ const AnalysisDetails = ({ onAnalysisUpdated }) => {
 			const response = await axios.put(API_URL);
 
 			if (response.status === 200) {
-				alert("Analysis sent successfully.");
+				showAlert("Análise enviada com sucesso.");
 				router.push("/analysis");
 			} else {
-				alert("Error sending analysis");
+				showAlert("Erro ao enviar a análise");
 			}
 		} catch (error) {
-			alert(error.message);
+			console.log(error);
+			showAlert(error.message.response);
 		} finally {
 			setIsSubmitting(false);
 		}
 	};
 
+	const openModalSave = () => {
+		setModalVisibleSave(true);
+	};
+
+	const openModalSend = () => {
+		setModalVisibleSend(true);
+	};
+
+	const closeModalSave = () => {
+		setModalVisibleSave(false);
+	};
+
+	const closeModalSend = () => {
+		setModalVisibleSend(false);
+	};
+
+	const confirmSaveAnalysis = () => {
+		closeModalSave();
+		saveAnalysis();
+	};
+
+	const confirmSendAnalysis = () => {
+		closeModalSend();
+		sendAnalysis();
+	};
+
 	const cancel = () => {
 		router.push("/analysis");
+	};
+
+	const showAlert = (message) => {
+		setAlertMessage(message);
+		setAlertVisible(true);
+	};
+
+	const closeAlert = () => {
+		setAlertVisible(false);
 	};
 
 	return (
@@ -108,7 +153,7 @@ const AnalysisDetails = ({ onAnalysisUpdated }) => {
 							Informe as Análises realizadas:
 						</Text>
 						<Text className="text-lg mt-4">
-							Item: {form.itemName} {/* Display the item name */}
+							Item: {form.itemName}
 						</Text>
 
 						<FormField
@@ -129,27 +174,47 @@ const AnalysisDetails = ({ onAnalysisUpdated }) => {
 							otherStyles="mt-8"
 						/>
 
-						<View style={styles.buttonContainer}>
-							<CustomButton
-								title="Salvar"
-								handlePress={saveAnalysis}
-								containerStyles="flex-1 mr-2"
-								isLoading={isSubmitting}
-							/>
+						<View className="flex flex-row justify-between mt-10">
 							<CustomButton
 								title="Cancelar"
 								handlePress={cancel}
+								containerStyles="flex-1 mr-2"
+							/>
+							<CustomButton
+								title="Salvar"
+								handlePress={openModalSave}
 								containerStyles="flex-1 ml-2 bg-red-500"
+								isLoading={isSubmitting}
 							/>
 						</View>
 					</View>
 				</View>
 				<CustomButton
 					title="Finalizar Análise"
-					handlePress={sendAnalysis}
-					containerStyles={"mt-6 self-center bottom-0 p-4 w-96 mb-6"}
+					handlePress={openModalSend}
+					containerStyles="mt-6 self-center bottom-0 p-4 w-96 mb-6"
 				/>
 			</ScrollView>
+
+			<ConfirmationModal
+				visible={modalVisibleSave}
+				message="Confirmar salvar análise?"
+				onConfirm={confirmSaveAnalysis}
+				onCancel={closeModalSave}
+			/>
+
+			<ConfirmationModal
+				visible={modalVisibleSend}
+				message="Confirmar enviar análise?"
+				onConfirm={confirmSendAnalysis}
+				onCancel={closeModalSend}
+			/>
+
+			<AlertModal
+				visible={alertVisible}
+				message={alertMessage}
+				onClose={closeAlert}
+			/>
 		</SafeAreaView>
 	);
 };
@@ -170,11 +235,6 @@ const styles = StyleSheet.create({
 		padding: 20,
 		width: "100%",
 		maxWidth: 500,
-	},
-	buttonContainer: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		marginTop: 20,
 	},
 });
 

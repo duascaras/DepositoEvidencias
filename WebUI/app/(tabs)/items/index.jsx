@@ -18,6 +18,7 @@ import SearchInput from "../../../components/SearchInput";
 import { icons } from "../../../constants";
 import { useAuth } from "../../../context/AuthContext";
 import QRCode from "react-native-qrcode-svg";
+import AlertModal from "../../../components/AlertModal";
 
 const Items = () => {
 	const { userId } = useAuth();
@@ -30,6 +31,17 @@ const Items = () => {
 	const [, setTotalPages] = useState(1);
 	const [filter, setFilter] = useState("active");
 	const [qrCodeData, setQrCodeData] = useState(null);
+	const [alertVisible, setAlertVisible] = useState(false);
+	const [alertMessage, setAlertMessage] = useState("");
+
+	const showAlert = (message) => {
+		setAlertMessage(message);
+		setAlertVisible(true);
+	};
+
+	const closeAlert = () => {
+		setAlertVisible(false);
+	};
 
 	const getItems = useCallback(
 		async (page) => {
@@ -61,7 +73,11 @@ const Items = () => {
 				setTotalPages(totalPages);
 				setShowItems(true);
 			} catch (error) {
-				alert(error);
+				showAlert(
+					"Você não possui as permissões necessárias para visualizar itens inativos."
+				);
+				setFilter("active");
+				router.push("items");
 			} finally {
 				setIsLoading(false);
 			}
@@ -71,7 +87,7 @@ const Items = () => {
 
 	const qrCodePopUp = async (item) => {
 		if (!userId) {
-			alert("Erro: Tente novamente");
+			showAlert("Erro: Tente novamente");
 			return;
 		}
 		const id = item.id;
@@ -83,7 +99,9 @@ const Items = () => {
 			const data = response.data.code;
 			setQrCodeData(data);
 		} catch (error) {
-			alert(error);
+			showAlert(
+				"Você não possui as permissões necessárias para gerar QRCode."
+			);
 		} finally {
 			setIsLoading(false);
 		}
@@ -131,6 +149,7 @@ const Items = () => {
 	const closeQRCode = () => {
 		setQrCodeData(null);
 	};
+
 	return (
 		<SafeAreaView className="bg-soft_white h-full relative">
 			<Header title={"Itens"} />
@@ -331,6 +350,12 @@ const Items = () => {
 					</View>
 				</TouchableWithoutFeedback>
 			</Modal>
+
+			<AlertModal
+				visible={alertVisible}
+				message={alertMessage}
+				onClose={closeAlert}
+			/>
 		</SafeAreaView>
 	);
 };

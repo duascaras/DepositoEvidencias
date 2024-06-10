@@ -24,7 +24,7 @@ const Home = () => {
 
 	return (
 		<SafeAreaView className="bg-soft_white h-full">
-			<Header title={"Página Inicial"} />
+			<Header title={"Depósito Evidências"} />
 
 			<View className="px-14">
 				<CustomButton
