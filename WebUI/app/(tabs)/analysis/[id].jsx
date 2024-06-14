@@ -39,7 +39,7 @@ const AnalysisDetails = () => {
 					showAlert("Erro ao buscar os dados da análise");
 				}
 			} catch (error) {
-				showAlert(error.message);
+				showAlert(error.response.data);
 			}
 		};
 
@@ -71,7 +71,6 @@ const AnalysisDetails = () => {
 
 			if (response.status === 200) {
 				showAlert("Análise atualizada com sucesso.");
-				router.push("/analysis");
 			} else {
 				showAlert("Erro ao atualizar a análise");
 			}
@@ -96,32 +95,17 @@ const AnalysisDetails = () => {
 				showAlert("Erro ao enviar a análise");
 			}
 		} catch (error) {
-			console.log(error);
 			showAlert(error.message.response);
 		} finally {
 			setIsSubmitting(false);
 		}
 	};
-
-	const openModalSave = () => {
-		setModalVisibleSave(true);
-	};
-
 	const openModalSend = () => {
 		setModalVisibleSend(true);
 	};
 
-	const closeModalSave = () => {
-		setModalVisibleSave(false);
-	};
-
 	const closeModalSend = () => {
 		setModalVisibleSend(false);
-	};
-
-	const confirmSaveAnalysis = () => {
-		closeModalSave();
-		saveAnalysis();
 	};
 
 	const confirmSendAnalysis = () => {
@@ -182,7 +166,7 @@ const AnalysisDetails = () => {
 							/>
 							<CustomButton
 								title="Salvar"
-								handlePress={openModalSave}
+								handlePress={saveAnalysis}
 								containerStyles="flex-1 ml-2 bg-red-500"
 								isLoading={isSubmitting}
 							/>
@@ -197,15 +181,8 @@ const AnalysisDetails = () => {
 			</ScrollView>
 
 			<ConfirmationModal
-				visible={modalVisibleSave}
-				message="Confirmar salvar análise?"
-				onConfirm={confirmSaveAnalysis}
-				onCancel={closeModalSave}
-			/>
-
-			<ConfirmationModal
 				visible={modalVisibleSend}
-				message="Confirmar enviar análise?"
+				message="Confirmar finalização das análises e devolução do item?"
 				onConfirm={confirmSendAnalysis}
 				onCancel={closeModalSend}
 			/>

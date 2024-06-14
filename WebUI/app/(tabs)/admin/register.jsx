@@ -8,6 +8,7 @@ import axios from "axios";
 import FormField from "../../../components/FormField";
 import CustomButton from "../../../components/CustomButton";
 import Header from "../../../components/Header";
+import AlertModal from "../../../components/AlertModal"; // Import AlertModal
 
 const Register = ({ onItemCreated = () => {} }) => {
 	const [form, setForm] = useState({
@@ -18,16 +19,20 @@ const Register = ({ onItemCreated = () => {} }) => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [selectedPermission, setSelectedPermission] = useState("");
 	const [permissionData, setPermissionData] = useState([]);
+	const [modalVisible, setModalVisible] = useState(false);
+	const [modalMessage, setModalMessage] = useState("");
 	const router = useRouter();
 
 	const createUser = async () => {
 		if (!form.userName || !form.password) {
-			alert("Por favor, preencha todos os campos.");
+			setModalMessage("Por favor, preencha todos os campos.");
+			setModalVisible(true);
 			return;
 		}
 
 		if (!selectedPermission) {
-			alert("Por favor, preencha a permissão.");
+			setModalMessage("Por favor, preencha a permissão.");
+			setModalVisible(true);
 			return;
 		}
 
@@ -43,14 +48,17 @@ const Register = ({ onItemCreated = () => {} }) => {
 			const response = await axios.post(API_URL, updatedForm);
 
 			if (response.status === 200) {
-				alert("Usuário criado com sucesso.");
+				setModalMessage("Usuário criado com sucesso.");
+				setModalVisible(true);
 				onItemCreated();
 				router.push("/(tabs)/admin");
 			} else {
-				alert("Erro. Por favor, tente novamente.");
+				setModalMessage("Erro. Por favor, tente novamente.");
+				setModalVisible(true);
 			}
 		} catch (error) {
-			alert(error.response.data);
+			setModalMessage(error.response.data);
+			setModalVisible(true);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -127,21 +135,26 @@ const Register = ({ onItemCreated = () => {} }) => {
 
 						<View className="flex flex-row justify-between mt-20">
 							<CustomButton
-								title="Confirmar"
-								handlePress={createUser}
+								title="Cancelar"
+								handlePress={cancel}
 								containerStyles="flex-1 mr-2"
-								isLoading={isSubmitting}
 							/>
 
 							<CustomButton
-								title="Cancelar"
-								handlePress={cancel}
+								title="Confirmar"
+								handlePress={createUser}
 								containerStyles="flex-1 ml-2 bg-red-500"
+								isLoading={isSubmitting}
 							/>
 						</View>
 					</View>
 				</View>
 			</ScrollView>
+			<AlertModal
+				visible={modalVisible}
+				message={modalMessage}
+				onClose={() => setModalVisible(false)}
+			/>
 		</SafeAreaView>
 	);
 };

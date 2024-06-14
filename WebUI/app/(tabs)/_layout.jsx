@@ -139,6 +139,14 @@ const TabsLayout = () => {
 				/>
 
 				<Tabs.Screen
+					name="analysis/ended-analysis/[id]"
+					options={{
+						href: null,
+						headerShown: false,
+					}}
+				/>
+
+				<Tabs.Screen
 					name="admin/index"
 					options={{
 						title: "admin",

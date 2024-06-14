@@ -9,10 +9,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
-import Header from "../../../components/Header";
-import CustomButton from "../../../components/CustomButton";
+import Header from "../../../../components/Header";
+import CustomButton from "../../../../components/CustomButton";
 
-const PendingDetails = () => {
+const EndedAnalysis = () => {
 	const { id } = useLocalSearchParams();
 	const [details, setDetails] = useState({});
 	const [isLoading, setIsLoading] = useState(false);
@@ -75,7 +75,7 @@ const PendingDetails = () => {
 	return (
 		<SafeAreaView className="bg-soft_white h-full">
 			<ScrollView>
-				<Header title={"Pendente"} />
+				<Header title={"Análise Finalizada"} />
 
 				<View style={styles.containerColumn}>
 					{isLoading ? (
@@ -97,13 +97,8 @@ const PendingDetails = () => {
 							))}
 						</ScrollView>
 					)}
-					<View className="flex flex-row justify-between mt-4">
-						<CustomButton
-							title="Confirmar"
-							handlePress={confirmAnalysis}
-							isLoading={isSubmitting}
-						/>
-						<CustomButton title="Cancelar" handlePress={cancel} />
+					<View className="mt-3">
+						<CustomButton title="Voltar" handlePress={cancel} />
 					</View>
 				</View>
 			</ScrollView>
@@ -145,4 +140,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default PendingDetails;
+export default EndedAnalysis;

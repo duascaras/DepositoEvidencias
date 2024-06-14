@@ -7,7 +7,6 @@ import FormField from "../../../components/FormField";
 import CustomButton from "../../../components/CustomButton";
 import { SelectList } from "react-native-dropdown-select-list";
 import Header from "../../../components/Header";
-import ConfirmationModal from "../../../components/ConfirmationModal";
 import AlertModal from "../../../components/AlertModal";
 
 const formatDateToBrazilian = (dateString) => {
@@ -34,7 +33,6 @@ const ItemDetails = () => {
 		isActive: true,
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [modalVisible, setModalVisible] = useState(false);
 	const [alertVisible, setAlertVisible] = useState(false);
 	const [alertMessage, setAlertMessage] = useState("");
 	const router = useRouter();
@@ -93,23 +91,11 @@ const ItemDetails = () => {
 				showAlert("Erro inesperado. Tente novamente");
 			}
 		} catch (error) {
-			showAlert(error.response.data);
+			showAlert("Erro. Você não possuí as permissões necessárias.");
+			router.push("/(tabs)/items");
 		} finally {
 			setIsSubmitting(false);
 		}
-	};
-
-	const openModal = () => {
-		setModalVisible(true);
-	};
-
-	const closeModal = () => {
-		setModalVisible(false);
-	};
-
-	const confirmUpdateItem = () => {
-		closeModal();
-		updateItem();
 	};
 
 	const showAlert = (message) => {
@@ -202,25 +188,18 @@ const ItemDetails = () => {
 					<View className="flex flex-row justify-between mt-10">
 						<CustomButton
 							title="Cancelar"
-							handlePress={() => router.back()}
+							handlePress={() => router.push("/(tabs)/items")}
 							containerStyles="flex-1 mr-2"
 						/>
 						<CustomButton
 							title="Confirmar"
-							handlePress={openModal}
+							handlePress={updateItem}
 							containerStyles="flex-1 ml-2 bg-red-500"
 							isLoading={isSubmitting}
 						/>
 					</View>
 				</View>
 			</ScrollView>
-
-			<ConfirmationModal
-				visible={modalVisible}
-				message="Confirmar esta ação?"
-				onConfirm={confirmUpdateItem}
-				onCancel={closeModal}
-			/>
 
 			<AlertModal
 				visible={alertVisible}

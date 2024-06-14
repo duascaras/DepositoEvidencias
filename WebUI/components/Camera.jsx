@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Camera, CameraView, useCameraPermissions } from "expo-camera";
 import * as Clipboard from "expo-clipboard";
-import { Button, Image, Text, TouchableOpacity, View } from "react-native";
+import {
+	Button,
+	Image,
+	Text,
+	TouchableOpacity,
+	View,
+	Modal,
+	StyleSheet,
+} from "react-native";
 import { icons } from "../constants";
 
-export default function CameraComponent({ onClose, onCodeScanned }) {
+export default function CameraComponent({ onClose, onCodeScanned, visible }) {
 	const [permission, requestPermission] = useCameraPermissions();
 	const [hasPermission, setHasPermission] = useState(null);
 
@@ -21,13 +29,24 @@ export default function CameraComponent({ onClose, onCodeScanned }) {
 
 	if (!permission.granted) {
 		return (
-			<View>
-				<Text style={{ textAlign: "center" }}>
-					Por favor, aceite a permissão para utilizar o recurso da
-					Camera.
-				</Text>
-				<Button onPress={requestPermission} title="Aceitar Permissão" />
-			</View>
+			<Modal
+				animationType="slide"
+				transparent={false}
+				visible={visible}
+				onRequestClose={onClose}
+			>
+				<View style={styles.permissionContainer}>
+					<Text style={styles.permissionText}>
+						Por favor, aceite a permissão para utilizar o recurso da
+						Camera.
+					</Text>
+					<Button
+						onPress={requestPermission}
+						title="Aceitar Permissão"
+					/>
+					<Button onPress={onClose} title="Fechar" />
+				</View>
+			</Modal>
 		);
 	}
 
@@ -38,14 +57,57 @@ export default function CameraComponent({ onClose, onCodeScanned }) {
 	};
 
 	return (
-		<View className="p-5">
-			<CameraView onBarcodeScanned={handleCodeScanned}>
-				<View className="p-10">
-					<TouchableOpacity onPress={onClose}>
-						<Image source={icons.disabled} />
-					</TouchableOpacity>
-				</View>
-			</CameraView>
-		</View>
+		<Modal
+			animationType="slide"
+			transparent={false}
+			visible={visible}
+			onRequestClose={onClose}
+		>
+			<View style={styles.cameraContainer}>
+				<CameraView
+					onBarcodeScanned={handleCodeScanned}
+					style={styles.camera}
+				>
+					<View style={styles.closeButtonContainer}>
+						<TouchableOpacity onPress={onClose}>
+							<Image
+								source={icons.disabled}
+								style={styles.closeButton}
+							/>
+						</TouchableOpacity>
+					</View>
+				</CameraView>
+			</View>
+		</Modal>
 	);
 }
+
+const styles = StyleSheet.create({
+	permissionContainer: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		padding: 20,
+	},
+	permissionText: {
+		textAlign: "center",
+		marginBottom: 20,
+	},
+	cameraContainer: {
+		flex: 1,
+	},
+	camera: {
+		flex: 1,
+	},
+	closeButtonContainer: {
+		position: "absolute",
+		bottom: 50,
+		left: 0,
+		right: 0,
+		alignItems: "center",
+	},
+	closeButton: {
+		width: 100,
+		height: 100,
+	},
+});

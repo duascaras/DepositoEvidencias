@@ -56,14 +56,11 @@ const NewAnalysis = ({ onItemCreated }) => {
 	const sendAnalysis = async () => {
 		setIsSubmitting(true);
 		try {
-			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Create-Analysis/2bba2917-f514-4eba-b51c-08b3be49cb6c`;
+			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Analyses/Create-Analysis/1`;
 			const response = await axios.post(API_URL, form);
 
 			if (response.status === 200) {
 				showAlert("Success. Analysis created successfully");
-				if (onItemCreated && typeof onItemCreated === "function") {
-					onItemCreated();
-				}
 				router.push("analysis");
 			} else {
 				showAlert("Something went wrong. Please try again.");

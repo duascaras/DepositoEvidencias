@@ -7,7 +7,6 @@ import { useFocusEffect } from "@react-navigation/native";
 import CustomButton from "../../../components/CustomButton";
 import FormField from "../../../components/FormField";
 import Header from "../../../components/Header";
-import ConfirmationModal from "../../../components/ConfirmationModal";
 import AlertModal from "../../../components/AlertModal";
 
 const NewItem = ({ onItemCreated }) => {
@@ -17,7 +16,6 @@ const NewItem = ({ onItemCreated }) => {
 	});
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [modalVisible, setModalVisible] = useState(false);
 	const [alertVisible, setAlertVisible] = useState(false);
 	const [alertMessage, setAlertMessage] = useState("");
 	const router = useRouter();
@@ -56,8 +54,7 @@ const NewItem = ({ onItemCreated }) => {
 				showAlert("Erro inesperado. Tente novamente");
 			}
 		} catch (error) {
-			showAlert("Você não tem permissão para registrar um item.");
-			router.push("items");
+			showAlert(error.response.data);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -70,19 +67,6 @@ const NewItem = ({ onItemCreated }) => {
 
 	const closeAlert = () => {
 		setAlertVisible(false);
-	};
-
-	const openModal = () => {
-		setModalVisible(true);
-	};
-
-	const closeModal = () => {
-		setModalVisible(false);
-	};
-
-	const confirmSubmit = () => {
-		closeModal();
-		submit();
 	};
 
 	const cancel = () => {
@@ -119,20 +103,13 @@ const NewItem = ({ onItemCreated }) => {
 						/>
 						<CustomButton
 							title="Confirmar"
-							handlePress={openModal}
+							handlePress={submit}
 							containerStyles="flex-1 ml-2 bg-red-500"
 							isLoading={isSubmitting}
 						/>
 					</View>
 				</View>
 			</ScrollView>
-
-			<ConfirmationModal
-				visible={modalVisible}
-				message="Confirmar a criação do item?"
-				onConfirm={confirmSubmit}
-				onCancel={closeModal}
-			/>
 
 			<AlertModal
 				visible={alertVisible}

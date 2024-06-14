@@ -14,6 +14,7 @@ import SearchInput from "../../../components/SearchInput";
 import CustomButton from "../../../components/CustomButton";
 import { useRouter, useFocusEffect } from "expo-router";
 import { icons } from "../../../constants";
+import AlertModal from "../../../components/AlertModal";
 
 const Admin = () => {
 	const [users, setUsers] = useState([]);
@@ -24,6 +25,8 @@ const Admin = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const [filter, setFilter] = useState("active");
+	const [alertVisible, setAlertVisible] = useState(false);
+	const [alertMessage, setAlertMessage] = useState("");
 	const router = useRouter();
 
 	const getUsers = useCallback(
@@ -44,7 +47,7 @@ const Admin = () => {
 				setTotalPages(totalPages);
 				setShowUsers(true);
 			} catch (error) {
-				alert(error);
+				showAlert("Você não tem acesso a este recurso.");
 			} finally {
 				setIsLoading(false);
 			}
@@ -74,22 +77,40 @@ const Admin = () => {
 	}, [query, users]);
 
 	const newUser = () => {
-		router.push({
-			pathname: "admin/register",
-			params: { onItemCreated: getUsers },
-		});
+		try {
+			router.push({
+				pathname: "admin/register",
+				params: { onItemCreated: getUsers },
+			});
+		} catch (error) {
+			showAlert("Você não tem acesso a este recurso.");
+		}
 	};
 
 	const editUser = (user) => {
-		router.push({
-			pathname: `/admin/${user.id}`,
-			params: { id: user.id },
-		});
+		try {
+			router.push({
+				pathname: `/admin/${user.id}`,
+				params: { id: user.id },
+			});
+		} catch (error) {
+			showAlert("Você não tem acesso a este recurso.");
+		}
 	};
 
 	const handleFilterChange = (newFilter) => {
 		setFilter(newFilter);
 		setCurrentPage(1);
+		getUsers(1);
+	};
+
+	const showAlert = (message) => {
+		setAlertMessage(message);
+		setAlertVisible(true);
+	};
+
+	const closeAlert = () => {
+		setAlertVisible(false);
 	};
 
 	return (
@@ -186,6 +207,12 @@ const Admin = () => {
 					containerStyles="w-full"
 				/>
 			</View>
+
+			<AlertModal
+				visible={alertVisible}
+				message={alertMessage}
+				onClose={closeAlert}
+			/>
 		</SafeAreaView>
 	);
 };

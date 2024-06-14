@@ -1,13 +1,15 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import axios from "axios";
 import { SelectList } from "react-native-dropdown-select-list";
 
 import CustomButton from "../../../components/CustomButton";
 import FormField from "../../../components/FormField";
 import Header from "../../../components/Header";
+import AlertModal from "../../../components/AlertModal";
+import ConfirmationModal from "../../../components/ConfirmationModal"; // Importando o ConfirmationModal
 
 const UserDetail = () => {
 	const { id } = useLocalSearchParams();
@@ -20,6 +22,9 @@ const UserDetail = () => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [selectedPermission, setSelectedPermission] = useState("");
 	const [permissionData, setPermissionData] = useState([]);
+	const [modalVisible, setModalVisible] = useState(false);
+	const [modalMessage, setModalMessage] = useState("");
+	const [showConfirmationModal, setShowConfirmationModal] = useState(false); // Estado para controlar a visibilidade do ConfirmationModal
 	const router = useRouter();
 
 	useEffect(() => {
@@ -52,31 +57,49 @@ const UserDetail = () => {
 
 					setPermissionData(updatedRoles);
 				} else {
-					alert("Error");
+					setModalMessage("Erro ao buscar dados do usuário.");
+					setModalVisible(true);
 				}
 			} catch (error) {
-				alert(error.response.data);
+				setModalMessage(
+					error.response?.data || "Erro ao buscar dados do usuário."
+				);
+				setModalVisible(true);
 			}
 		};
 		getUser();
 	}, [id]);
 
-	const inactivateUser = async () => {
+	const handleInactivateUser = () => {
+		setShowConfirmationModal(true);
+	};
+
+	const confirmInactivateUser = async () => {
 		try {
 			const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/desativar-ativar-usuario?username=${form.username}`;
 			const response = await axios.put(API_URL, {
 				username: form.username,
 			});
 			if (response.status === 200) {
-				alert("User inactivated successfully.");
+				setModalMessage("Usuário (in)ativado com sucesso.");
+				setModalVisible(true);
 				router.push("/(tabs)/admin");
 			} else {
-				alert("Failed to inactivate user. Please try again.");
+				setModalMessage(
+					"Erro. Falha ao tentar inativar usuário, tente novamente."
+				);
+				setModalVisible(true);
 			}
 		} catch (error) {
-			alert("Failed to inactivate user. Please try again.");
+			setModalMessage(
+				"Erro. Falha ao tentar inativar usuário, tente novamente."
+			);
+			setModalVisible(true);
+		} finally {
+			setShowConfirmationModal(false);
 		}
 	};
+
 	const updateUser = async () => {
 		setIsSubmitting(true);
 
@@ -88,13 +111,20 @@ const UserDetail = () => {
 			});
 
 			if (response.status === 200) {
-				alert("User updated successfully.");
+				setModalMessage("Usuário atualizado com sucesso.");
+				setModalVisible(true);
 				router.push("/(tabs)/admin");
 			} else {
-				alert("Failed to update user. Please try again.");
+				setModalMessage(
+					"Erro. Falha ao tentar atualizar usuário, tente novamente."
+				);
+				setModalVisible(true);
 			}
 		} catch (error) {
-			alert("Failed to update user. Please try again.");
+			setModalMessage(
+				"Erro. Falha ao tentar atualizar usuário, tente novamente."
+			);
+			setModalVisible(true);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -112,7 +142,8 @@ const UserDetail = () => {
 			});
 
 			if (response.status === 200) {
-				alert("Password updated successfully.");
+				setModalMessage("Senha alterada com sucesso.");
+				setModalVisible(true);
 				setForm((prevForm) => ({
 					...prevForm,
 					newPassword: "",
@@ -120,55 +151,20 @@ const UserDetail = () => {
 				}));
 				router.push("/(tabs)/admin");
 			} else {
-				alert("Failed to update password. Please try again.");
+				setModalMessage(
+					"Erro. Falha ao tentar atualizar senha, tente novamente."
+				);
+				setModalVisible(true);
 			}
 		} catch (error) {
-			alert("Failed to update password. Please try again.");
+			setModalMessage(
+				"Erro. Falha ao tentar atualizar senha, tente novamente."
+			);
+			setModalVisible(true);
 		} finally {
 			setIsSubmitting(false);
 		}
 	};
-
-	useFocusEffect(
-		useCallback(() => {
-			const fetchData = async () => {
-				try {
-					const API_URL = `${process.env.EXPO_PUBLIC_BASE_URL}Account/get-user/${id}`;
-					const response = await axios.get(API_URL);
-					if (response.status === 200) {
-						const userData = response.data;
-						const roles = userData.roles;
-						setForm((prevForm) => ({
-							...prevForm,
-							username: userData.userName,
-							roles: roles,
-						}));
-						setSelectedPermission(roles);
-
-						const allRoles = [
-							{ key: "1", value: "Admin" },
-							{ key: "2", value: "ItemCreator" },
-							{ key: "3", value: "ItemAnalyzer" },
-						];
-
-						const updatedRoles = allRoles.map((role) => {
-							if (roles.includes(role.value)) {
-								return { ...role, disabled: true };
-							}
-							return role;
-						});
-
-						setPermissionData(updatedRoles);
-					} else {
-						alert("Error");
-					}
-				} catch (error) {
-					alert(error.response.data);
-				}
-			};
-			fetchData();
-		}, [id])
-	);
 
 	return (
 		<SafeAreaView className="bg-soft_white h-full">
@@ -258,12 +254,23 @@ const UserDetail = () => {
 					</View>
 
 					<CustomButton
-						title="Inativar Usuário"
-						handlePress={inactivateUser}
+						title="Ativar/Inativar Usuário"
+						handlePress={handleInactivateUser} // Ao clicar, exibirá o modal de confirmação
 						containerStyles={"self-center bottom-0 p-4 w-96 mb-10"}
 					/>
 				</View>
 			</ScrollView>
+			<AlertModal
+				visible={modalVisible}
+				message={modalMessage}
+				onClose={() => setModalVisible(false)}
+			/>
+			<ConfirmationModal
+				visible={showConfirmationModal}
+				message="Tem certeza que deseja (in)ativar este usuário?"
+				onConfirm={confirmInactivateUser}
+				onCancel={() => setShowConfirmationModal(false)}
+			/>
 		</SafeAreaView>
 	);
 };

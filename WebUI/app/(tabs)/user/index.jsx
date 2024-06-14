@@ -6,7 +6,6 @@ import FormField from "../../../components/FormField";
 import CustomButton from "../../../components/CustomButton";
 import Header from "../../../components/Header";
 import { useRouter } from "expo-router";
-import ConfirmationModal from "../../../components/ConfirmationModal";
 import AlertModal from "../../../components/AlertModal";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -17,7 +16,6 @@ const ChangePassword = () => {
 		confirmedPassword: "",
 	});
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [modalVisible, setModalVisible] = useState(false);
 	const [alertVisible, setAlertVisible] = useState(false);
 	const [alertMessage, setAlertMessage] = useState("");
 	const router = useRouter();
@@ -72,19 +70,6 @@ const ChangePassword = () => {
 		}
 	};
 
-	const openModal = () => {
-		setModalVisible(true);
-	};
-
-	const closeModal = () => {
-		setModalVisible(false);
-	};
-
-	const confirmChangePassword = () => {
-		closeModal();
-		handleChangePassword();
-	};
-
 	const showAlert = (message) => {
 		setAlertMessage(message);
 		setAlertVisible(true);
@@ -135,7 +120,7 @@ const ChangePassword = () => {
 							/>
 							<CustomButton
 								title="Confirmar"
-								handlePress={openModal}
+								handlePress={handleChangePassword}
 								containerStyles="flex-1 ml-2 bg-red-500"
 								isLoading={isSubmitting}
 							/>
@@ -143,13 +128,6 @@ const ChangePassword = () => {
 					</View>
 				</View>
 			</ScrollView>
-
-			<ConfirmationModal
-				visible={modalVisible}
-				message="Confirmar esta ação?"
-				onConfirm={confirmChangePassword}
-				onCancel={closeModal}
-			/>
 
 			<AlertModal
 				visible={alertVisible}

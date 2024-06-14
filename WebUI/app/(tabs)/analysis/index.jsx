@@ -94,6 +94,12 @@ const Analysis = () => {
 		getAnalyses(1);
 	};
 
+	const viewEndedAnalysis = (analysis) => {
+		router.push({
+			pathname: `/analysis/ended-analysis/${analysis.id}`,
+		});
+	};
+
 	return (
 		<SafeAreaView className="bg-soft_white h-full relative">
 			<Header title={"Análises"} />
@@ -158,14 +164,19 @@ const Analysis = () => {
 										resizeMode="contain"
 									/>
 									{filter === "inactive" ? (
-										<View className="ml-4 flex-1">
+										<TouchableOpacity
+											className="ml-4 flex-1"
+											onPress={() =>
+												viewEndedAnalysis(item)
+											}
+										>
 											<Text className="text-lg text-black font-pregular">
 												{item.itemId}
 											</Text>
 											<Text className="text-gray-500">
 												por: {item.writtenUserId}
 											</Text>
-										</View>
+										</TouchableOpacity>
 									) : (
 										<>
 											<TouchableOpacity
