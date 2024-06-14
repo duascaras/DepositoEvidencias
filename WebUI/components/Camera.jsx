@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Camera, CameraView, useCameraPermissions } from "expo-camera";
 import * as Clipboard from "expo-clipboard";
-import {
-	Button,
-	Image,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	View,
-} from "react-native";
+import { Button, Image, Text, TouchableOpacity, View } from "react-native";
 import { icons } from "../constants";
 
 export default function CameraComponent({ onClose, onCodeScanned }) {
@@ -47,9 +40,11 @@ export default function CameraComponent({ onClose, onCodeScanned }) {
 	return (
 		<View className="p-5">
 			<CameraView onBarcodeScanned={handleCodeScanned}>
-				<TouchableOpacity onPress={onClose}>
-					<Image source={icons.disabled} />
-				</TouchableOpacity>
+				<View className="p-10">
+					<TouchableOpacity onPress={onClose}>
+						<Image source={icons.disabled} />
+					</TouchableOpacity>
+				</View>
 			</CameraView>
 		</View>
 	);
