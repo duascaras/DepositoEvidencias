@@ -1,70 +1,68 @@
-# Depósito Evidências
+# Depósito de Evidências
 
-## WebUI Annotations
+## Visão Geral
 
--   Expo Docs: https://docs.expo.dev/router/installation/ - https://expo.dev/
--   Nativewind Docs: https://www.nativewind.dev/quick-starts/expo
--   Nativewind to run on web: https://github.com/marklawlor/nativewind/issues/470
+Este projeto foi desenvolvido como parte do nosso Trabalho de Conclusão de Curso (TCC) para auxiliar a Polícia Civil de Sorocaba no rastreamento e gestão de evidências criminais. O sistema roda tanto na Web quanto em dispositivos móveis, razão pela qual o React Native foi escolhido para o frontend. A aplicação permite o cadastro de evidências, geração e leitura de QR Codes e atualização do status ao longo da análise pericial.
 
-To create the environment, run:
+## Tecnologias
 
-```
-npx create-expo-app
-npx expo installt expo-router reac-native-safe-area-context react-native-screens expo-linking expo-constants expo-status-bar
-npx expo install react-native-web react-dom
-npm install
-```
+- **Frontend**: React Native (Expo), JavaScript, Tailwind CSS
+- **Backend**: C# (.NET 8, ASP.NET), Entity Framework, Identity
 
-package.json configuration:
+## Funcionalidades
 
-```
-"main": "expo-router/entry",
-```
+- **Cadastro de evidências**: Registra novas evidências no sistema.
+- **Geração de QR Code**: Cada evidência recebe um QR Code único para rastreamento.
+- **Leitura de QR Code**: Uso da câmera do dispositivo para leitura e identificação rápida da evidência.
+- **Listagem de evidências**: Exibe todas as evidências cadastradas no sistema.
+- **Atualização de status**: O status da evidência pode ser alterado conforme o andamento da análise pericial:
+    - Aguardando Análise
+    - Em Análise
+    - Análise Finalizada
 
-app.json configuration:
+## Fluxo de Uso
 
-```
-"name": "Deposito-Evidencias",
-"slug": "Deposito-Evidencias",
-"scheme": "deposito-evidencias",
-"web": {
-    "bundler": "metro",
-```
+1. Um policial cadastra uma nova evidência no sistema.
+2. O sistema gera um QR Code que pode ser impresso e anexado à evidência.
+3. Quando um perito retira a evidência para análise, ele escaneia o QR Code e atualiza o status para "Em Análise".
+4. Após a análise, o perito registra seus comentários e devolve a evidência, alterando o status e finalizando a análise.
 
-nativewind configuration:
+---
 
-```
-npm install nativewind
-npm install --save-dev tailwindcss@3.3.2
-npx tailwindcss init <!-- to create tailwind.config.js file -->
+Desenvolvido por [Gustavo Pereira](https://github.com/duascaras) e [Matheus Branco](https://github.com/TheMBS7), como nosso TCC.
 
-<!-- tailwind.config.js -->
-+ content: ["./app/**/*.{js,jsx,ts,tsx}", "./<components>/**/*.{js,jsx,ts,tsx}"],
+---
 
-<!-- babel.config.js -->
-plugins: ["nativewind/babel"],
-```
+# Evidence Repository
 
-axios installation
+## Overview
 
-```
-npm install axios
-```
+This project was developed as our undergraduate thesis (TCC) to assist the Civil Police of Sorocaba in tracking and managing criminal evidence. The system runs on both the web and mobile devices, which is why React Native was chosen for the frontend. It allows evidence registration, QR Code generation and scanning, and status updates throughout the forensic analysis process.
 
-expo-secure-store: Package that we use to store the JWT after getting from the API.
+## Technologies
 
-```
-npx expo install expo-secure-store
+- **Frontend**: React Native (Expo), JavaScript, Tailwind CSS
+- **Backend**: C# (.NET 8, ASP.NET), Entity Framework, Identity
 
-<!-- app.json -->
-"plugins": [
-  ...
-  "expo-secure-store"
-]
-```
+## Features
 
-qrcode generator
+- **Evidence registration**: Add new evidence to the system.
+- **QR Code generation**: Each piece of evidence receives a unique QR Code for tracking.
+- **QR Code scanning**: Uses the device camera for quick identification of evidence.
+- **Evidence listing**: Displays all registered evidence.
+- **Status updates**: The evidence status can be changed as the forensic analysis progresses:
+    - Awaiting Analysis
+    - Under Analysis
+    - Analysis Completed
 
-```
-https://snack.expo.dev/@duascaras/ffb3af
-```
+## Usage Flow
+
+1. A police officer registers new evidence in the system.
+2. The system generates a QR Code that can be printed and attached to the evidence.
+3. When a forensic expert retrieves the evidence for analysis, they scan the QR Code and update the status to "Under Analysis."
+4. After the analysis, the expert records their observations and returns the evidence, updating the status and completing the analysis.
+
+---
+
+Developed by [Gustavo Pereira](https://github.com/duascaras) and [Matheus Branco](https://github.com/TheMBS7) as our undergraduate thesis.
+
